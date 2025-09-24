@@ -312,10 +312,7 @@ td em {
 #milestoneContainer {
   position:absolute;
   margin: 1% 2%;
-  border: 5px solid black;
   border-radius: 15px;
-  max-width: 94%;
-  width: 500px;
   aspect-ratio: 500 / 1000;
 }
 
