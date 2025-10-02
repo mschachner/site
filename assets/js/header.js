@@ -2,7 +2,7 @@ let appHeader = `
       <nav>
         <h1><a href="index.html" class="navbar"> Mark Schachner </a></h1>
         <ul>
-          <li><a class="navbar fancy-underline" href="index.html">
+          <li><a class= "navbar fancy-underline" href="index.html">
             Home</a></li>
           <li><a class= "navbar fancy-underline" href="research.html">
             Research</a></li>
