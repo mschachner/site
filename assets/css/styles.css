@@ -1,14 +1,51 @@
 /* all pages */
 
+:root {
+  /* Dark Mode (Default) */
+  --bg-primary: #202020;
+  --bg-navbar: #303e37;
+  --text-primary: rgb(208, 190, 166);
+  --text-header: antiquewhite;
+  --text-navbar: antiquewhite;
+  --text-accent: burlywood;
+  --link-visited: goldenrod;
+  --link-active: gold;
+  --border-primary: rgba(115, 115, 115, 0.297);
+  --font-weight-header: 100;
+  --font-weight-body: 400;
+}
+
+[data-theme="light"] {
+  /* Light Mode */
+  --bg-primary: hsl(40, 100%, 95%);
+  --bg-navbar: hsl(150, 13%, 40%);
+  --text-primary: #303e37;
+  --text-header: #303e37;
+  --text-navbar: antiquewhite;
+  --text-accent: #8b5a2b;
+  --link-visited: #b86b12;
+  --link-active: #d4af37;
+  --border-primary: rgba(0, 0, 0, 0.2);
+  --font-weight-header: 400;
+  --font-weight-body: 500;
+}
+
 * {
   margin: 0;
   padding: 0;
-  background-color: #202020;
-  /* --navbar-color: rgba(65, 49, 65, 0.7); */
-  --navbar-color: rgba(49, 63, 55, 0.7);
-  --text-color: rgb(208, 190, 166);
-  --header-color: antiquewhite;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   font-family: "Nunito", "Verdana";
+}
+
+/* Disable transitions when .no-transition class is on html element */
+.no-transition * {
+  transition: none !important;
+}
+
+/* Exclude SVGs in the theme toggle from the global transition to prevent color flicker */
+#theme-toggle svg, #theme-toggle * {
+  transition: none;
 }
 
 main {
@@ -17,16 +54,17 @@ main {
   margin-bottom: 100px;
 }
 
-p {
-  color: var(--text-color);
+p, li {
+  color: var(--text-primary);
   padding-left: 30px;
   padding-right: 30px;
   line-height: 1.5;
+  font-weight: var(--font-weight-body);
 }
 
 h1, h2, h3, h4 {
-  color: var(--header-color);
-  font-weight: 100;
+  color: var(--text-header);
+  font-weight: var(--font-weight-header);
   padding: 10px 20px;
 }
 
@@ -43,7 +81,7 @@ h3 {
 }
 
 h4 {
-  color: burlywood;
+  color: var(--text-accent);
   font-size: 15pt;
   font-style: italic;
 }
@@ -51,7 +89,7 @@ h4 {
 ul, ol {
   line-height: 1.5;
   padding-left: 50px;
-  color: var(--text-color);
+  color: var(--text-primary);
 }
 
 img {
@@ -62,47 +100,47 @@ img {
 /* links */
 
 a:link {
-  color: var(--text-color);
+  color: var(--text-primary);
 }
 
 a:visited {
-  color: goldenrod;
+  color: var(--link-visited);
 }
 
 a:hover {
-  color: var(--header-color);
+  color: var(--text-header);
 }
 
 a:active {
-  color: gold;
+  color: var(--link-active);
 }
 
 /* navbar links */
 a:link.navbar {
   text-decoration: none;
-  color: var(--header-color);
+  color: var(--text-navbar);
 }
 
 a:visited.navbar {
   text-decoration: none;
-  color: var(--header-color);
+  color: var(--text-navbar);
 }
 
 a:hover.navbar {
   text-decoration: none;
-  color: var(--text-color);
+  color: var(--text-navbar);
 }
 
 a:active.navbar {
   text-decoration: none;
-  color: gold;
+  color: var(--text-navbar);
 }
 
 
 /* nav */
 
 nav {
-  background-color: var(--navbar-color);
+  background-color: var(--bg-navbar);
   backdrop-filter: blur(6px);
   position: fixed;
   width: 100%;
@@ -111,9 +149,10 @@ nav {
   border-bottom-left-radius: 20px;
 }
 
+/* Remove background and blur from children to fix layering issues */
 nav * {
-  background-color: var(--navbar-color);
-  backdrop-filter: blur(2px);
+  background-color: transparent;
+  backdrop-filter: none;
 }
 
 nav ul {
@@ -121,7 +160,7 @@ nav ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: left;
-  border-bottom: 2px solid rgba(115, 115, 115, 0.297);
+  border-bottom: 2px solid var(--border-primary);
   border-bottom-left-radius: 20px;
 }
 
@@ -138,6 +177,8 @@ nav ul li {
 
 .fancy-underline {
   display: inline-block;
+  font-weight: var(--font-weight-body);
+  color: var(--text-navbar);
 }
 
 .fancy-underline::after {
@@ -146,7 +187,7 @@ nav ul li {
   height: 1px;
   margin: 0 auto;
   display: block;
-  background: var(--header-color);
+  background: var(--text-navbar);
   transition: 200ms;
 }
 
@@ -159,7 +200,7 @@ nav ul li {
 /* Home page */
 
 #home-container p {
-  width: 50%;
+  width: 100%;
 }
 
 .img-home {
@@ -218,10 +259,10 @@ table {
 }
 
 th, td {
-  color: var(--header-color);
-  border: 1px solid var(--header-color);
+  color: var(--text-navbar);
+  border: 1px solid var(--text-navbar);
   padding: 10px;
-  background-color: var(--navbar-color);
+  background-color: var(--bg-navbar);
 }
 
 td em {
@@ -351,11 +392,3 @@ td em {
     width: 70%;
   }
 }
-
-
-
-
-
-
-
-
