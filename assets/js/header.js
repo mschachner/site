@@ -41,6 +41,8 @@ let appHeader = `
             Movie night</a></li>
           <li><a class= "navbar fancy-underline" href="milestone.html">
             Milestone</a></li>
+          <li><a class= "navbar fancy-underline" href="leaper.html">
+            Leaper</a></li>
         </ul>
         </nav>
 `;

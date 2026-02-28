@@ -357,6 +357,16 @@ td em {
   aspect-ratio: 500 / 1000;
 }
 
+/* Leaper page */
+
+
+#img-leaper {
+  width:50%;
+  padding: 30px;
+  border-radius: 10px;
+  float:right;
+}
+
 /* Responsiveness */
 
 @media only screen and (max-width: 810px) {
