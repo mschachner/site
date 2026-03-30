@@ -39,10 +39,8 @@ let appHeader = `
             Logic student seminar </a></li>
           <li><a class= "navbar fancy-underline" href="movienight.html">
             Movie night</a></li>
-          <li><a class= "navbar fancy-underline" href="milestone.html">
-            Milestone</a></li>
-          <li><a class= "navbar fancy-underline" href="leaperpage.html">
-            Leaper</a></li>
+          <li><a class= "navbar fancy-underline" href="projects.html">
+            Personal projects</a></li>
         </ul>
         </nav>
 `;
