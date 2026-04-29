@@ -50,7 +50,7 @@
 
 main {
   margin-top: 100px;
-  max-width: 1500px;
+  max-width: 100vw;
   margin-bottom: 100px;
 }
 
@@ -343,22 +343,19 @@ td em {
 
 /* Milestone page */
 
-#milestone {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
+#milestone-container {
+  height: 10000px;
 }
 
-#milestoneContainer {
-  position:absolute;
-  margin: 1% 2%;
-  border-radius: 15px;
-  aspect-ratio: 500 / 1000;
+
+#milestone-iframe {
+  margin: 25px;
+  min-width: 65vw;
+  min-height: 90vh;
+  max-width: 100%;
 }
 
 /* Leaper page */
-
 
 #img-leaper {
   width:50%;
@@ -368,6 +365,33 @@ td em {
 }
 
 /* Responsiveness */
+
+@media only screen and (max-width: 990px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 75vh;
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 710px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 1100px;
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 440px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 100vh;
+    max-width: 100%;
+  }
+}
 
 @media only screen and (max-width: 810px) {
   main {
@@ -385,6 +409,8 @@ td em {
   }
 
 }
+
+
 
 @media only screen and (max-width: 1200px) {
   .img-research {
