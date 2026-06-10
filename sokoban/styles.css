@@ -167,6 +167,7 @@ main {
   font-variant-numeric: tabular-nums;
   font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
 }
 #timer.off { color: var(--muted); }
 
@@ -544,19 +545,34 @@ button.danger:hover { background: color-mix(in srgb, #b4524b 10%, transparent); 
 /* ---------- responsive ---------- */
 
 @media (max-width: 640px) {
-  .topbar { padding: 12px 14px; gap: 10px; }
-  .controls { margin-left: 0; }
-  .hud { grid-template-columns: auto 1fr auto; }
+  .topbar { padding: 12px 14px; gap: 10px; justify-content: center; }
+  .logo { flex-basis: 100%; text-align: center; }
+  .controls { margin-left: 0; justify-content: center; }
+  .icons { justify-content: center; }
+
+  /* stats on one centered row, action buttons on a centered row below —
+     keeps "N moves · optimal M" from wrapping mid-phrase */
+  .hud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 0;
+  }
+  .hud-right { flex-basis: 100%; justify-content: center; }
+
+  .hint { margin-top: 10px; }
 }
 
-/* ---------- touch devices ---------- */
+/* ---------- touch / small-screen target sizing ---------- */
 
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 640px) {
   /* ≥44px targets throughout */
-  button.icon { width: 44px; height: 44px; font-size: 18px; }
-  button.icon.small { width: 40px; height: 40px; font-size: 16px; }
-  button.primary { padding: 11px 22px; }
-  select { padding: 10px 12px; font-size: 15px; }
+  button.icon { width: 44px; height: 44px; font-size: 20px; }
+  button.icon.small { width: 44px; height: 44px; font-size: 17px; }
+  button.primary { padding: 11px 22px; font-size: 16px; }
+  select { padding: 10px 12px; font-size: 16px; } /* ≥16px also stops iOS focus-zoom */
   .controls label { gap: 8px; }
   .hud-right { gap: 8px; }
   .chip { padding: 11px 15px; font-size: 14px; }
@@ -565,7 +581,13 @@ button.danger:hover { background: color-mix(in srgb, #b4524b 10%, transparent); 
   .color-row input[type="color"] { width: 38px; height: 38px; }
   .slider-row input { height: 44px; }
   button.danger { padding: 12px 14px; }
+}
 
+/* ---------- touch devices ---------- */
+
+@media (pointer: coarse) {
   .hint .key-hint { display: none; }
   .hint .touch-hint { display: inline; }
+  /* keyboard shortcut chips mean nothing on touch */
+  .card kbd { display: none; }
 }
