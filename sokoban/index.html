@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eee9dc">
+  <title>sokoban</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='15' y='15' width='70' height='70' rx='22' fill='%23c0784e'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">sokoban<span>.</span></h1>
+    <div class="controls">
+      <label>difficulty
+        <select id="difficulty">
+          <option value="easy">easy</option>
+          <option value="medium" selected>medium</option>
+          <option value="hard">hard</option>
+          <option value="expert">expert</option>
+        </select>
+      </label>
+      <label>boxes
+        <select id="boxes">
+          <option>1</option><option>2</option><option selected>3</option>
+          <option>4</option><option>5</option><option>6</option>
+        </select>
+      </label>
+      <label>size
+        <select id="size">
+          <option value="s">small</option>
+          <option value="m" selected>medium</option>
+          <option value="l">large</option>
+          <option value="xl">extra large</option>
+        </select>
+      </label>
+      <button id="newBtn" class="primary">new</button>
+    </div>
+    <div class="icons">
+      <button id="themeBtn" class="icon" title="theme (t)">◐</button>
+      <button id="scoresBtn" class="icon" title="scores (g)">★</button>
+      <button id="helpBtn" class="icon" title="help (?)">?</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hud">
+      <div class="hud-left">
+        <button id="timerToggle" class="icon small" title="toggle timer">⏱</button>
+        <span id="timer" class="stat">0:00</span>
+      </div>
+      <div class="hud-mid">
+        <span id="moveStat" class="stat">…</span>
+        <span id="rating" class="rating"></span>
+      </div>
+      <div class="hud-right">
+        <button id="undoBtn" class="icon" title="undo (z)">↶</button>
+        <button id="redoBtn" class="icon" title="redo (y)">↷</button>
+        <button id="resetBtn" class="icon" title="reset (r)">⟲</button>
+        <button id="pauseBtn" class="icon" title="pause (p)">⏸</button>
+      </div>
+    </div>
+
+    <div id="boardWrap">
+      <div id="board">
+        <div id="tiles"></div>
+        <div id="entities"></div>
+      </div>
+      <div id="overlay" class="overlay hidden"></div>
+    </div>
+
+    <p class="hint">arrows to move · <kbd>z</kbd> undo · <kbd>r</kbd> reset · <kbd>enter</kbd> new · <kbd>?</kbd> help</p>
+  </main>
+
+  <aside id="panel" class="panel hidden"></aside>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
