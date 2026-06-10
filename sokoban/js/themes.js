@@ -42,8 +42,8 @@ export const PRESETS = {
     anim: 120,
     dark: true,
     colors: {
-      bg: '#171a21', surface: '#242935', player: '#8ab4f8', box: '#d8a657',
-      boxDone: '#89b482', goal: '#3b4254', text: '#e3e6ec', muted: '#79808f',
+      bg: '#434856', surface: '#171c26', player: '#8ab4f8', box: '#d8a657',
+      boxDone: '#89b482', goal: '#3b4254', text: '#e3e6ec', muted: '#a7a8a9',
       accent: '#8ab4f8',
     },
   },
@@ -83,7 +83,7 @@ export const PRESETS = {
     anim: 120,
     dark: true,
     colors: {
-      bg: '#201613', surface: '#2f221b', player: '#e8a87c', box: '#a8552f',
+      bg: '#6b3424', surface: '#2f221b', player: '#e8a87c', box: '#a8552f',
       boxDone: '#8aa05a', goal: '#4a3527', text: '#f0e4da', muted: '#a08977',
       accent: '#e8a87c',
     },
@@ -94,7 +94,7 @@ export const PRESETS = {
     anim: 130,
     dark: true,
     colors: {
-      bg: '#141d16', surface: '#1f2c22', player: '#8fc97a', box: '#c9a45a',
+      bg: '#4d5c50', surface: '#1f2c22', player: '#8fc97a', box: '#c9a45a',
       boxDone: '#6fae8f', goal: '#3a4a38', text: '#e2ead9', muted: '#7f9180',
       accent: '#8fc97a',
     },
@@ -105,7 +105,7 @@ export const PRESETS = {
     anim: 100,
     dark: true,
     colors: {
-      bg: '#191919', surface: '#242424', player: '#e8e8e8', box: '#6f6a64',
+      bg: '#504e4e', surface: '#242424', player: '#e8e8e8', box: '#6f6a64',
       boxDone: '#e8e8e8', goal: '#3a3a3a', text: '#ededed', muted: '#8b8b8b',
       accent: '#e2574c',
     },
@@ -116,7 +116,7 @@ export const PRESETS = {
     anim: 130,
     dark: true,
     colors: {
-      bg: '#1b1722', surface: '#272132', player: '#a78bda', box: '#cf8d6a',
+      bg: '#494158', surface: '#272132', player: '#a78bda', box: '#cf8d6a',
       boxDone: '#7fae8c', goal: '#3c3450', text: '#e8e3f0', muted: '#8d85a0',
       accent: '#a78bda',
     },
