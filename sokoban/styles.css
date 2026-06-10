@@ -25,6 +25,8 @@ html, body { height: 100%; }
 
 body {
   margin: 0;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
   background: var(--bg);
   color: var(--text);
   font-family: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN",
@@ -42,6 +44,9 @@ button {
   background: none;
   cursor: pointer;
 }
+
+/* avoid the 300ms double-tap-zoom delay on controls */
+button, select, label { touch-action: manipulation; }
 
 kbd {
   font: 600 0.78em ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -186,6 +191,12 @@ main {
   justify-content: center;
   flex: 1;
   width: 100%;
+  /* the board is the swipe surface: no scrolling, selection, or long-press
+     callout while gesturing on it */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #board {
@@ -386,6 +397,7 @@ main {
   margin: 14px 0 4px;
   text-align: center;
 }
+.hint .touch-hint { display: none; }
 
 /* ---------- panel ---------- */
 
@@ -535,4 +547,25 @@ button.danger:hover { background: color-mix(in srgb, #b4524b 10%, transparent); 
   .topbar { padding: 12px 14px; gap: 10px; }
   .controls { margin-left: 0; }
   .hud { grid-template-columns: auto 1fr auto; }
+}
+
+/* ---------- touch devices ---------- */
+
+@media (pointer: coarse) {
+  /* ≥44px targets throughout */
+  button.icon { width: 44px; height: 44px; font-size: 18px; }
+  button.icon.small { width: 40px; height: 40px; font-size: 16px; }
+  button.primary { padding: 11px 22px; }
+  select { padding: 10px 12px; font-size: 15px; }
+  .controls label { gap: 8px; }
+  .hud-right { gap: 8px; }
+  .chip { padding: 11px 15px; font-size: 14px; }
+  .card-actions button { padding: 12px 20px; }
+  .color-row { min-height: 44px; }
+  .color-row input[type="color"] { width: 38px; height: 38px; }
+  .slider-row input { height: 44px; }
+  button.danger { padding: 12px 14px; }
+
+  .hint .key-hint { display: none; }
+  .hint .touch-hint { display: inline; }
 }

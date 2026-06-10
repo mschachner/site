@@ -5,6 +5,41 @@ const MOVES = {
   k: 'up', j: 'down', h: 'left', l: 'right',
 };
 
+// Touch handling. A swipe moves one step; keeping the finger down and
+// dragging keeps moving, since the origin resets after each step fires.
+const SWIPE_MIN = 28; // px of travel per step
+
+export function bindTouch(el, actions) {
+  let id = null;
+  let sx = 0;
+  let sy = 0;
+
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    id = e.pointerId;
+    sx = e.clientX;
+    sy = e.clientY;
+  });
+  el.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== id) return;
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    if (Math.abs(dx) < SWIPE_MIN && Math.abs(dy) < SWIPE_MIN) return;
+    actions.move(
+      Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? 'right' : 'left')
+        : (dy > 0 ? 'down' : 'up')
+    );
+    sx = e.clientX;
+    sy = e.clientY;
+  });
+  const end = (e) => {
+    if (e.pointerId === id) id = null;
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
 export function bindKeys(actions) {
   window.addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;

@@ -1,6 +1,6 @@
 import { Game } from './engine.js';
 import { Renderer } from './render.js';
-import { bindKeys } from './input.js';
+import { bindKeys, bindTouch } from './input.js';
 import { generateAsync, SIZES } from './generator.js';
 import { PRESETS, COLOR_KEYS, applyTheme, cssName } from './themes.js';
 import {
@@ -529,6 +529,7 @@ function buildHelpPanel() {
     <p class="panel-sub">push every box onto a goal dot.</p>
     <div class="key-list">
       <div><kbd>↑↓←→</kbd> / <kbd>wasd</kbd> / <kbd>hjkl</kbd><span>move</span></div>
+      <div><kbd>swipe</kbd><span>move (touch) — hold &amp; drag to keep moving</span></div>
       <div><kbd>z</kbd> / <kbd>u</kbd><span>undo</span></div>
       <div><kbd>y</kbd> / <kbd>shift z</kbd><span>redo</span></div>
       <div><kbd>r</kbd><span>reset puzzle</span></div>
@@ -594,6 +595,7 @@ function init() {
   });
 
   bindKeys(actions);
+  bindTouch($('boardWrap'), actions);
   // First puzzle is generated from the start dialog, not automatically.
   showOverlay('start');
   syncHud();
