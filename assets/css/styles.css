@@ -239,6 +239,10 @@ nav ul li {
 
 /* Teaching & outreach page */
 
+#portfolio-note {
+  margin-top: 125px;
+}
+
 #teaching-container {
   max-width: 1000px;
 }
@@ -416,6 +420,10 @@ td em {
     top: 180px;
   }
 
+  #portfolio-note {
+    margin-top: 150px;
+  }
+
 }
 
 @media only screen and (max-width: 710px) {
@@ -438,6 +446,10 @@ td em {
 
   .theme-name {
     top: 220px;
+  }
+
+  #portfolio-note {
+    margin-top: 190px;
   }
 
 }
