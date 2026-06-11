@@ -199,35 +199,45 @@ nav ul li {
 
 /* Home page */
 
-#home-container p {
-  width: 100%;
+#home {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 .img-home {
-  margin: 25px;
+  margin: 50px 25px auto 25px;
   width: 35%;
-  float: right;
+  height: auto;
+}
+
+.p-home {
+  max-width: 850px;
 }
 
 
 /* Research page */
 
+#research-container {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
 #img-research {
   float: right;
-  margin: 50px;
+  margin: 25px 25px auto 25px;
   min-width: 300px;
   width: 40%;
 }
 
-#research-container p {
-  width: 90%;
+#research-body {
+  max-width: 850px;
 }
 
-#research-container li {
-  width: 60%;
-}
 
-/* Teaching & Outreach page */
+
+/* Teaching & outreach page */
 
 #teaching-container {
   max-width: 1000px;
@@ -271,73 +281,54 @@ td em {
 
 /* Movie night page */
 
-
 .season {
   display: flex;
+  flex-wrap: wrap;
 }
-
-.theme {
-  flex: 0 0 350px;
-}
-
 
 .season-name {
   position: sticky;
-  z-index: 8;
-  top: 100px;
+  top: 102.5px;
+  z-index: 80;
 }
 
 .theme-name {
   position: sticky;
-  z-index: 3;
   top: 150px;
+  z-index: 3;
 }
 
 #movie-list {
-  width: 1500px;
+  max-width: 850px;
 }
 
-.movie-chunk {
-  padding-right: 0;
+.theme, .unthemed {
+  width: 300px;
+}
+
+.unthemed-season .unthemed {
+  width: 80%;
 }
 
 .movie-chunk-unthemed {
   position: relative;
   z-index: 7;
-  flex: 0 0 320px;
 }
 
 .in-themed {
   padding-top: 50px;
-  margin-left: 30px;
 }
 
-.img-movienight {
-  position: relative;
-  margin: 25px;
-  width: 70%;
-  z-index: 9;
+.movie {
+  padding-left: 25px;
+  text-indent: 1em hanging;
 }
 
-/* Movie night page overhauled */
-#postercollage-container {
-  display: flex;
-  flex-flow: row wrap;
-  background-color: transparent;
-  max-height: 800px;
-  margin-left: 25px;
-}
 
-.img-movieposter {
-  width: 15%;
-  overflow: hidden;
-  transition: 0.1s ease;
-  margin: 10px;
-  display: block;
-}
+/* Projects page */
 
-.img-movieposter:hover {
-  transform: scale(1.1); 
+#projects-container {
+  max-width: 1000px;
 }
 
 
@@ -366,51 +357,6 @@ td em {
 
 /* Responsiveness */
 
-@media only screen and (max-width: 990px) {
-  #milestone-iframe {
-    margin: 25px;
-    min-width: 90vw;
-    min-height: 75vh;
-    max-width: 100%;
-  }
-}
-
-@media only screen and (max-width: 710px) {
-  #milestone-iframe {
-    margin: 25px;
-    min-width: 90vw;
-    min-height: 1100px;
-    max-width: 100%;
-  }
-}
-
-@media only screen and (max-width: 440px) {
-  #milestone-iframe {
-    margin: 25px;
-    min-width: 90vw;
-    min-height: 100vh;
-    max-width: 100%;
-  }
-}
-
-@media only screen and (max-width: 810px) {
-  main {
-    margin-top: 135px;
-  }
-  
-  .img-home {
-    width: 65%;
-    max-width: 400px;
-    float: none;
-  }
-
-  #home-container p {
-    width: 80%;
-  }
-
-}
-
-
 
 @media only screen and (max-width: 1200px) {
   .img-research {
@@ -428,3 +374,81 @@ td em {
     width: 70%;
   }
 }
+
+@media only screen and (max-width: 990px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 75vh;
+    max-width: 100%;
+  }
+}
+
+
+@media only screen and (max-width: 870px) {
+  main {
+    margin-top: 135px;
+  }
+
+  #home {
+    flex-direction: column;
+  }
+
+  #research-container {
+    flex-direction: column;
+  }
+  
+  .img-home {
+    width: 65%;
+    max-width: 400px;
+    float: none;
+  }
+
+  #home-container p {
+    width: 80%;
+  }
+
+  .season-name {
+    top: 137.5px;
+  }
+
+  .theme-name {
+    top: 180px;
+  }
+
+}
+
+@media only screen and (max-width: 710px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 1100px;
+    max-width: 100%;
+  }
+}
+
+@media only screen and (max-width: 486px) {
+  main {
+    margin-top: 175px;
+  }
+
+  .season-name {
+    top: 172.5px;
+  }
+
+  .theme-name {
+    top: 220px;
+  }
+
+}
+
+@media only screen and (max-width: 440px) {
+  #milestone-iframe {
+    margin: 25px;
+    min-width: 90vw;
+    min-height: 100vh;
+    max-width: 100%;
+  }
+}
+
+

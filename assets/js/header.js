@@ -34,7 +34,7 @@ let appHeader = `
           <li><a class= "navbar fancy-underline" href="research.html">
             Research</a></li>
           <li><a class= "navbar fancy-underline" href="teaching_outreach.html">
-            Teaching & Outreach</a></li>
+            Teaching & outreach</a></li>
           <li><a class= "navbar fancy-underline" href="logsem.html">
             Logic student seminar </a></li>
           <li><a class= "navbar fancy-underline" href="movienight.html">

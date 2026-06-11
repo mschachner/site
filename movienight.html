@@ -1,464 +1,774 @@
 <!doctype html>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <html>
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Movie night | Mark Schachner</title>
-    <link rel="canonical" href="https://mark-schachner.com/movienight.html" />
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <!-- favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="shortcut icon" href="/favicon.ico">
-  </head>
-  <body>
-    <header id="app-header"></header> <!-- header stored in header.js-->
-    <script src="/assets/js/header.js"></script>
-    <main id="movienight-container">
-      <h2>Movie night</h2>
-      <p>
-      Since the summer of 2022, I've hosted weekly movie nights in the math department. All are welcome&mdash; if you're interested in joining, let me know!<br>
-      The input box is <a href="https://forms.gle/Q7pfSiPG1VWtuKXr8">here.</a><br>
-      Below are the 135 movie nights we've had thus far. Click for IMDB pages, hover for our thoughts.</p>
-      <div id="movie-list">
-        <h3 class="season-name">Spring 2026</h3>
-        <div class="season">
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt30505698/"
-               title="Fascinating movie">Friendship</a><br>
-            <a href="https://www.imdb.com/title/tt0097493/"
-               title="Very very!">Heathers</a>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">XVI. Danny DeVito</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt0117008/"
-               title="Loved it! Dark undertones but funny and touching">Matilda</a><br>
-            <a href="https://www.imdb.com/title/tt1482459/"
-               title="Disappointing. An act of violence against the book">The Lorax</a><br>
-            <a href="https://www.imdb.com/title/tt0103776/"
-               title="Eat floor!">Batman Returns</a><br>
-          </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">XVII. The courtroom</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt0104952/"
-               title="Loved it">My Cousin Vinny</a><br>
-            <a href="https://www.imdb.com/title/tt0250494/"
-               title="Wonderful, but a bit dated. Hits close to home">Legally Blonde</a><br>
-          </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">XVIII. Groovy night!</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt0076666/"
-               title="TBA">Saturday Night Fever</a><br>
-            <a href="https://www.imdb.com/title/tt0118749/"
-               title="TBA">Boogie Nights</a><br>
-            <a href="https://www.imdb.com/title/tt0118655/"
-               title="TBA">Austin Powers: International Man of Mystery</a><br>
-            <a href="https://www.imdb.com/title/tt0443489/"
-               title="TBA">Dreamgirls</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Autumn 2025</h3>
-        <div class="season">
-          <div class="theme">
+   <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <title>Movie night | Mark Schachner</title>
+      <link rel="canonical" href="https://mark-schachner.com/movienight.html" />
+      <link rel="stylesheet" href="/assets/css/styles.css">
+      <!-- favicon -->
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+      <link rel="manifest" href="/site.webmanifest">
+      <link rel="shortcut icon" href="/favicon.ico">
+   </head>
+   <body>
+      <header id="app-header"></header> <!-- header stored in header.js-->
+      <script src="/assets/js/header.js"></script>
+      <main id="movienight-container">
+         <h2>Movie night</h2>
+         <p>
+         Since the summer of 2022, I've hosted weekly movie nights in the math department. All are welcome&mdash; if you're interested in joining, let me know!<br>
+         The input box is <a href="https://forms.gle/Q7pfSiPG1VWtuKXr8">here.</a><br>
+         Below are the 140 movie nights we've had thus far. Click for IMDB pages, hover for our thoughts.</p>
+         <div id="movie-list">
+            <h3 class="season-name">Spring 2026</h3>
+            <div class="season">
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt30505698/"
+                        title="Fascinating movie">Friendship</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0097493/"
+                        title="Very very!">Heathers</a>
+                     </div>
+                  </div>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XVI. Danny DeVito</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0117008/"
+                     title="Loved it! Dark undertones but funny and touching">Matilda</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1482459/"
+                     title="Disappointing. An act of violence against the book">The Lorax</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0103776/"
+                     title="Eat floor!">Batman Returns</a>
+                  </div>
+               </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XVII. The courtroom</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0104952/"
+                     title="Loved it">My Cousin Vinny</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0250494/"
+                     title="Wonderful, but a bit dated. Hits close to home">Legally Blonde</a>
+                  </div>
+               </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XVIII. Groovy night!</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0076666/"
+                     title="Caught us by surprise. Liked it!">Saturday Night Fever</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0118655/"
+                     title="The grooviest">Austin Powers: International Man of Mystery</a>
+                  </div>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XIX. Nonlinearity</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt27695005/"
+                     title="A good time!">River</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1187064/"
+                     title="Ask Kimball about his east-west theory">Triangle</a>
+                  </div>
+               </div>
+            </div>
+            <h3 class="season-name">Autumn 2025</h3>
+            <div class="season">
+               <div class="theme">
             <h4 class="theme-name">XIII. Sequels</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt6911608/"
-               title="Lots of fun. Nowhere near as good as the first one though">Mamma Mia! Here We Go Again</a><br>
-            <a href="https://www.imdb.com/title/tt0026138/"
-               title="Hilarious (intentionally?)">Bride of Frankenstein</a><br>
-            <a href="https://www.imdb.com/title/tt1856101/"
-               title="Beautiful cinematography, lots of risks that pay off">Blade Runner 2049</a><br>
-            <a href="https://www.imdb.com/title/tt0298148/"
-               title="So good">Shrek 2</a><br>
-          </p>
-          </div>
-          <div class="theme">
+            <p class="movie-chunk">
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt6911608/"
+               title="Lots of fun. Nowhere near as good as the first one though">Mamma Mia! Here We Go Again</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt0026138/"
+               title="Hilarious (intentionally?)">Bride of Frankenstein</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt1856101/"
+               title="Beautiful cinematography, lots of risks that pay off">Blade Runner 2049</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt0298148/"
+               title="So good">Shrek 2</a>
+            </div>
+            </p>
+               </div>
+               <div class="theme">
             <h4 class="theme-name">XIV. Greatest hits</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt2347569"
-               title="Loved it again">Frances Ha</a><br>
-            <a href="https://www.imdb.com/title/tt7939766/"
-               title="Glad we watched Oklahoma first this time!">I'm Thinking of Ending Things</a><br>
-            <a href="https://www.imdb.com/title/tt0382932/"
-               title="Incroyable !">Ratatouille</a><br>
-            <a href="https://www.imdb.com/title/tt3718778/"
-               title="An autumn standard">Over the Garden Wall</a><br>
-          </p>
-          </div><div class="theme">
+            <p class="movie-chunk">
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt2347569"
+               title="Loved it again">Frances Ha</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt7939766/"
+               title="Glad we watched Oklahoma first this time!">I'm Thinking of Ending Things</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt0382932/"
+               title="Incroyable !">Ratatouille</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt3718778/"
+               title="An autumn standard">Over the Garden Wall</a>
+            </div>
+            </p>
+               </div>
+               <div class="theme">
             <h4 class="theme-name">XV. Smart & stupid</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt2866360/"
-               title="Maybe not such a smart movie? A fun time though.">Coherence</a><br>
-            <a href="https://www.imdb.com/title/tt0366551/"
-               title="Loved it">Harold and Kumar Go to White Castle</a><br>
-            <a href="https://www.imdb.com/title/tt0390384/"
-               title="Nuts">Primer</a><br>
-            <a href="https://www.imdb.com/title/tt3960412/"
-               title="Loved it. So many cameos!">Popstar: Never Stop Never Stopping</a><br>
-          </p>
-          </div>
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt4729430/"
-               title="Smart, funny, and charming!">Klaus</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Summer 2025</h3>
-        <div class="season">
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt0265666/"
-               title="Honey, you mean Hunkules!">The Royal Tenenbaums</a><br>
-            <a href="https://www.imdb.com/title/tt1013753/"
-               title="Wonderful, shocking">Milk</a><br>
-            <a href="https://www.imdb.com/title/tt5462602/"
-               title="A good romcom, writing was a bit weak">The Big Sick</a><br>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">XII. Three Flavours Cornetto</h4>
             <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt0365748/"
-                 title="Creative! The third act dragged a bit.">Shaun of the Dead</a><br>
-              <a href="https://www.imdb.com/title/tt0425112/"
-                 title="Loved it">Hot Fuzz</a><br>
-              <a href="https://www.imdb.com/title/tt1213663/"
-                 title="TBA">The World's End</a><br>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt2866360/"
+               title="Maybe not such a smart movie? A fun time though.">Coherence</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt0366551/"
+               title="Loved it">Harold and Kumar Go to White Castle</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt0390384/"
+               title="Nuts">Primer</a>
+            </div>
+            <div class="movie">
+               <a href="https://www.imdb.com/title/tt3960412/"
+               title="Loved it. So many cameos!">Popstar: Never Stop Never Stopping</a>
+            </div>
             </p>
-          </div>
-        </div>
-        <h3 class="season-name">Spring 2025</h3>
-        <div class="season">
-          <div class="theme">
-            <h4 class="theme-name">X. Minimal dialogue</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt0062622/"
-               title="Beautifully weird">2001: a Space Odyssey</a><br>
-            <a href="https://www.imdb.com/title/tt1392190/"
-               title="Really liked it! Well-paced">Mad Max: Fury Road</a><br>
-            <a href="https://www.imdb.com/title/tt2017038/"
-               title="Quite the roller coaster">All is Lost</a><br>
-            <a href="https://www.imdb.com/title/tt6644200/"
-               title="Controversial! Thea and Taylor didn't like it">A Quiet Place</a><br>
-          </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">XI. Documentaries</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt19383190/"
-                 title="Touching and informative">The Fire Within</a><br>
-              <a href="https://www.imdb.com/title/tt1587707/"
-                 title="Insane if true">Exit Through the Gift Shop</a><br>
-            </p>
-          </div>
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt0267913/"
-               title="A rare violation of the nostalgia rule. Worth it">Scooby-Doo</a><br>
-            <a href="https://www.imdb.com/title/tt0787475/"
-               title="Cool beans">Hot Rod</a><br>
-            <a href="https://www.imdb.com/title/tt7477310/"
-               title="A great time! Stressful at first">How about Adolf?</a><br>
-            <a href="https://www.imdb.com/title/tt0245429/"
-               title="A classic">Spirited Away</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Autumn 2024</h3>
-        <div class="season">
-          <div class="theme">
-            <h4 class="theme-name">VII. Slapstick!</h4>
-          <p class="movie-chunk">
-            <a href="https://www.imdb.com/title/tt12818328/"
-               title="Loved it">Hundreds of Beavers</a><br>
-            <a href="https://www.imdb.com/title/tt0080339/"
-               title="A slapsticky classic, though many parts do not hold up">Airplane!</a><br>
-            <a href="https://www.imdb.com/title/tt0021749/"
-               title="Lovely!! We should watch more Chaplin!">City Lights</a><br>
-            <a href="https://www.imdb.com/title/tt3799694/"
-               title="Fun, but a little confusing for sure...">The Nice Guys</a><br>
-          </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">VIII. The X Trilogy</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt18925334/"
-                 title="Loved it! My favorite of the trilogy.">Pearl</a><br>
-              <a href="https://www.imdb.com/title/tt13560574/"
-                 title="Scary!!!">X</a><br>
-              <a href="https://www.imdb.com/title/tt22048412/"
-                 title="A satisfying conclusion">MaXXXine</a><br>
-              <a href="https://www.imdb.com/title/tt3718778/"
-                 title="An autumn standard">Over the Garden Wall</a><br>
-            </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">IX. Gentle giants</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt0096283/"
-                 title="A very cozy alternative to watching the election">My Neighbor Totoro</a><br>
-              <a href="https://www.imdb.com/title/tt2245084/"
-                 title="Satisfied with our care!">Big Hero 6</a><br>
-              <a href="https://www.imdb.com/title/tt3967856/"
-                 title="A hard watch but we loved it">Okja</a><br>
-              <a href="https://www.imdb.com/title/tt0129167/"
-                 title="Big Hero 6 did it better">The Iron Giant</a><br>
-            </p>
-          </div>
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt3281548/"
-               title="Greta Gerwig does not miss">Little Women</a><br>
-            <a href="https://www.imdb.com/title/tt0318997/"
-               title="Don't watch the anime...">Angels in America</a>
-               <span style="color:antiquewhite"> / </span>
-            <a href="https://www.imdb.com/title/tt0233044/"
-               title="... if you haven't read the manga"> Dinotopia</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Summer 2024</h3>
-        <div class="season">
-          <p class="movie-chunk-unthemed">
-            <a href="https://www.imdb.com/title/tt0477348/"
-               title="Loved it, but some parts had us confused">No Country for Old Men</a><br>
-            <a href="https://www.imdb.com/title/tt0211915/"
-               title="Delightful. So French">Ame&#769;lie</a><br>
-            <a href="https://www.imdb.com/title/tt5311514/"
-               title="I didn't love the beginning but overall excellent">Your Name.</a><br>
-            <a href="https://www.imdb.com/title/tt0472062/"
-               title="Very West Wing. Largely without conflict which wasn't a bad thing">Charlie Wilson's War</a><br>
-            <a href="https://www.imdb.com/title/tt9484998/"
-               title="Emily didn't love it but a generally good take on the time loop trope">Palm Springs</a><br>
-            <a href="https://www.imdb.com/title/tt15789038/"
-               title="Exceeded our low expectations! Beautiful, writing needed some work">Elemental</a><br>
-            <a href="https://www.imdb.com/title/tt0185937/"
-               title="Really great! Quite emotionally draining">The Blair Witch Project</a><br>
-            <a href="https://www.imdb.com/title/tt4034354/"
-               title="Loved it. Delightfully weird">Swiss Army Man</a><br>
-            <a href="https://www.imdb.com/title/tt1485796/"
-               title="Not our favorite musical, but a good time">The Greatest Showman</a><br>
-            <a href="https://www.imdb.com/title/tt5109784/"
-               title="Very intense. Didn't vibe with the Bible metaphors but a well-made movie">Mother!</a><br>
-            <a href="https://www.imdb.com/title/tt26612950/"
-               title="A slow burn, but a good time">Das Lehrerzimmer</a><br>
-          </p>
-        </div>
-        <h3 class="season-name">Spring 2024</h3>
-        <div class="season">
-          <div class="theme">
-            <h4 class="theme-name">IV. Spike Lee</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt0097216/"
-                 title="Loved it! A really nice showcase of his style.">Do the Right Thing</a><br>
-              <a href="https://www.imdb.com/title/tt0104797/"
-                 title="Wonderful. Earned its runtime!">Malcolm X</a><br>
-              <a href="https://www.imdb.com/title/tt0091939/"
-                 title="Alright. Some elements should not have been included.">She's Gotta Have It</a><br>
-            </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">V. Manic pixie dream girls</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt1022603/"
-                 title="A good time! Some iffy characters.">(500) Days of Summer</a><br>
-              <a href="https://www.imdb.com/title/tt0054698/"
-                 title="Really great and surprisingly complex (minus the racism)">Breakfast at Tiffany's</a><br>
-              <a href="https://www.imdb.com/title/tt0338013/"
-                 title="Wonderful movie">Eternal Sunshine of the Spotless Mind</a><br>
-              <a href="https://www.imdb.com/title/tt0446029/"
-                 title="Fun, but yikes...">Scott Pilgrim vs. the World</a><br>
-            </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">VI. South Korean cinema</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt8951086/"
-                 title="Very sad, but quite good">House of Hummingbird</a><br>
-              <a href="https://www.imdb.com/title/tt12477480/"
-                 title="Looong but intriguing!">Decision to Leave</a><br>
-              <a href="https://www.imdb.com/title/tt6751668/"
-                 title="Really a top-10 movie. Must-watch">Parasite</a><br>
-              <a href="https://www.imdb.com/title/tt6083230/"
-                 title="So cozy! Lots of good food shots">Little Forest</a><br>
-            </p>
-          </div>
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt0405325/"
-               title="We stan Warren Peace">Sky High</a><br>
-            <a href="https://www.imdb.com/title/tt10624458/"
-               title="TBA">My Favorite Shapes</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Autumn 2023</h3>
-        <div class="season">
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt5083738/"
-               title="A crowd favo(u)rite! Gripping ending">The Favourite</a><br>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">I. Stop motion</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt2321405/"
-                 title="Very sad, but touching!">Ma Vie de Courgette</a><br>
-              <a href="https://www.imdb.com/title/tt5104604/"
-                 title="We had a fun time. Would be better if less racist">Isle of Dogs</a><br>
-              <a href="https://www.imdb.com/title/tt0327597/"
-                 title="Beautiful animation and spooky vibes! I didn't love the ending.">Coraline</a><br>
-              <a href="https://www.imdb.com/title/tt2401878/"
-                 title="Loved it. Hard to watch in parts but a great use of the medium">Anomalisa</a><br>
-            </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">II. Autumn</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt0098635/"
-                 title="Funny, easy to watch, but a little dated. Led to good conversations!">When Harry Met Sally...</a><br>
-              <a href="https://www.imdb.com/title/tt0132477/"
-                 title="We were a bit unpleasantly surprised">October Sky</a><br>
-              <a href="https://www.imdb.com/title/tt7784604/"
-                 title="Scary!! Good!!">Hereditary</a><br>
-              <a href="https://www.imdb.com/title/tt3718778/"
-                 title="An autumn standard">Over the Garden Wall</a><br>
-            </p>
-          </div>
-          <div class="theme">
-            <h4 class="theme-name">III. Damien Chazelle</h4>
-            <p class="movie-chunk">
-              <a href="https://www.imdb.com/title/tt1337193/"
-                 title="A good time. A little rough and uncomfortable in parts">Guy and Madeline on a Park Bench</a><br>
-              <a href="https://www.imdb.com/title/tt2582802/"
-                 title="A classic. Inspired a good conversation">Whiplash</a><br>
-              <a href="https://www.imdb.com/title/tt3783958/"
-                 title="So good">La La Land</a><br>
-              <a href="https://www.imdb.com/title/tt1213641/"
-                 title="Pretty good! Good ending">First Man</a><br>
-            </p>
-          </div>
-          <div class="movie-chunk-unthemed in-themed">
-            <a href="https://www.imdb.com/title/tt0314331/"
-               title="Not our favorite. Prairie loves it!">Love Actually</a><br>
-          </div>
-        </div>
-        <h3 class="season-name">Summer 2023</h3>
-        <div class="season">
-          <p class="movie-chunk-unthemed">
-            <a href="https://www.imdb.com/title/tt0093779/"
-               title="A classic">The Princess Bride</a><br>
-            <a href="https://www.imdb.com/title/tt0374900/"
-               title="Polarizing. I loved it but parts of it do not hold up">Napoleon Dynamite</a><br>
-            <a href="https://www.imdb.com/title/tt10370710/"
-               title="Good movie with a debatable ending">The Worst Person in the World</a><br>
-            <a href="https://www.imdb.com/title/tt2883512"
-               title="Very feel-good. Twitter plays way too big a role in this movie, though">Chef</a><br>
-            <a href="https://www.imdb.com/title/tt5363618"
-               title="My personal favorite of the summer so far">Sound of Metal</a><br>
-            <a href="https://www.imdb.com/title/tt2347569"
-               title="Loved it! So genuine that we initially mistook it for bad acting!">Frances Ha</a><br>
-            <a href="https://www.imdb.com/title/tt0087544"
-               title="Loved it, great soundtrack and powerful themes">Nausica&auml; of the Valley of the Wind</a><br>
-            <a href="https://www.imdb.com/title/tt0299658/"
-               title="Loved it, really well acted and wonderful soundtrack">Chicago</a><br>
-            <a href="https://www.imdb.com/title/tt0887883/"
-               title="Hilarious">Burn After Reading</a><br>
-            <a href="https://www.imdb.com/title/tt7042862/"
-               title="A fun time and surprisingly well put-together. Sebastian loved it">The Man Who Killed Hitler and Then the Bigfoot</a><br>
-            <a href="https://www.imdb.com/title/tt9873892/"
-               title="A really fun one!">They Cloned Tyrone</a><br>
-            <a href="https://www.imdb.com/title/tt5580036/"
-               title="Well done, but it ony a movie">I, Tonya</a><br>
-            <a href="https://www.imdb.com/title/tt9243804/"
-               title="Great elements, but didn't add up to a consistent theme">The Green Knight</a><br>
-          </p>
-        </div>
-        <h3 class="season-name">Spring 2023</h3>
-        <div class="season">
-          <p class="movie-chunk-unthemed">
-            <a href="https://www.imdb.com/title/tt8613070/"
-               title="My favorite of the year so far">Portrait of a Lady on Fire</a><br>
-            <a href="https://www.imdb.com/title/tt15339456/"
-               title="Please watch this movie">Marcel the Shell with Shoes On</a><br>
-            <a href="https://www.imdb.com/title/tt7349662/"
-               title="Loved it. Great performances">BlacKkKlansman</a><br>
-            <a href="https://www.imdb.com/title/tt0907657/"
-               title="Loved it, surprisingly short. Music was controversial">Once</a><br>
-            <a href="https://www.imdb.com/title/tt14500584/"
-               title="Lovely brainteaser of a movie. Weak characters though">Beyond the Infinite Two Minutes</a><br>
-            <a href="https://www.imdb.com/title/tt6439020/"
-               title="Chaotic and a little overambitious, but funny">The Personal History of David Copperfield</a><br>
-            <a href="https://www.imdb.com/title/tt0795421/"
-               title="A true classic, modulo Pierce Brosnan's 'singing'">Mamma Mia!</a><br>
-            <a href="https://www.imdb.com/title/tt3915174/"
-               title="Had no right to go so hard">Puss in Boots: the Last Wish</a><br>
-            <a href="https://www.imdb.com/title/tt6710474/"
-               title="Loved it">Everything Everywhere All At Once</a><br>
-            <a href="https://www.imdb.com/title/tt10954984/"
-               title="Most liked it, I was underwhelmed">Nope</a><br>
-            <a href="https://www.imdb.com/title/tt14209916/"
-               title="Loved it">Cocaine Bear</a><br>
-            <a href="https://www.imdb.com/title/tt0838221/"
-               title="It was fine. Difficult to care about the characters">The Darjeeling Limited</a><br>
-            <a href="https://www.imdb.com/title/tt8858104/"
-               title="Good for what it was. Why didn't Rihanna sing??">Guava Island</a><br>
-          </p>
-        </div>
-        <h3 class="season-name">Autumn 2022</h3>
-        <div class="season">
-          <p class="movie-chunk-unthemed">
-            <a href="https://www.imdb.com/title/tt0449059/"
-               title="Dark but uplifting. Some problematic themes">Little Miss Sunshine</a><br>
-            <a href="https://www.imdb.com/title/tt0190590/"
-               title="Stellar movie. Sara loved it!">O Brother, Where Art Thou?</a><br>
-            <a href="https://www.imdb.com/title/tt7939766/"
-               title="Instant classic for me. Inspired a lot of debate">I'm Thinking of Ending Things</a><br>
-            <a href="https://www.imdb.com/title/tt2084970/"
-               title="Writing was a bit lacking but who doesn't love Beneficial Cucumber">The Imitation Game</a><br>
-            <a href="https://www.imdb.com/title/tt0119282/"
-               title="Honey, you mean Hunkules!">Hercules</a><br>
-            <a href="https://www.imdb.com/title/tt0120737/"
-               title="What is there to say?">The Lord of the Rings: Extended Edition</a><br>
-            <a href="https://www.imdb.com/title/tt1099212/"
-               title="I leave for one week and they're watching twilight">Twilight</a><br>
-            <a href="https://www.imdb.com/title/tt2084989/"
-               title="Excellently weird, a bit disturbing">Upstream Color</a><br>
-            <a href="https://www.imdb.com/title/tt3718778/"
-               title="An autumn standard">Over the Garden Wall</a><br>
-            <a href="https://www.imdb.com/title/tt9214832/"
-               title="Great period piece, loved the costumes">Emma.</a><br>
-            <a href="https://www.imdb.com/title/tt9639470/"
-               title="meh. Fun, but we expected more">Last Night in Soho</a><br>
-            <a href="https://www.imdb.com/title/tt0358273/"
-               title="One of Aria's favorites">Walk the Line</a><br>
-            <a href="https://www.imdb.com/title/tt0120382/"
-               title="Another classic">The Truman Show</a><br>
-            <a href="https://www.imdb.com/title/tt0104940/"
-               title="Loved it, beautiful and funny retelling">The Muppet Christmas Carol</a><br>
-          </p>
-        </div>
-        <h3 class="season-name">Summer 2022</h3>
-        <div class="season">
-          <p class="movie-chunk-unthemed">
-            <a href="https://www.imdb.com/title/tt8721424/"
-               title="Loved it">tick, tick... BOOM!</a><br>
-            <a href="https://www.imdb.com/title/tt7014006/"
-               title="A hard watch but worth it">Eighth Grade</a><br>
-            <a href="https://www.imdb.com/title/tt0485947/"
-               title="We weren't fans. Overblown, shallow, pretentious">Mr. Nobody</a><br>
-            <a href="https://www.imdb.com/title/tt2562232/"
-               title="Excellent, standout soundtrack and cinematography">Birdman</a><br>
-            <a href="https://www.imdb.com/title/tt5688932/"
-               title="Brilliant weird incisive movie">Sorry to Bother You</a><br>
-            <a href="https://www.imdb.com/title/tt0467406/"
-               title="Silly and quirky. a fun time. Jason Bateman is creepy in it though">Juno</a><br>
-            <a href="https://www.imdb.com/title/tt0382932/"
-               title="Simply the greatest animated movie of all time">Ratatouille</a><br>
-            <a href="https://www.imdb.com/title/tt0097814/"
-               title="Cozy, touching, easy to watch">Kiki's Delivery Service</a><br>
-          </p>
-        </div>
-      </div>
-    </main>
-  </body>
+               </div>
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt4729430/"
+                        title="Smart, funny, and charming!">Klaus</a>
+                     </div>
+                     </div>
+               </div>
+            </div>
+            <h3 class="season-name">Summer 2025</h3>
+            <div class="season">
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0265666/"
+                        title="Honey, you mean Hunkules!">The Royal Tenenbaums</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt1013753/"
+                        title="Wonderful, shocking">Milk</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5462602/"
+                        title="A good romcom, writing was a bit weak">The Big Sick</a>
+                     </div>
+                  </div>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XII. Three Flavours Cornetto</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0365748/"
+                     title="Creative! The third act dragged a bit.">Shaun of the Dead</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0425112/"
+                     title="Loved it">Hot Fuzz</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1213663/"
+                     title="TBA">The World's End</a>
+                  </div>
+                  </p>
+               </div>
+            </div>
+            <h3 class="season-name">Spring 2025</h3>
+            <div class="season">
+               <div class="theme">
+                  <h4 class="theme-name">X. Minimal dialogue</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0062622/"
+                     title="Beautifully weird">2001: a Space Odyssey</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1392190/"
+                     title="Really liked it! Well-paced">Mad Max: Fury Road</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt2017038/"
+                     title="Quite the roller coaster">All is Lost</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt6644200/"
+                     title="Controversial! Thea and Taylor didn't like it">A Quiet Place</a>
+                  </div>
+               </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">XI. Documentaries</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt19383190/"
+                     title="Touching and informative">The Fire Within</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1587707/"
+                     title="Insane if true">Exit Through the Gift Shop</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="movie-chunk-unthemed in-themed">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0267913/"
+                     title="A rare violation of the nostalgia rule. Worth it">Scooby-Doo</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0787475/"
+                     title="Cool beans">Hot Rod</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt7477310/"
+                     title="A great time! Stressful at first">How about Adolf?</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0245429/"
+                     title="A classic">Spirited Away</a>
+                  </div>
+               </div>
+            </div>
+            <h3 class="season-name">Autumn 2024</h3>
+            <div class="season">
+               <div class="theme">
+                  <h4 class="theme-name">VII. Slapstick!</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt12818328/"
+                     title="Loved it">Hundreds of Beavers</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0080339/"
+                     title="A slapsticky classic, though many parts do not hold up">Airplane!</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0021749/"
+                     title="Lovely!! We should watch more Chaplin!">City Lights</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt3799694/"
+                     title="Fun, but a little confusing for sure...">The Nice Guys</a>
+                  </div>
+               </p>
+               </div>
+               <div class="theme">
+               <h4 class="theme-name">VIII. The X Trilogy</h4>
+               <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt18925334/"
+                     title="Loved it! My favorite of the trilogy.">Pearl</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt13560574/"
+                     title="Scary!!!">X</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt22048412/"
+                     title="A satisfying conclusion">MaXXXine</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt3718778/"
+                     title="An autumn standard">Over the Garden Wall</a>
+                  </div>
+               </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">IX. Gentle giants</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0096283/"
+                     title="A very cozy alternative to watching the election">My Neighbor Totoro</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt2245084/"
+                     title="Satisfied with our care!">Big Hero 6</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt3967856/"
+                     title="A hard watch but we loved it">Okja</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0129167/"
+                     title="Big Hero 6 did it better">The Iron Giant</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt3281548/"
+                        title="Greta Gerwig does not miss">Little Women</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0318997/"
+                        title="Don't watch the anime...">Angels in America</a>
+                        <span style="color:antiquewhite"> / </span>
+                        <a href="https://www.imdb.com/title/tt0233044/"
+                        title="... if you haven't read the manga"> Dinotopia</a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <h3 class="season-name">Summer 2024</h3>
+            <div class="season unthemed-season">
+               <div class="unthemed">
+                  <p class="movie-chunk-unthemed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0477348/"
+                        title="Loved it, but some parts had us confused">No Country for Old Men</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0211915/"
+                        title="Delightful. So French">Ame&#769;lie</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5311514/"
+                        title="I didn't love the beginning but overall excellent">Your Name.</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0472062/"
+                        title="Very West Wing. Largely without conflict which wasn't a bad thing">Charlie Wilson's War</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt9484998/"
+                        title="Emily didn't love it but a generally good take on the time loop trope">Palm Springs</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt15789038/"
+                        title="Exceeded our low expectations! Beautiful, writing needed some work">Elemental</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0185937/"
+                        title="Really great! Quite emotionally draining">The Blair Witch Project</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt4034354/"
+                        title="Loved it. Delightfully weird">Swiss Army Man</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt1485796/"
+                        title="Not our favorite musical, but a good time">The Greatest Showman</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5109784/"
+                        title="Very intense. Didn't vibe with the Bible metaphors but a well-made movie">Mother!</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt26612950/"
+                        title="A slow burn, but a good time">Das Lehrerzimmer</a>
+                     </div>
+                  </p>
+               </div>
+               
+            </div>
+            <h3 class="season-name">Spring 2024</h3>
+            <div class="season">
+               <div class="theme">
+                  <h4 class="theme-name">IV. Spike Lee</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0097216/"
+                     title="Loved it! A really nice showcase of his style.">Do the Right Thing</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0104797/"
+                     title="Wonderful. Earned its runtime!">Malcolm X</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0091939/"
+                     title="Alright. Some elements should not have been included.">She's Gotta Have It</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">V. Manic pixie dream girls</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1022603/"
+                     title="A good time! Some iffy characters.">(500) Days of Summer</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0054698/"
+                     title="Really great and surprisingly complex (minus the racism)">Breakfast at Tiffany's</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0338013/"
+                     title="Wonderful movie">Eternal Sunshine of the Spotless Mind</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0446029/"
+                     title="Fun, but yikes...">Scott Pilgrim vs. the World</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">VI. South Korean cinema</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt8951086/"
+                     title="Very sad, but quite good">House of Hummingbird</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt12477480/"
+                     title="Looong but intriguing!">Decision to Leave</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt6751668/"
+                     title="Really a top-10 movie. Must-watch">Parasite</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt6083230/"
+                     title="So cozy! Lots of good food shots">Little Forest</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0405325/"
+                        title="We stan Warren Peace">Sky High</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt10624458/"
+                        title="TBA">My Favorite Shapes</a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <h3 class="season-name">Autumn 2023</h3>
+            <div class="season">
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5083738/"
+                        title="A crowd favo(u)rite! Gripping ending">The Favourite</a>
+                     </div>
+                  </div>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">I. Stop motion</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt2321405/"
+                     title="Very sad, but touching!">Ma Vie de Courgette</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt5104604/"
+                     title="We had a fun time. Would be better if less racist">Isle of Dogs</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0327597/"
+                     title="Beautiful animation and spooky vibes! I didn't love the ending.">Coraline</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt2401878/"
+                     title="Loved it. Hard to watch in parts but a great use of the medium">Anomalisa</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">II. Autumn</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0098635/"
+                     title="Funny, easy to watch, but a little dated. Led to good conversations!">When Harry Met Sally...</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt0132477/"
+                     title="We were a bit unpleasantly surprised">October Sky</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt7784604/"
+                     title="Scary!! Good!!">Hereditary</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt3718778/"
+                     title="An autumn standard">Over the Garden Wall</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="theme">
+                  <h4 class="theme-name">III. Damien Chazelle</h4>
+                  <p class="movie-chunk">
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1337193/"
+                     title="A good time. A little rough and uncomfortable in parts">Guy and Madeline on a Park Bench</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt2582802/"
+                     title="A classic. Inspired a good conversation">Whiplash</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt3783958/"
+                     title="So good">La La Land</a>
+                  </div>
+                  <div class="movie">
+                     <a href="https://www.imdb.com/title/tt1213641/"
+                     title="Pretty good! Good ending">First Man</a>
+                  </div>
+                  </p>
+               </div>
+               <div class="unthemed">
+                  <div class="movie-chunk-unthemed in-themed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0314331/"
+                        title="Not our favorite. Prairie loves it!">Love Actually</a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <h3 class="season-name">Summer 2023</h3>
+            <div class="season unthemed-season">
+               <div class="unthemed">
+                  <p class="movie-chunk-unthemed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0093779/"
+                        title="A classic">The Princess Bride</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0374900/"
+                        title="Polarizing. I loved it but parts of it do not hold up">Napoleon Dynamite</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt10370710/"
+                        title="Good movie with a debatable ending">The Worst Person in the World</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt2883512"
+                        title="Very feel-good. Twitter plays way too big a role in this movie, though">Chef</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5363618"
+                        title="My personal favorite of the summer so far">Sound of Metal</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt2347569"
+                        title="Loved it! So genuine that we initially mistook it for bad acting!">Frances Ha</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0087544"
+                        title="Loved it, great soundtrack and powerful themes">Nausica&auml; of the Valley of the Wind</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0299658/"
+                        title="Loved it, really well acted and wonderful soundtrack">Chicago</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0887883/"
+                        title="Hilarious">Burn After Reading</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt7042862/"
+                        title="A fun time and surprisingly well put-together. Sebastian loved it">The Man Who Killed Hitler and Then the Bigfoot</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt9873892/"
+                        title="A really fun one!">They Cloned Tyrone</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5580036/"
+                        title="Well done, but it ony a movie">I, Tonya</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt9243804/"
+                        title="Great elements, but didn't add up to a consistent theme">The Green Knight</a>
+                     </div>
+                  </p>
+               </div>
+            </div>
+            <h3 class="season-name">Spring 2023</h3>
+            <div class="season unthemed-season">
+               <div class="unthemed">
+                  <p class="movie-chunk-unthemed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt8613070/"
+                        title="My favorite of the year so far">Portrait of a Lady on Fire</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt15339456/"
+                        title="Please watch this movie">Marcel the Shell with Shoes On</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt7349662/"
+                        title="Loved it. Great performances">BlacKkKlansman</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0907657/"
+                        title="Loved it, surprisingly short. Music was controversial">Once</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt14500584/"
+                        title="Lovely brainteaser of a movie. Weak characters though">Beyond the Infinite Two Minutes</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt6439020/"
+                        title="Chaotic and a little overambitious, but funny">The Personal History of David Copperfield</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0795421/"
+                        title="A true classic, modulo Pierce Brosnan's 'singing'">Mamma Mia!</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt3915174/"
+                        title="Had no right to go so hard">Puss in Boots: the Last Wish</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt6710474/"
+                        title="Loved it">Everything Everywhere All At Once</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt10954984/"
+                        title="Most liked it, I was underwhelmed">Nope</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt14209916/"
+                        title="Loved it">Cocaine Bear</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0838221/"
+                        title="It was fine. Difficult to care about the characters">The Darjeeling Limited</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt8858104/"
+                        title="Good for what it was. Why didn't Rihanna sing??">Guava Island</a>
+                     </div>
+                  </p>
+               </div>
+            </div>
+            <h3 class="season-name">Autumn 2022</h3>
+            <div class="season unthemed-season">
+               <div class="unthemed">
+                  <p class="movie-chunk-unthemed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0449059/"
+                        title="Dark but uplifting. Some problematic themes">Little Miss Sunshine</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0190590/"
+                        title="Stellar movie. Sara loved it!">O Brother, Where Art Thou?</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt7939766/"
+                        title="Instant classic for me. Inspired a lot of debate">I'm Thinking of Ending Things</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt2084970/"
+                        title="Writing was a bit lacking but who doesn't love Beneficial Cucumber">The Imitation Game</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0119282/"
+                        title="Honey, you mean Hunkules!">Hercules</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0120737/"
+                        title="What is there to say?">The Lord of the Rings: Extended Edition</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt1099212/"
+                        title="I leave for one week and they're watching twilight">Twilight</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt2084989/"
+                        title="Excellently weird, a bit disturbing">Upstream Color</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt3718778/"
+                        title="An autumn standard">Over the Garden Wall</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt9214832/"
+                        title="Great period piece, loved the costumes">Emma.</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt9639470/"
+                        title="meh. Fun, but we expected more">Last Night in Soho</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0358273/"
+                        title="One of Aria's favorites">Walk the Line</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0120382/"
+                        title="Another classic">The Truman Show</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0104940/"
+                        title="Loved it, beautiful and funny retelling">The Muppet Christmas Carol</a>
+                     </div>
+                  </p>
+               </div>
+            </div>
+            <h3 class="season-name">Summer 2022</h3>
+            <div class="season unthemed-season">
+               <div class="unthemed">
+                  <p class="movie-chunk-unthemed">
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt8721424/"
+                        title="Loved it">tick, tick... BOOM!</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt7014006/"
+                        title="A hard watch but worth it">Eighth Grade</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0485947/"
+                        title="We weren't fans. Overblown, shallow, pretentious">Mr. Nobody</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt2562232/"
+                        title="Excellent, standout soundtrack and cinematography">Birdman</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt5688932/"
+                        title="Brilliant weird incisive movie">Sorry to Bother You</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0467406/"
+                        title="Silly and quirky. a fun time. Jason Bateman is creepy in it though">Juno</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0382932/"
+                        title="Simply the greatest animated movie of all time">Ratatouille</a>
+                     </div>
+                     <div class="movie">
+                        <a href="https://www.imdb.com/title/tt0097814/"
+                        title="Cozy, touching, easy to watch">Kiki's Delivery Service</a>
+                     </div>
+                  </p>
+               </div>
+            </div>
+         </div>
+      </main>
+   </body>
 </html>
