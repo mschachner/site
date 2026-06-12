@@ -1,7 +1,9 @@
 import { Game } from './engine.js';
 import { Renderer } from './render.js';
 import { bindKeys, bindTouch } from './input.js';
-import { generateAsync, SIZES } from './generator.js';
+import { generateAsync, SIZES, rateScore, ratingOf } from './generator.js';
+import { solve } from './solver.js';
+import { encodeLevel, decodeLevel } from './share.js';
 import { PRESETS, COLOR_KEYS, applyTheme, cssName } from './themes.js';
 import {
   loadSettings, saveSettings, loadScores, clearScores, scoreKey, recordScore,
@@ -21,6 +23,7 @@ const settings = Object.assign(
     timer: true,
     theme: 'moss',
     custom: null,
+    austere: false,
   },
   loadSettings()
 );
@@ -114,6 +117,7 @@ async function newPuzzle() {
     size: settings.size,
     boxes: Number(settings.boxes),
     seed: randomSeed(),
+    austere: !!settings.austere,
   };
   let puzzle = null;
   try {
@@ -140,6 +144,13 @@ async function newPuzzle() {
   startAttempt();
 }
 
+function loadPuzzle(puzzle) {
+  genService.cancel();
+  game = new Game(puzzle);
+  renderer.setLevel(game);
+  startAttempt();
+}
+
 function startAttempt() {
   game.reset();
   renderer.update({ instant: true });
@@ -154,12 +165,15 @@ function finishWin() {
   phase = 'won';
   clock.stop();
   renderer.celebrate();
-  const key = scoreKey(settings);
-  lastRecords = recordScore(key, {
-    timeMs: settings.timer ? clock.ms : null,
-    moves: game.moves,
-    optimal: game.puzzle.optimal.moves,
-  });
+  // Shared levels don't belong to a difficulty/size/boxes category, so
+  // they don't compete for records.
+  lastRecords = game.puzzle.shared
+    ? { bestTime: false, bestMoves: false }
+    : recordScore(scoreKey(settings), {
+        timeMs: settings.timer ? clock.ms : null,
+        moves: game.moves,
+        optimal: game.puzzle.optimal.moves,
+      });
   setTimeout(() => showOverlay('won'), 350);
   syncHud();
 }
@@ -361,9 +375,10 @@ function hideOverlay() {
   overlayKind = null;
 }
 
-// ---------- side panel (theme / scores / help) ----------
+// ---------- side panel (settings / scores / help) ----------
 
 let panelView = null;
+let customizeOpen = false; // survives panel rebuilds (e.g. preset clicks)
 
 function togglePanel(view) {
   if (panelView === view && !panelEl.classList.contains('hidden')) {
@@ -373,7 +388,7 @@ function togglePanel(view) {
   panelView = view;
   panelEl.classList.remove('hidden');
   panelEl.replaceChildren();
-  if (view === 'theme') buildThemePanel();
+  if (view === 'settings') buildSettingsPanel();
   else if (view === 'scores') buildScoresPanel();
   else buildHelpPanel();
 }
@@ -397,40 +412,53 @@ function currentTheme() {
   return PRESETS[settings.theme] ?? PRESETS.moss;
 }
 
-function buildThemePanel() {
-  panelHeader('theme');
+function buildSettingsPanel() {
+  panelHeader('settings');
   const body = document.createElement('div');
   body.className = 'panel-body';
 
+  const section = (title) => {
+    const h = document.createElement('h3');
+    h.className = 'panel-section';
+    h.textContent = title;
+    body.appendChild(h);
+  };
+
+  section('theme');
   for (const dark of [false, true]) {
     const sub = document.createElement('p');
     sub.className = 'panel-sub';
     sub.textContent = dark ? 'dark' : 'light';
     body.appendChild(sub);
-    const chips = document.createElement('div');
-    chips.className = 'chips';
+    const grid = document.createElement('div');
+    grid.className = 'preset-grid';
     for (const [id, p] of Object.entries(PRESETS)) {
       if (!!p.dark !== dark) continue;
-      const chip = document.createElement('button');
-      chip.className = 'chip' + (settings.theme === id ? ' active' : '');
-      chip.innerHTML = `<span class="dot" style="background:${p.colors.player}"></span><span class="dot" style="background:${p.colors.box}"></span>${p.name}`;
-      chip.onclick = () => {
+      const card = document.createElement('button');
+      card.className = 'preset' + (settings.theme === id ? ' active' : '');
+      card.innerHTML =
+        `<span class="swatch" style="background:${p.colors.bg}">` +
+        `<span class="swatch-floor" style="background:${p.colors.surface}">` +
+        `<span class="dot" style="background:${p.colors.player}"></span>` +
+        `<span class="dot" style="background:${p.colors.box}"></span>` +
+        `</span></span>${p.name}`;
+      card.onclick = () => {
         settings.theme = id;
         saveSettings(settings);
         applyTheme(p);
-        buildThemePanel.refresh();
+        buildSettingsPanel.refresh();
       };
-      chips.appendChild(chip);
+      grid.appendChild(card);
     }
-    body.appendChild(chips);
+    body.appendChild(grid);
   }
 
-  const sub = document.createElement('p');
-  sub.className = 'panel-sub';
-  sub.textContent = 'customize';
-  body.appendChild(sub);
-
   const theme = currentTheme();
+  const customize = document.createElement('details');
+  customize.className = 'customize';
+  customize.open = customizeOpen;
+  customize.innerHTML = '<summary>customize</summary>';
+  customize.addEventListener('toggle', () => (customizeOpen = customize.open));
   const grid = document.createElement('div');
   grid.className = 'color-grid';
   for (const [key, label] of COLOR_KEYS) {
@@ -442,19 +470,108 @@ function buildThemePanel() {
     });
     grid.appendChild(row);
   }
-  body.appendChild(grid);
+  customize.appendChild(grid);
 
-  body.appendChild(
+  customize.appendChild(
     slider('roundness', theme.organic, 0, 1, 0.05, (v) => editCustom((c) => (c.organic = v)))
   );
+  body.appendChild(customize);
+
+  section('advanced settings');
   body.appendChild(
     slider('animation speed (ms)', theme.anim, 50, 280, 10, (v) => editCustom((c) => (c.anim = v)))
   );
+  const check = document.createElement('label');
+  check.className = 'check-row';
+  check.innerHTML = `<input type="checkbox"${settings.austere ? ' checked' : ''}><span>austere mode</span>`;
+  check.querySelector('input').onchange = (e) => {
+    settings.austere = e.target.checked;
+    saveSettings(settings);
+  };
+  body.appendChild(check);
+  const note = document.createElement('p');
+  note.className = 'panel-sub';
+  note.textContent =
+    'austere puzzles keep only the floor cells the optimal solution uses. applies to the next puzzle.';
+  body.appendChild(note);
+
+  const shareSub = document.createElement('p');
+  shareSub.className = 'panel-sub';
+  shareSub.textContent = 'level code';
+  body.appendChild(shareSub);
+  const row = document.createElement('div');
+  row.className = 'share-row';
+  row.innerHTML = `
+    <input type="text" spellcheck="false" autocomplete="off" placeholder="paste level code" aria-label="level code">
+    <button class="share-load" disabled>load</button>
+    <button class="share-copy">copy</button>`;
+  const codeInput = row.querySelector('input');
+  const loadBtn = row.querySelector('.share-load');
+  const status = document.createElement('p');
+  status.className = 'panel-sub share-status';
+  const loadCode = () => {
+    const code = codeInput.value.trim();
+    if (!code) return;
+    let level;
+    try {
+      level = decodeLevel(code);
+    } catch {
+      status.textContent = "that doesn't look like a valid level code.";
+      return;
+    }
+    status.textContent = 'solving…';
+    setTimeout(() => {
+      // budget beyond generator profiles: pasted levels get one honest try
+      const sol = solve(level, level.player, level.boxes, { maxNodes: 600000, maxMs: 8000 });
+      if (!sol) {
+        status.textContent = "couldn't solve that level — it may be broken or too hard.";
+        return;
+      }
+      if (!sol.moves) {
+        status.textContent = 'that level is already solved.';
+        return;
+      }
+      const score = rateScore(sol);
+      loadPuzzle({
+        ...level,
+        optimal: { moves: sol.moves, pushes: sol.pushes, switches: sol.switches },
+        score: Math.round(score),
+        rating: ratingOf(score),
+        shared: true,
+      });
+      closePanel();
+    });
+  };
+  codeInput.onkeydown = (e) => {
+    if (e.key === 'Enter') loadCode();
+  };
+  codeInput.addEventListener('input', () => {
+    loadBtn.disabled = !codeInput.value.trim();
+  });
+  loadBtn.onclick = loadCode;
+  row.querySelector('.share-copy').onclick = async () => {
+    if (!game) {
+      status.textContent = 'no level yet — generate one first.';
+      return;
+    }
+    const code = encodeLevel(game.puzzle);
+    codeInput.value = code;
+    loadBtn.disabled = false;
+    try {
+      await navigator.clipboard.writeText(code);
+      status.textContent = 'copied to clipboard.';
+    } catch {
+      codeInput.select();
+      status.textContent = 'clipboard unavailable — code is in the field, copy it there.';
+    }
+  };
+  body.appendChild(row);
+  body.appendChild(status);
 
   panelEl.appendChild(body);
-  buildThemePanel.refresh = () => {
+  buildSettingsPanel.refresh = () => {
     panelEl.replaceChildren();
-    buildThemePanel();
+    buildSettingsPanel();
   };
 }
 
@@ -468,8 +585,8 @@ function editCustom(mutate) {
   settings.theme = 'custom';
   saveSettings(settings);
   applyTheme(custom);
-  // de-highlight preset chips without rebuilding (keeps slider focus)
-  panelEl.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
+  // de-highlight preset cards without rebuilding (keeps slider focus)
+  panelEl.querySelectorAll('.preset').forEach((c) => c.classList.remove('active'));
 }
 
 function slider(label, value, min, max, step, onInput) {
@@ -534,7 +651,7 @@ function buildHelpPanel() {
       <div><kbd>↶ ↷</kbd><span>undo / redo</span></div>
       <div><kbd>⟲</kbd><span>reset puzzle</span></div>
       <div><kbd>⏸</kbd><span>pause (timer on)</span></div>
-      <div><kbd>◐</kbd><span>theme</span></div>
+      <div><kbd>◐</kbd><span>settings</span></div>
       <div><kbd>★</kbd><span>scores</span></div>`
     : `
       <div><kbd>↑↓←→</kbd> / <kbd>wasd</kbd> / <kbd>hjkl</kbd><span>move</span></div>
@@ -544,7 +661,7 @@ function buildHelpPanel() {
       <div><kbd>r</kbd><span>reset puzzle</span></div>
       <div><kbd>p</kbd> / <kbd>space</kbd><span>pause (timer on)</span></div>
       <div><kbd>enter</kbd><span>new puzzle</span></div>
-      <div><kbd>t</kbd><span>theme</span></div>
+      <div><kbd>t</kbd><span>settings</span></div>
       <div><kbd>g</kbd><span>scores</span></div>
       <div><kbd>?</kbd><span>this help</span></div>`;
   body.innerHTML = `
@@ -587,7 +704,7 @@ function init() {
   $('redoBtn').onclick = actions.redo;
   $('resetBtn').onclick = actions.reset;
   $('pauseBtn').onclick = actions.pause;
-  $('themeBtn').onclick = () => togglePanel('theme');
+  $('themeBtn').onclick = () => togglePanel('settings');
   $('scoresBtn').onclick = () => togglePanel('scores');
   $('helpBtn').onclick = () => togglePanel('help');
   $('timerToggle').onclick = () => {

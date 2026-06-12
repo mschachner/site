@@ -118,13 +118,13 @@ button.primary:hover { filter: brightness(1.08); }
 button.primary:active { transform: scale(0.95); }
 
 button.icon {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 20px;
   color: var(--muted);
   transition: background 120ms ease, color 120ms ease, transform 120ms var(--ease);
 }
@@ -134,8 +134,11 @@ button.icon:hover:not(:disabled) {
 }
 button.icon:active:not(:disabled) { transform: scale(0.88); }
 button.icon:disabled { opacity: 0.3; cursor: default; }
-button.icon.small { width: 28px; height: 28px; font-size: 14px; }
+button.icon.small { width: 34px; height: 34px; font-size: 17px; }
 button.icon.active { color: var(--accent); }
+/* the thin arrow glyphs render visually smaller than the other icons at
+   the same font-size */
+#undoBtn, #redoBtn, #resetBtn { font-size: 26px; }
 
 .icons { display: flex; gap: 4px; }
 
@@ -156,7 +159,11 @@ main {
   align-items: center;
   gap: 12px;
   width: min(640px, 100%);
-  padding: 6px 4px 14px;
+  padding: 6px 18px;
+  margin-bottom: 12px;
+  background: var(--surface);
+  border-radius: 999px;
+  transition: background 300ms ease;
 }
 
 .hud-left { display: flex; align-items: center; gap: 6px; }
@@ -216,6 +223,28 @@ main {
     drop-shadow(0 18px 30px color-mix(in srgb, var(--text) 14%, transparent))
     drop-shadow(0 3px 8px color-mix(in srgb, var(--text) 8%, transparent));
 }
+
+/* Dark themes: a light drop-shadow reads inverted, so instead the floor is
+   recessed into the background — dark inner shadows along the silhouette's
+   top and side edges, plus a lit rim under its bottom edge. Each shadow is
+   single-edge (negative spread cancels lateral bleed) so adjacent tiles
+   join seamlessly. */
+html.dark #tiles {
+  filter: drop-shadow(0 2px 0 color-mix(in srgb, var(--text) 22%, transparent));
+}
+html.dark .tile {
+  box-shadow:
+    var(--in-t, 0 0 0 0 transparent),
+    var(--in-l, 0 0 0 0 transparent),
+    var(--in-r, 0 0 0 0 transparent),
+    var(--in-b, 0 0 0 0 transparent);
+}
+/* spread = -blur so each shadow stays on its own edge and adjacent tiles
+   join without seams */
+html.dark .tile.e-t { --in-t: inset 0 calc(var(--cell) * 0.5) calc(var(--cell) * 0.28) calc(var(--cell) * -0.28) rgba(0, 0, 0, 0.55); }
+html.dark .tile.e-l { --in-l: inset calc(var(--cell) * 0.34) 0 calc(var(--cell) * 0.22) calc(var(--cell) * -0.22) rgba(0, 0, 0, 0.35); }
+html.dark .tile.e-r { --in-r: inset calc(var(--cell) * -0.34) 0 calc(var(--cell) * 0.22) calc(var(--cell) * -0.22) rgba(0, 0, 0, 0.25); }
+html.dark .tile.e-b { --in-b: inset 0 calc(var(--cell) * -0.3) calc(var(--cell) * 0.22) calc(var(--cell) * -0.22) color-mix(in srgb, var(--text) 7%, transparent); }
 
 #tiles > *, #entities > * {
   position: absolute;
@@ -300,6 +329,8 @@ main {
   min-width: 240px;
   animation: card-in 240ms var(--ease);
 }
+/* dark themes: a text-tinted shadow would glow; cast plain darkness */
+html.dark .card { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45); }
 @keyframes card-in {
   from { opacity: 0; transform: translateY(10px) scale(0.96); }
 }
@@ -415,6 +446,7 @@ main {
   overflow-y: auto;
   animation: panel-in 220ms var(--ease);
 }
+html.dark .panel { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5); }
 .panel.hidden { display: none; }
 @keyframes panel-in {
   from { opacity: 0; transform: translateX(24px); }
@@ -436,6 +468,15 @@ main {
 }
 
 .panel-body { padding: 8px 20px 24px; }
+.panel-section {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 26px 0 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+}
+.panel-section:first-child { margin-top: 6px; }
 .panel-sub {
   color: var(--muted);
   font-size: 12.5px;
@@ -444,30 +485,69 @@ main {
   line-height: 1.5;
 }
 
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  display: inline-flex;
+.preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.preset {
+  display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 9px;
   font-size: 13px;
   font-weight: 600;
-  padding: 7px 12px;
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--text) 6%, transparent);
-  transition: background 130ms ease, transform 120ms var(--ease);
+  padding: 5px 7px;
+  border-radius: var(--ui-round);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+  border: 2px solid transparent;
+  transition: background 130ms ease, border-color 130ms ease, transform 120ms var(--ease);
 }
-.chip:hover { background: color-mix(in srgb, var(--text) 11%, transparent); }
-.chip:active { transform: scale(0.95); }
-.chip.active {
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  color: var(--accent);
+.preset:hover { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.preset:active { transform: scale(0.96); }
+.preset.active { border-color: var(--accent); color: var(--accent); }
+.swatch {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 30px;
+  border-radius: calc(var(--ui-round) * 0.55);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
 }
-.chip .dot {
-  width: 11px;
-  height: 11px;
+.swatch-floor {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 6px;
+  border-radius: calc(var(--ui-round) * 0.35);
+}
+.swatch .dot {
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  display: inline-block;
 }
+
+.customize { margin-top: 18px; }
+.customize summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12.5px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.customize summary::-webkit-details-marker { display: none; }
+.customize summary::before {
+  content: "▸";
+  font-size: 11px;
+  transition: transform 150ms var(--ease);
+}
+.customize[open] summary::before { transform: rotate(90deg); }
+.customize .color-grid { margin-top: 10px; }
 
 .color-grid {
   display: grid;
@@ -504,6 +584,49 @@ main {
   margin-top: 16px;
 }
 .slider-row input { accent-color: var(--accent); }
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  margin-top: 16px;
+  cursor: pointer;
+}
+.check-row input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.share-row { display: flex; gap: 8px; }
+.share-row input {
+  flex: 1;
+  min-width: 0;
+  font: 500 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: var(--ui-round);
+  padding: 8px 12px;
+}
+.share-row input::placeholder { color: var(--muted); }
+.share-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.share-row button {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--ui-round);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+  transition: background 130ms ease, transform 120ms var(--ease);
+}
+.share-row button:hover:not(:disabled) { background: color-mix(in srgb, var(--text) 12%, transparent); }
+.share-row button:active:not(:disabled) { transform: scale(0.95); }
+.share-row button:disabled { opacity: 0.4; cursor: default; }
+.share-status { margin-top: 8px; }
+.share-status:empty { display: none; }
 
 .score-row {
   padding: 10px 12px;
@@ -559,6 +682,8 @@ button.danger:hover { background: color-mix(in srgb, #b4524b 10%, transparent); 
     align-items: center;
     column-gap: 14px;
     row-gap: 0;
+    padding: 8px 16px;
+    border-radius: calc(var(--ui-round) + 12px); /* two rows: stadium reads odd */
   }
   .hud-right { flex-basis: 100%; justify-content: center; }
 
@@ -575,9 +700,15 @@ button.danger:hover { background: color-mix(in srgb, #b4524b 10%, transparent); 
   select { padding: 10px 12px; font-size: 16px; } /* ≥16px also stops iOS focus-zoom */
   .controls label { gap: 8px; }
   .hud-right { gap: 8px; }
-  .chip { padding: 11px 15px; font-size: 14px; }
+  .preset { padding: 8px 9px; font-size: 14px; }
   .card-actions button { padding: 12px 20px; }
   .color-row { min-height: 44px; }
+  .check-row { min-height: 44px; }
+  .check-row input { width: 20px; height: 20px; }
+  /* ≥16px input font also stops iOS focus-zoom */
+  .share-row input { font-size: 16px; padding: 11px 12px; }
+  .share-row button { padding: 11px 14px; font-size: 14px; }
+  .customize summary { min-height: 44px; }
   .color-row input[type="color"] { width: 38px; height: 38px; }
   .slider-row input { height: 44px; }
   button.danger { padding: 12px 14px; }

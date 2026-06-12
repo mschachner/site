@@ -255,6 +255,47 @@ function scramble(level, goals, rng, prof, pushDist) {
   return { boxes: Array.from(best.boxes), player };
 }
 
+// Austere mode: wall off every floor cell the optimal solution never
+// touches. The optimal stays exact — its own cells are all kept, and the
+// reduced level admits only a subset of the original's solutions, so no
+// shorter one can appear.
+function austereWalls(level, player, boxes, chain) {
+  const { w, walls } = level;
+  const n = walls.length;
+  const dirs = [-w, w, -1, 1];
+  const used = new Uint8Array(n);
+  const prev = new Int32Array(n);
+  const boxSet = new Set(boxes);
+  let at = player;
+  used[at] = 1;
+  for (const b of boxes) used[b] = 1;
+  for (const { from, to } of chain) {
+    const src = from - (to - from); // player pushes from behind the box
+    if (at !== src) {
+      // shortest walk to the push square, boxes solid; mark its cells
+      prev.fill(-2);
+      prev[at] = -1;
+      const q = [at];
+      let head = 0;
+      while (head < q.length && prev[src] === -2) {
+        const c = q[head++];
+        for (const d of dirs) {
+          const t = c + d;
+          if (walls[t] || boxSet.has(t) || prev[t] !== -2) continue;
+          prev[t] = c;
+          q.push(t);
+        }
+      }
+      for (let c = src; c !== -1; c = prev[c]) used[c] = 1;
+    }
+    used[to] = 1;
+    boxSet.delete(from);
+    boxSet.add(to);
+    at = from; // player ends where the box was
+  }
+  for (let i = 0; i < n; i++) if (!walls[i] && !used[i]) walls[i] = 1;
+}
+
 // Generator-as-iterator so callers can drive it synchronously (worker) or
 // with yields back to the event loop (main-thread fallback).
 export function* generateIter(params) {
@@ -308,6 +349,7 @@ export function* generateIter(params) {
     });
     if (!sol || sol.pushes < prof.minPushes) return null;
     const score = rateScore(sol);
+    if (params.austere) austereWalls(level, scr.player, scr.boxes, sol.chain);
     return {
       w,
       h,

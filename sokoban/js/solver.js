@@ -106,7 +106,7 @@ export function solve(level, player, boxesIn, opts = {}) {
   };
 
   const boxes0 = Int32Array.from(boxesIn).sort();
-  if (solved(boxes0)) return { moves: 0, pushes: 0, switches: 0, nodes: 0 };
+  if (solved(boxes0)) return { moves: 0, pushes: 0, switches: 0, nodes: 0, chain: [] };
   const h0 = heur(boxes0);
   if (h0 === Infinity) return null;
 
@@ -147,7 +147,13 @@ export function solve(level, player, boxesIn, opts = {}) {
       for (let i = 1; i < chain.length; i++) {
         if (chain[i].from !== chain[i - 1].to) switches++;
       }
-      return { moves: cur.g, pushes: chain.length, switches, nodes };
+      return {
+        moves: cur.g,
+        pushes: chain.length,
+        switches,
+        nodes,
+        chain: chain.map(({ from, to }) => ({ from, to })),
+      };
     }
     nodes++;
     if (nodes > maxNodes) return null;

@@ -77,7 +77,7 @@ export function bindKeys(actions) {
         e.preventDefault();
         actions.newPuzzle();
         break;
-      case 't': actions.panel('theme'); break;
+      case 't': actions.panel('settings'); break;
       case 'g': actions.panel('scores'); break;
       case '?': actions.panel('help'); break;
       case 'Escape': actions.escape(); break;

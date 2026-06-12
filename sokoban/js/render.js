@@ -26,12 +26,35 @@ export class Renderer {
     const floor = (x, y) =>
       x >= 0 && x < w && y >= 0 && y < h && !walls[y * w + x];
 
+    // Render relative to the floor's bounding box: the carve can leave the
+    // blob toward one side of the grid, which would sit off-center.
+    let minX = w, minY = h, maxX = 0, maxY = 0;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (walls[y * w + x]) continue;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+    this.ox = minX;
+    this.oy = minY;
+    this.bw = maxX - minX + 1;
+    this.bh = maxY - minY + 1;
+
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const i = y * w + x;
         if (walls[i]) continue;
         const tile = el('div', 'tile');
-        setCell(tile, x, y);
+        setCell(tile, x - minX, y - minY);
+        // Mark outer edges of the floor blob; dark themes draw the inset
+        // shadow along these.
+        if (!floor(x, y - 1)) tile.classList.add('e-t');
+        if (!floor(x + 1, y)) tile.classList.add('e-r');
+        if (!floor(x, y + 1)) tile.classList.add('e-b');
+        if (!floor(x - 1, y)) tile.classList.add('e-l');
         // Round outer corners where the floor blob ends, for an organic
         // silhouette under the shared drop-shadow.
         if (!floor(x, y - 1) && !floor(x - 1, y)) tile.classList.add('r-tl');
@@ -41,7 +64,7 @@ export class Renderer {
         this.tilesEl.appendChild(tile);
         if (goalSet[i]) {
           const goal = el('div', 'goal');
-          setCell(goal, x, y);
+          setCell(goal, x - minX, y - minY);
           this.tilesEl.appendChild(goal);
         }
       }
@@ -61,7 +84,8 @@ export class Renderer {
 
   layout() {
     if (!this.game) return;
-    const { w, h } = this.game.level;
+    const w = this.bw;
+    const h = this.bh;
     const wrap = this.board.parentElement;
     const availW = wrap.clientWidth - 16;
     const availH = Math.max(240, window.innerHeight - wrap.getBoundingClientRect().top - 96);
@@ -77,10 +101,10 @@ export class Renderer {
     if (instant) this.board.classList.add('no-anim');
     g.boxPos.forEach((pos, id) => {
       const e = this.boxEls[id];
-      setCell(e, pos % w, Math.floor(pos / w));
+      setCell(e, (pos % w) - this.ox, Math.floor(pos / w) - this.oy);
       e.classList.toggle('done', goalSet[pos] === 1);
     });
-    setCell(this.playerEl, g.player % w, Math.floor(g.player / w));
+    setCell(this.playerEl, (g.player % w) - this.ox, Math.floor(g.player / w) - this.oy);
     if (fx?.push != null) {
       const e = this.boxEls[fx.push.boxId];
       e.classList.remove('bump');

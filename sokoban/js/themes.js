@@ -17,7 +17,7 @@ export const COLOR_KEYS = [
 
 export const PRESETS = {
   moss: {
-    name: 'Moss',
+    name: 'moss',
     organic: 0.8,
     anim: 120,
     colors: {
@@ -27,7 +27,7 @@ export const PRESETS = {
     },
   },
   paper: {
-    name: 'Paper',
+    name: 'paper',
     organic: 0.35,
     anim: 100,
     colors: {
@@ -37,7 +37,7 @@ export const PRESETS = {
     },
   },
   midnight: {
-    name: 'Midnight',
+    name: 'midnight',
     organic: 0.6,
     anim: 120,
     dark: true,
@@ -48,7 +48,7 @@ export const PRESETS = {
     },
   },
   sand: {
-    name: 'Sand',
+    name: 'sand',
     organic: 0.95,
     anim: 140,
     colors: {
@@ -58,7 +58,7 @@ export const PRESETS = {
     },
   },
   ocean: {
-    name: 'Ocean',
+    name: 'ocean',
     organic: 0.7,
     anim: 110,
     colors: {
@@ -68,7 +68,7 @@ export const PRESETS = {
     },
   },
   sakura: {
-    name: 'Sakura',
+    name: 'rose',
     organic: 0.85,
     anim: 130,
     colors: {
@@ -78,7 +78,7 @@ export const PRESETS = {
     },
   },
   ember: {
-    name: 'Ember',
+    name: 'ember',
     organic: 0.8,
     anim: 120,
     dark: true,
@@ -89,7 +89,7 @@ export const PRESETS = {
     },
   },
   forest: {
-    name: 'Forest',
+    name: 'forest',
     organic: 0.85,
     anim: 130,
     dark: true,
@@ -100,7 +100,7 @@ export const PRESETS = {
     },
   },
   ink: {
-    name: 'Ink',
+    name: 'ink',
     organic: 0.35,
     anim: 100,
     dark: true,
@@ -111,7 +111,7 @@ export const PRESETS = {
     },
   },
   dusk: {
-    name: 'Dusk',
+    name: 'dusk',
     organic: 0.7,
     anim: 130,
     dark: true,
@@ -130,8 +130,18 @@ export function applyTheme(theme) {
   }
   root.setProperty('--organic', String(theme.organic));
   root.setProperty('--anim', theme.anim + 'ms');
+  document.documentElement.classList.toggle('dark', isDark(theme));
   const meta = document.querySelector('meta[name=theme-color]');
   if (meta) meta.content = theme.colors.bg;
+}
+
+// Perceived luminance of the background, so custom themes are classified
+// too — the preset `dark` flag only drives grouping in the panel.
+export function isDark(theme) {
+  let h = theme.colors.bg.slice(1);
+  if (h.length === 3) h = [...h].map((c) => c + c).join('');
+  const n = parseInt(h, 16);
+  return 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) < 128;
 }
 
 export function cssName(key) {
