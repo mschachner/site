@@ -36,15 +36,15 @@ export const PRESETS = {
       accent: '#e2574c',
     },
   },
-  midnight: {
-    name: 'midnight',
-    organic: 0.6,
-    anim: 120,
+  forest: {
+    name: 'forest',
+    organic: 0.85,
+    anim: 130,
     dark: true,
     colors: {
-      bg: '#434856', surface: '#171c26', player: '#8ab4f8', box: '#d8a657',
-      boxDone: '#89b482', goal: '#3b4254', text: '#e3e6ec', muted: '#a7a8a9',
-      accent: '#8ab4f8',
+      bg: '#4d5c50', surface: '#1f2c22', player: '#8fc97a', box: '#c9a45a',
+      boxDone: '#6fae8f', goal: '#3a4a38', text: '#e2ead9', muted: '#7f9180',
+      accent: '#8fc97a',
     },
   },
   sand: {
@@ -77,6 +77,17 @@ export const PRESETS = {
       accent: '#c96c7e',
     },
   },
+  ink: {
+    name: 'ink',
+    organic: 0.35,
+    anim: 100,
+    dark: true,
+    colors: {
+      bg: '#504e4e', surface: '#242424', player: '#e8e8e8', box: '#6f6a64',
+      boxDone: '#e8e8e8', goal: '#3a3a3a', text: '#ededed', muted: '#8b8b8b',
+      accent: '#e2574c',
+    },
+  },
   ember: {
     name: 'ember',
     organic: 0.8,
@@ -88,26 +99,15 @@ export const PRESETS = {
       accent: '#e8a87c',
     },
   },
-  forest: {
-    name: 'forest',
-    organic: 0.85,
-    anim: 130,
+  midnight: {
+    name: 'midnight',
+    organic: 0.6,
+    anim: 120,
     dark: true,
     colors: {
-      bg: '#4d5c50', surface: '#1f2c22', player: '#8fc97a', box: '#c9a45a',
-      boxDone: '#6fae8f', goal: '#3a4a38', text: '#e2ead9', muted: '#7f9180',
-      accent: '#8fc97a',
-    },
-  },
-  ink: {
-    name: 'ink',
-    organic: 0.35,
-    anim: 100,
-    dark: true,
-    colors: {
-      bg: '#504e4e', surface: '#242424', player: '#e8e8e8', box: '#6f6a64',
-      boxDone: '#e8e8e8', goal: '#3a3a3a', text: '#ededed', muted: '#8b8b8b',
-      accent: '#e2574c',
+      bg: '#434856', surface: '#171c26', player: '#8ab4f8', box: '#d8a657',
+      boxDone: '#89b482', goal: '#3b4254', text: '#e3e6ec', muted: '#a7a8a9',
+      accent: '#8ab4f8',
     },
   },
   dusk: {
