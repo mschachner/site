@@ -123,6 +123,28 @@ export const PRESETS = {
   },
 };
 
+// Pseudo-theme ids: when active, a new puzzle reshuffles to a random preset
+// of the matching light/dark group.
+export const RANDOM_LIGHT = 'random-light';
+export const RANDOM_DARK = 'random-dark';
+
+export function isRandom(id) {
+  return id === RANDOM_LIGHT || id === RANDOM_DARK;
+}
+
+// [id, preset] pairs for one light/dark group, in declaration order.
+export function presetsByGroup(dark) {
+  return Object.entries(PRESETS).filter(([, p]) => !!p.dark === dark);
+}
+
+// Pick a random preset from a group, avoiding `excludeId` when possible so a
+// reshuffle doesn't land on the theme already showing.
+export function pickRandomPreset(dark, excludeId) {
+  const all = presetsByGroup(dark);
+  const pool = all.filter(([id]) => id !== excludeId);
+  return (pool.length ? pool : all)[Math.floor(Math.random() * (pool.length ? pool.length : all.length))];
+}
+
 export function applyTheme(theme) {
   const root = document.documentElement.style;
   for (const [key] of COLOR_KEYS) {

@@ -4,7 +4,10 @@ import { bindKeys, bindTouch } from './input.js';
 import { generateAsync, SIZES, rateScore, ratingOf } from './generator.js';
 import { solve } from './solver.js';
 import { encodeLevel, decodeLevel } from './share.js';
-import { PRESETS, COLOR_KEYS, applyTheme, cssName } from './themes.js';
+import {
+  PRESETS, COLOR_KEYS, applyTheme, cssName,
+  RANDOM_LIGHT, RANDOM_DARK, isRandom, presetsByGroup, pickRandomPreset,
+} from './themes.js';
 import {
   loadSettings, saveSettings, loadScores, clearScores, scoreKey, recordScore,
 } from './storage.js';
@@ -21,7 +24,7 @@ const settings = Object.assign(
     size: 'm',
     boxes: 3,
     timer: true,
-    theme: 'moss',
+    theme: RANDOM_LIGHT,
     custom: null,
     austere: false,
   },
@@ -108,6 +111,7 @@ let genStart = 0;
 
 async function newPuzzle() {
   genService.cancel();
+  reshuffleTheme();
   phase = 'generating';
   genStart = Date.now();
   showOverlay('generating', { attempt: 1 });
@@ -407,9 +411,26 @@ function panelHeader(title) {
   return head;
 }
 
+// When a "random" theme is active this holds the concrete preset currently
+// showing, as an [id, preset] pair, so re-renders stay stable between the
+// reshuffles that happen on each new puzzle.
+let randomPick = null;
+
 function currentTheme() {
   if (settings.theme === 'custom' && settings.custom) return settings.custom;
+  if (isRandom(settings.theme)) {
+    if (!randomPick) randomPick = pickRandomPreset(settings.theme === RANDOM_DARK);
+    return randomPick[1];
+  }
   return PRESETS[settings.theme] ?? PRESETS.moss;
+}
+
+// Pick a fresh preset for the active random theme and apply it. No-op for
+// concrete/custom themes.
+function reshuffleTheme() {
+  if (!isRandom(settings.theme)) return;
+  randomPick = pickRandomPreset(settings.theme === RANDOM_DARK, randomPick?.[0]);
+  applyTheme(randomPick[1]);
 }
 
 function buildSettingsPanel() {
@@ -432,6 +453,28 @@ function buildSettingsPanel() {
     body.appendChild(sub);
     const grid = document.createElement('div');
     grid.className = 'preset-grid';
+
+    // "random" comes first in each group: a new puzzle reshuffles to a random
+    // preset of this light/dark group.
+    const randomId = dark ? RANDOM_DARK : RANDOM_LIGHT;
+    const rcard = document.createElement('button');
+    rcard.className = 'preset' + (settings.theme === randomId ? ' active' : '');
+    // Player colors are toned for the *other* group's lightness (light themes
+    // use dark dots, dark themes use light dots), so pull from the opposite
+    // group to get a vivid gradient that still reads light vs. dark.
+    const stops = presetsByGroup(!dark).map(([, p]) => p.colors.player);
+    rcard.innerHTML =
+      `<span class="swatch" style="background:conic-gradient(from 135deg, ${stops.join(', ')}, ${stops[0]})">` +
+      `</span>random`;
+    rcard.onclick = () => {
+      settings.theme = randomId;
+      randomPick = null;
+      saveSettings(settings);
+      applyTheme(currentTheme());
+      buildSettingsPanel.refresh();
+    };
+    grid.appendChild(rcard);
+
     for (const [id, p] of Object.entries(PRESETS)) {
       if (!!p.dark !== dark) continue;
       const card = document.createElement('button');
