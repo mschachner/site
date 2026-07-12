@@ -52,6 +52,12 @@
   .modes button:hover { color: var(--ink); }
   .modes button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
   .modes button[aria-selected="true"]:hover { color: var(--accent-ink); }
+  .rules-open { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; }
+  .rules-open svg { width: 17px; height: 17px; }
+  @media (max-width: 460px) {
+    header { gap: 12px; }
+    .rules-open { margin-left: 0; }
+  }
 
   main { display: grid; grid-template-columns: minmax(0, 1fr) 312px; gap: 18px; align-items: start; }
   @media (max-width: 880px) { main { grid-template-columns: minmax(0, 1fr); } }
@@ -237,6 +243,68 @@
     font-variant-numeric: tabular-nums;
     box-shadow: var(--shadow);
   }
+
+  /* ---- rules dialog ---- */
+  .rules-dialog {
+    width: min(760px, calc(100vw - 28px)); max-height: min(820px, calc(100vh - 28px));
+    color: var(--ink); background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: 0 24px 70px rgba(51, 38, 26, 0.28);
+    padding: 0; overflow: hidden;
+  }
+  .rules-dialog::backdrop { background: rgba(33, 22, 12, 0.58); backdrop-filter: blur(2px); }
+  .rules-shell { max-height: min(820px, calc(100vh - 28px)); overflow: auto; }
+  .rules-head {
+    position: sticky; top: 0; z-index: 1;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+    margin: 0;
+    padding: 22px 24px 16px; background: rgba(253, 249, 241, 0.96);
+    border-bottom: 1px solid var(--line); backdrop-filter: blur(8px);
+  }
+  .rules-title {
+    margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: clamp(25px, 5vw, 34px); font-weight: 600; line-height: 1.1;
+  }
+  .rules-close {
+    width: 34px; height: 34px; padding: 0; border-radius: 50%; flex: none;
+    font-size: 21px; line-height: 1; color: var(--muted);
+  }
+  .rules-body { padding: 20px 24px 24px; }
+  .rules-lede { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
+  .rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .rule-card {
+    display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 16px;
+    min-height: 142px; padding: 14px; background: var(--card2);
+    border: 1px solid var(--line); border-radius: 11px;
+  }
+  .rule-card.wide { grid-column: 1 / -1; grid-template-columns: 172px minmax(0, 1fr); }
+  .rule-art {
+    width: 100%; height: auto; display: block; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  }
+  .rule-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  .rules-controls {
+    display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px;
+    border: 1px dashed var(--line); border-radius: 9px; color: var(--muted); font-size: 13px;
+  }
+  .rules-cycle { white-space: nowrap; color: var(--ink); font-weight: 700; letter-spacing: 0.03em; }
+  .rules-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
+  .ga-grid { stroke: var(--line); stroke-width: 2; }
+  .ga-fence { fill: none; stroke: var(--ink); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .ga-clue { stroke: var(--clue); stroke-width: 9; stroke-linecap: round; }
+  .ga-dot { fill: var(--ink); }
+  .ga-in { fill: var(--clue); }
+  .ga-out { fill: var(--card); stroke: var(--clue); stroke-width: 4; }
+  .ga-bad { fill: none; stroke: var(--bad); stroke-width: 3; stroke-linecap: round; }
+  @media (max-width: 680px) {
+    .rules-head { padding: 18px 18px 14px; }
+    .rules-body { padding: 16px 18px 20px; }
+    .rule-grid { grid-template-columns: 1fr; }
+    .rule-card, .rule-card.wide { grid-column: auto; grid-template-columns: 112px minmax(0, 1fr); }
+  }
+  @media (max-width: 410px) {
+    .rule-card, .rule-card.wide { grid-template-columns: 92px minmax(0, 1fr); gap: 11px; padding: 11px; }
+    .rules-controls { align-items: flex-start; flex-direction: column; gap: 4px; }
+  }
 </style>
 
 <div class="app">
@@ -246,6 +314,10 @@
       <button id="tabPlay" role="tab" aria-selected="true">Play</button>
       <button id="tabCreate" role="tab" aria-selected="false">Create</button>
     </nav>
+    <button class="rules-open" id="rulesOpen" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.7 9a2.4 2.4 0 0 1 4.7.7c0 1.8-2.4 2-2.4 3.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1" fill="currentColor"/></svg>
+      How to play
+    </button>
   </header>
 
   <main>
@@ -372,6 +444,62 @@
     </aside>
   </main>
 </div>
+<dialog class="rules-dialog" id="rulesDialog" aria-labelledby="rulesTitle">
+  <div class="rules-shell">
+    <header class="rules-head">
+      <div>
+        <h2 class="rules-title" id="rulesTitle">How to play</h2>
+      </div>
+      <button class="rules-close" id="rulesClose" aria-label="Close rules">&times;</button>
+    </header>
+    <div class="rules-body">
+      <p class="rules-lede" id="rulesLede">Draw one continuous loop along the grid lines. It must pass through every dot.</p>
+      <div class="rule-grid">
+        <article class="rule-card">
+          <svg class="rule-art" viewBox="0 0 132 96" aria-hidden="true">
+            <path class="ga-grid" d="M25 20H107M25 76H107M25 20V76M66 20V76M107 20V76"/>
+            <path class="ga-fence" d="M25 20H107V76H25V20"/>
+            <circle class="ga-dot" cx="25" cy="20" r="4"/><circle class="ga-dot" cx="66" cy="20" r="4"/><circle class="ga-dot" cx="107" cy="20" r="4"/>
+            <circle class="ga-dot" cx="25" cy="76" r="4"/><circle class="ga-dot" cx="66" cy="76" r="4"/><circle class="ga-dot" cx="107" cy="76" r="4"/>
+          </svg>
+          <div><p>Exactly two fence segments meet at every dot, so there are no loose ends or branches.</p></div>
+        </article>
+        <article class="rule-card">
+          <svg class="rule-art" viewBox="0 0 132 96" aria-hidden="true">
+            <path class="ga-grid" d="M25 20H107M25 76H107M25 20V76M66 20V76M107 20V76"/>
+            <path class="ga-fence" d="M25 20H107V76H25V20"/>
+            <path class="ga-clue" d="M66 20H107"/>
+            <circle class="ga-dot" cx="25" cy="20" r="4"/><circle class="ga-dot" cx="66" cy="20" r="4"/><circle class="ga-dot" cx="107" cy="20" r="4"/>
+            <circle class="ga-dot" cx="25" cy="76" r="4"/><circle class="ga-dot" cx="66" cy="76" r="4"/><circle class="ga-dot" cx="107" cy="76" r="4"/>
+          </svg>
+          <div><p>Every teal edge is a given clue and must be included in the finished fence.</p></div>
+        </article>
+        <article class="rule-card">
+          <svg class="rule-art" viewBox="0 0 132 96" aria-hidden="true">
+            <path class="ga-grid" d="M25 20H107M25 76H107M25 20V76M66 20V76M107 20V76"/>
+            <path class="ga-fence" d="M25 20H66V76H25V20"/>
+            <circle class="ga-in" cx="45.5" cy="48" r="8"/>
+            <circle class="ga-out" cx="86.5" cy="48" r="8"/>
+            <circle class="ga-dot" cx="25" cy="20" r="4"/><circle class="ga-dot" cx="66" cy="20" r="4"/><circle class="ga-dot" cx="107" cy="20" r="4"/>
+            <circle class="ga-dot" cx="25" cy="76" r="4"/><circle class="ga-dot" cx="66" cy="76" r="4"/><circle class="ga-dot" cx="107" cy="76" r="4"/>
+          </svg>
+          <div><p>A filled circle belongs inside a loop. A hollow circle must remain outside every loop.</p></div>
+        </article>
+        <article class="rule-card" id="multiLoopRule">
+          <svg class="rule-art" viewBox="0 0 132 96" aria-hidden="true">
+            <path class="ga-grid" d="M15 22H117M15 74H117M15 22V74M47 22V74M85 22V74M117 22V74"/>
+            <path class="ga-fence" d="M15 22H47V74H15V22M85 22H117V74H85V22"/>
+            <circle class="ga-dot" cx="15" cy="22" r="4"/><circle class="ga-dot" cx="47" cy="22" r="4"/><circle class="ga-dot" cx="85" cy="22" r="4"/><circle class="ga-dot" cx="117" cy="22" r="4"/>
+            <circle class="ga-dot" cx="15" cy="74" r="4"/><circle class="ga-dot" cx="47" cy="74" r="4"/><circle class="ga-dot" cx="85" cy="74" r="4"/><circle class="ga-dot" cx="117" cy="74" r="4"/>
+          </svg>
+          <div><p>When a puzzle asks for more than one loop, they enclose the same number of cells and never sit inside one another.</p></div>
+        </article>
+      </div>
+      <div class="rules-controls"><span class="rules-cycle">blank &rarr; fence &rarr; &times;</span><span>While playing, click an edge to cycle through your marks. The &times; is a handy note that an edge is not used.</span></div>
+      <div class="rules-foot"><button class="primary" id="rulesGotIt">Got it</button></div>
+    </div>
+  </div>
+</dialog>
 <div class="export-overlay" id="winOverlay" hidden>
   <div class="export-box" style="align-items: center; text-align: center">
     <h2 class="win-h">Solved!</h2>
@@ -1604,6 +1732,20 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   }
   $('tabPlay').addEventListener('click', () => switchTab('play'));
   $('tabCreate').addEventListener('click', () => switchTab('create'));
+
+  // ---------- rules ----------
+  const rulesDialog = $('rulesDialog');
+  function openRules() {
+    $('rulesLede').textContent = L === 1
+      ? 'Draw one continuous loop along the grid lines. It must pass through every dot.'
+      : `Draw exactly ${L} separate loops along the grid lines. Every dot must belong to one of them.`;
+    if (!rulesDialog.open) rulesDialog.showModal();
+  }
+  function closeRules() { if (rulesDialog.open) rulesDialog.close(); }
+  $('rulesOpen').addEventListener('click', openRules);
+  $('rulesClose').addEventListener('click', closeRules);
+  $('rulesGotIt').addEventListener('click', closeRules);
+  rulesDialog.addEventListener('click', ev => { if (ev.target === rulesDialog) closeRules(); });
 
   // ---------- share ----------
   // one dialog for both modes: the level code, plus a high-res PNG puzzle
