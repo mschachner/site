@@ -138,9 +138,16 @@
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   button.primary:hover { filter: brightness(1.07); }
+  button.danger { color: var(--bad); }
   button:disabled { opacity: 0.45; cursor: default; }
   button:disabled:hover { border-color: var(--line); filter: none; }
   button.icon { font-size: 14px; line-height: 1.2; padding: 5px 12px; }
+  button.history-btn { width: 34px; height: 32px; padding: 0; }
+  button.history-btn svg {
+    display: block; width: 17px; height: 17px; margin: auto;
+    fill: none; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
 
   .field-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
   .field-row label { font-size: 13.5px; color: var(--muted); }
@@ -252,6 +259,10 @@
     padding: 0; overflow: hidden;
   }
   .rules-dialog::backdrop { background: rgba(33, 22, 12, 0.58); backdrop-filter: blur(2px); }
+  .confirm-dialog { width: min(430px, calc(100vw - 28px)); }
+  .confirm-body { padding: 22px 24px 24px; }
+  .confirm-body p { margin: 0; color: var(--muted); }
+  .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
   .rules-shell { max-height: min(820px, calc(100vh - 28px)); overflow: auto; }
   .rules-head {
     position: sticky; top: 0; z-index: 1;
@@ -368,8 +379,14 @@
         <div class="boardctl">
           <label class="check-row"><input type="checkbox" id="timerChk" checked> Timer</label>
           <div class="btn-row" style="margin-top: 10px">
+            <button id="undoBtn" class="history-btn" aria-label="Undo" title="Undo (⌘Z)" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4"/><path d="M5 11h8a5 5 0 0 1 5 5v1"/></svg>
+            </button>
+            <button id="redoBtn" class="history-btn" aria-label="Redo" title="Redo (⇧⌘Z)" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4"/><path d="M19 11h-8a5 5 0 0 0-5 5v1"/></svg>
+            </button>
             <button id="pResetBtn">Clear entries</button>
-            <button id="quitBtn">Back</button>
+            <button id="quitBtn" class="danger">Exit puzzle</button>
             <button id="pShareBtn" class="primary">Share</button>
           </div>
         </div>
@@ -497,6 +514,16 @@
       </div>
       <div class="rules-controls"><span class="rules-cycle">blank &rarr; fence &rarr; &times;</span><span>While playing, click an edge to cycle through your marks. The &times; is a handy note that an edge is not used.</span></div>
       <div class="rules-foot"><button class="primary" id="rulesGotIt">Got it</button></div>
+    </div>
+  </div>
+</dialog>
+<dialog class="rules-dialog confirm-dialog" id="quitDialog" aria-labelledby="quitTitle" aria-describedby="quitText">
+  <div class="confirm-body">
+    <h2 class="win-h" id="quitTitle">Exit this puzzle?</h2>
+    <p id="quitText">Your entries and elapsed time will be lost.</p>
+    <div class="confirm-actions">
+      <button id="quitCancelBtn">Keep playing</button>
+      <button id="quitConfirmBtn" class="primary">Exit puzzle</button>
     </div>
   </div>
 </dialog>
@@ -961,6 +988,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   let playPhase = 'setup';   // setup | run | won
   let playSolution = null;   // Set of solution edges, fixed once the puzzle verifies unique
   let playMarks = null;      // player marks per edge: 0 none, 1 fence, 2 ×
+  let playUndo = [], playRedo = []; // actions contain one or more [edge, before, after] changes
   let timerIv = null, playT0 = 0, playMs = 0;
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
@@ -1586,6 +1614,8 @@ if (typeof module !== 'undefined') module.exports = { Fences };
         `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}`;
       $('timer').hidden = !$('timerChk').checked;
       $('pResetBtn').disabled = playPhase !== 'run';
+      $('undoBtn').disabled = !playUndo.length;
+      $('redoBtn').disabled = playPhase !== 'run' || !playRedo.length;
     }
   }
 
@@ -1602,9 +1632,13 @@ if (typeof module !== 'undefined') module.exports = { Fences };
 
   function playToggle(e) { // cycle: none -> fence -> × -> none
     if (playPhase !== 'run' || clues.has(e)) return;
-    playMarks[e] = (playMarks[e] + 1) % 3;
+    const before = playMarks[e], after = (before + 1) % 3;
+    playMarks[e] = after;
+    playUndo.push([[e, before, after]]);
+    playRedo = [];
     if (solvedNow()) { winGame(); return; }
     paintPlay();
+    updatePlayUI();
   }
   function solvedNow() {
     const E = Ecount();
@@ -1617,6 +1651,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     if (!pv.solution) return;
     playSolution = pv.solution;
     playMarks = new Int8Array(Ecount());
+    playUndo = []; playRedo = [];
     playPhase = 'run';
     playT0 = performance.now();
     clearInterval(timerIv);
@@ -1642,11 +1677,45 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   }
   function quitPlay() { // back to setup; the verified puzzle stays loaded
     playPhase = 'setup';
+    playUndo = []; playRedo = [];
     clearInterval(timerIv); timerIv = null;
     $('winOverlay').hidden = true;
     paintPlay();
     updatePlayUI();
     updateHint();
+  }
+
+  function resumePlayAfterWin() {
+    playPhase = 'run';
+    $('winOverlay').hidden = true;
+    playT0 = performance.now() - playMs;
+    clearInterval(timerIv);
+    timerIv = setInterval(() => {
+      if (playPhase === 'run') $('timer').textContent = fmtTime(performance.now() - playT0);
+    }, 100);
+  }
+
+  function applyPlayHistory(action, redo) {
+    if (!action || !playMarks) return;
+    if (playPhase === 'won') resumePlayAfterWin();
+    for (const [e, before, after] of action) playMarks[e] = redo ? after : before;
+    paintPlay();
+    updatePlayUI();
+    if (solvedNow()) winGame();
+  }
+
+  function undoPlay() {
+    if ((playPhase !== 'run' && playPhase !== 'won') || !playUndo.length) return;
+    const action = playUndo.pop();
+    playRedo.push(action);
+    applyPlayHistory(action, false);
+  }
+
+  function redoPlay() {
+    if (playPhase !== 'run' || !playRedo.length) return;
+    const action = playRedo.pop();
+    playUndo.push(action);
+    applyPlayHistory(action, true);
   }
 
   function updateHint() {
@@ -1699,12 +1768,39 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   });
   $('startBtn').addEventListener('click', startPlay);
   $('timerChk').addEventListener('change', updatePlayUI);
+  $('undoBtn').addEventListener('click', undoPlay);
+  $('redoBtn').addEventListener('click', redoPlay);
   $('pResetBtn').addEventListener('click', () => {
     if (playPhase !== 'run' || !playMarks) return;
-    playMarks.fill(0);
+    const action = [];
+    for (let e = 0; e < playMarks.length; e++)
+      if (playMarks[e]) action.push([e, playMarks[e], 0]);
+    if (!action.length) return;
+    for (const [e] of action) playMarks[e] = 0;
+    playUndo.push(action);
+    playRedo = [];
     paintPlay();
+    updatePlayUI();
   });
-  $('quitBtn').addEventListener('click', quitPlay);
+  const quitDialog = $('quitDialog');
+  $('quitBtn').addEventListener('click', () => {
+    if (!quitDialog.open) quitDialog.showModal();
+  });
+  $('quitCancelBtn').addEventListener('click', () => quitDialog.close());
+  $('quitConfirmBtn').addEventListener('click', () => {
+    quitDialog.close();
+    quitPlay();
+  });
+  quitDialog.addEventListener('click', ev => { if (ev.target === quitDialog) quitDialog.close(); });
+  document.addEventListener('keydown', ev => {
+    if (tab !== 'play' || playPhase === 'setup' || document.querySelector('dialog[open]') || !(ev.metaKey || ev.ctrlKey)) return;
+    const target = ev.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    const key = ev.key.toLowerCase();
+    if (key === 'z' && ev.shiftKey) { ev.preventDefault(); redoPlay(); }
+    else if (key === 'z') { ev.preventDefault(); undoPlay(); }
+    else if (key === 'y') { ev.preventDefault(); redoPlay(); }
+  });
   $('winCloseBtn').addEventListener('click', () => { $('winOverlay').hidden = true; });
   $('winOverlay').addEventListener('click', ev => { if (ev.target === $('winOverlay')) $('winOverlay').hidden = true; });
 
