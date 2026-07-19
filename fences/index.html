@@ -352,9 +352,9 @@
         <div id="manualRows" hidden>
           <div class="field-row">
             <label for="pRowsIn">Dimensions</label>
-            <input id="pRowsIn" type="number" min="2" max="40" value="6" aria-label="Rows of dots">
+            <input id="pRowsIn" type="number" min="2" max="40" value="8" aria-label="Rows of dots">
             <span class="times">×</span>
-            <input id="pColsIn" type="number" min="2" max="40" value="6" aria-label="Columns of dots">
+            <input id="pColsIn" type="number" min="2" max="40" value="8" aria-label="Columns of dots">
           </div>
           <div class="field-row">
             <label for="pLoopsIn">Loops</label>
@@ -974,7 +974,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   const boardEl = $('board');
 
   // ---------- state ----------
-  let R = 6, C = 6, L = 1;      // the visible board: dots down/across, loops
+  let R = 8, C = 8, L = 1;      // the visible board: dots down/across, loops
   let clues = new Set();        // edge and cell-dot clue ids
   let engine = null;
   let running = false, paused = false, stopped = false;
@@ -990,6 +990,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   let playMarks = null;      // player marks per edge: 0 none, 1 fence, 2 ×
   let playUndo = [], playRedo = []; // actions contain one or more [edge, before, after] changes
   let timerIv = null, playT0 = 0, playMs = 0;
+  let startSharedPuzzle = false; // a valid puzzle in the URL starts once verification finishes
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
   // resumes its search where it left off instead of starting over
@@ -1013,6 +1014,17 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     const ids = body ? body.split('.').map(s => s ? parseInt(s, 36) : NaN) : [];
     if (ids.some(i => !Number.isInteger(i) || i < 0 || i >= top)) return null;
     return { R: r, C: c, L: l, clues: new Set(ids) };
+  }
+  function shareUrl() {
+    const url = new URL(location.href);
+    url.search = '';
+    url.hash = codeOf();
+    return url.href;
+  }
+  function codeFromHash() {
+    if (location.hash.length < 2) return null;
+    try { return decodeURIComponent(location.hash.slice(1)); }
+    catch { return null; }
   }
 
   // svg element caches, rebuilt on resize
@@ -1578,6 +1590,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       this.eng = new Fences(R, C, clues, { loops: L, maxSolutions: 2 });
       if (this.eng.done && this.eng.solutions === 1) this.solution = new Set(this.eng.lastSolution);
       updatePlayUI();
+      if (this.eng.done) maybeStartSharedPuzzle();
       schedule();
     },
     step() { // one budget slice per tick; true while more work remains
@@ -1585,6 +1598,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       this.eng.run(12);
       if (this.eng.done && this.eng.solutions === 1) this.solution = new Set(this.eng.lastSolution);
       updatePlayUI();
+      if (this.eng.done) maybeStartSharedPuzzle();
       return !this.eng.done;
     },
   };
@@ -1664,6 +1678,11 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     updateHint();
     if (solvedNow()) winGame(); // degenerate code: every solution edge given
   }
+  function maybeStartSharedPuzzle() {
+    if (!startSharedPuzzle) return;
+    startSharedPuzzle = false;
+    if (pv.solution) startPlay();
+  }
   function winGame() {
     playPhase = 'won';
     playMs = performance.now() - playT0;
@@ -1732,20 +1751,47 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       $('codeErr').hidden = true;
       $('manualRows').hidden = !manual;
     }));
+  function setPuzzle(p) {
+    R = p.R; C = p.C; L = p.L; clues = p.clues;
+    $('pRowsIn').value = R; $('pColsIn').value = C; $('pLoopsIn').value = L;
+  }
+  function showCodeEntry(code, invalid = false) {
+    document.querySelector('input[name="entry"][value="code"]').checked = true;
+    $('codeIn').value = code;
+    $('codeRow').hidden = false;
+    $('manualRows').hidden = true;
+    $('codeErr').hidden = !invalid;
+  }
+  function loadSharedPuzzle(code) {
+    const p = parseCode(code);
+    if (!p) {
+      if (playPhase === 'setup') showCodeEntry(code, true);
+      return false;
+    }
+    if (tab !== 'play') switchTab('play');
+    if (playPhase !== 'setup') quitPlay();
+    document.querySelectorAll('.export-overlay:not(#winOverlay)').forEach(el => el.remove());
+    showCodeEntry(code);
+    setPuzzle(p);
+    startSharedPuzzle = true;
+    buildBoard();
+    pv.key = null; pv.sync();
+    updateHint();
+    return true;
+  }
   function loadCode() {
     const p = parseCode($('codeIn').value);
     if (!p) { $('codeErr').hidden = false; return; }
     $('codeErr').hidden = true;
-    R = p.R; C = p.C; L = p.L; clues = p.clues;
-    $('pRowsIn').value = R; $('pColsIn').value = C; $('pLoopsIn').value = L;
+    setPuzzle(p);
     buildBoard();
     pv.key = null; pv.sync();
   }
   $('loadBtn').addEventListener('click', loadCode);
   $('codeIn').addEventListener('keydown', ev => { if (ev.key === 'Enter') loadCode(); });
   function pApplySize() {
-    const c = Math.min(40, Math.max(2, +$('pColsIn').value || 6));
-    const r = Math.min(40, Math.max(2, +$('pRowsIn').value || 6));
+    const c = Math.min(40, Math.max(2, +$('pColsIn').value || 8));
+    const r = Math.min(40, Math.max(2, +$('pRowsIn').value || 8));
     $('pColsIn').value = c; $('pRowsIn').value = r;
     if (r === R && c === C) return;
     R = r; C = c;
@@ -1844,7 +1890,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   rulesDialog.addEventListener('click', ev => { if (ev.target === rulesDialog) closeRules(); });
 
   // ---------- share ----------
-  // one dialog for both modes: the level code, plus a high-res PNG puzzle
+  // one dialog for both modes: a direct puzzle link, the level code, and a high-res PNG puzzle
   // sheet (title, optional byline, the bare puzzle, rules underneath)
   let exportName = '';
   function openShare() {
@@ -1967,6 +2013,26 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     const box = document.createElement('div');
     box.className = 'export-box';
     img.alt = `Fences+ puzzle, ${C} by ${R} dots`;
+    const linkRow = document.createElement('div');
+    linkRow.className = 'field-row';
+    linkRow.style.margin = '0';
+    const linkLbl = document.createElement('label');
+    linkLbl.textContent = 'Puzzle link';
+    const linkOut = document.createElement('input');
+    linkOut.type = 'text';
+    linkOut.readOnly = true;
+    linkOut.setAttribute('aria-label', 'Puzzle link');
+    linkOut.value = shareUrl();
+    linkOut.addEventListener('focus', () => linkOut.select());
+    const copyLink = document.createElement('button');
+    copyLink.textContent = 'Copy link';
+    copyLink.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(linkOut.value);
+        copyLink.textContent = 'Copied ✓';
+      } catch { linkOut.select(); copyLink.textContent = 'Copy failed'; }
+    });
+    linkRow.append(linkLbl, linkOut, copyLink);
     const codeRow = document.createElement('div');
     codeRow.className = 'field-row';
     codeRow.style.margin = '0';
@@ -1975,6 +2041,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     const codeOut = document.createElement('input');
     codeOut.type = 'text';
     codeOut.readOnly = true;
+    codeOut.setAttribute('aria-label', 'Level code');
     codeOut.value = codeOf();
     codeOut.addEventListener('focus', () => codeOut.select());
     const copyCode = document.createElement('button');
@@ -2024,7 +2091,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     close.addEventListener('click', () => ov.remove());
     row.appendChild(close);
     ov.addEventListener('click', ev => { if (ev.target === ov) ov.remove(); });
-    box.append(codeRow, img, nameRow, note, row);
+    box.append(linkRow, codeRow, img, nameRow, note, row);
     ov.appendChild(box);
     document.body.appendChild(ov);
   }
@@ -2033,8 +2100,15 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   $('winShareBtn').addEventListener('click', openShare);
 
   // ---------- boot ----------
-  buildBoard();
-  updateHint();
-  pv.sync();
+  const sharedCode = codeFromHash();
+  if (sharedCode === null || !loadSharedPuzzle(sharedCode)) {
+    buildBoard();
+    updateHint();
+    pv.sync();
+  }
+  window.addEventListener('hashchange', () => {
+    const code = codeFromHash();
+    if (code !== null) loadSharedPuzzle(code);
+  });
 })();
 </script>
