@@ -20,6 +20,7 @@
   let playMarks = null;      // player marks per edge: 0 none, 1 fence, 2 ×
   let playUndo = [], playRedo = []; // actions contain one or more [edge, before, after] changes
   let timerIv = null, playT0 = 0, playMs = 0;
+  let degreeHelperTimer = null;
   let sharedPuzzlePrompt = false;
   let returnToSharedPrompt = false;
   let returnToAboutPrompt = false;
@@ -27,6 +28,7 @@
 
   const SAMPLE_CODE = '6x6:7.f.s.13.1j@TWFyaw';
   const HIDE_ABOUT_KEY = 'fences.hideAbout';
+  const DEGREE_HELPER_DELAY_MS = 300;
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
   // resumes its search where it left off instead of starting over
@@ -710,6 +712,24 @@
     action.push(...result.changes);
   }
 
+  function cancelDegree2Helper() {
+    clearTimeout(degreeHelperTimer);
+    degreeHelperTimer = null;
+  }
+
+  function scheduleDegree2Helper(action, protectedEdge) {
+    cancelDegree2Helper();
+    if (!$('degree2Chk').checked) return;
+    degreeHelperTimer = setTimeout(() => {
+      degreeHelperTimer = null;
+      if (tab !== 'play' || playPhase !== 'run' || !$('degree2Chk').checked) return;
+      applyDegree2Helper(action, protectedEdge);
+      if (solvedNow()) { winGame(); return; }
+      paintPlay();
+      updatePlayUI();
+    }, DEGREE_HELPER_DELAY_MS);
+  }
+
   function paintPlay() {
     const solving = tab === 'play' && playPhase !== 'setup';
     boardEl.classList.toggle('playing', solving);
@@ -731,12 +751,12 @@
     const before = playMarks[e], after = (before + 1) % 3;
     playMarks[e] = after;
     const action = [[e, before, after]];
-    applyDegree2Helper(action, e);
     playUndo.push(action);
     playRedo = [];
     if (solvedNow()) { winGame(); return; }
     paintPlay();
     updatePlayUI();
+    scheduleDegree2Helper(action, e);
   }
   function solvedNow() {
     const E = Ecount();
@@ -747,6 +767,7 @@
 
   function startPlay() {
     if (!pv.solution) return;
+    cancelDegree2Helper();
     sharedPuzzlePrompt = false;
     returnToSharedPrompt = false;
     returnToAboutPrompt = false;
@@ -793,6 +814,7 @@
     }
   }
   function winGame() {
+    cancelDegree2Helper();
     playPhase = 'won';
     playMs = performance.now() - playT0;
     clearInterval(timerIv); timerIv = null;
@@ -804,6 +826,7 @@
     updatePlayUI();
   }
   function quitPlay() { // back to setup; the verified puzzle stays loaded
+    cancelDegree2Helper();
     playPhase = 'setup';
     playUndo = []; playRedo = [];
     clearInterval(timerIv); timerIv = null;
@@ -835,6 +858,7 @@
 
   function undoPlay() {
     if ((playPhase !== 'run' && playPhase !== 'won') || !playUndo.length) return;
+    cancelDegree2Helper();
     const action = playUndo.pop();
     playRedo.push(action);
     applyPlayHistory(action, false);
@@ -842,6 +866,7 @@
 
   function redoPlay() {
     if (playPhase !== 'run' || !playRedo.length) return;
+    cancelDegree2Helper();
     const action = playRedo.pop();
     playUndo.push(action);
     applyPlayHistory(action, true);
@@ -946,6 +971,7 @@
   $('startBtn').addEventListener('click', startPlay);
   $('timerChk').addEventListener('change', updatePlayUI);
   $('degree2Chk').addEventListener('change', () => {
+    cancelDegree2Helper();
     if (playPhase !== 'run' || !playMarks) { paintPlay(); return; }
     const action = [];
     applyDegree2Helper(action);
@@ -961,6 +987,7 @@
   $('redoBtn').addEventListener('click', redoPlay);
   $('pResetBtn').addEventListener('click', () => {
     if (playPhase !== 'run' || !playMarks) return;
+    cancelDegree2Helper();
     const action = [];
     for (let e = 0; e < playMarks.length; e++)
       if (playMarks[e]) action.push([e, playMarks[e], 0]);
@@ -998,6 +1025,7 @@
   // ---------- tab switching ----------
   function switchTab(t) {
     if (t === tab) return;
+    cancelDegree2Helper();
     tabState[tab] = { R, C, L, clues, byline };
     tab = t;
     const s = tabState[t];
