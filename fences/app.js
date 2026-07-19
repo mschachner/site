@@ -26,7 +26,7 @@
   let returnToAboutPrompt = false;
   let autoStartPuzzle = false;
 
-  const SAMPLE_CODE = '6x6:7.f.s.13.1j@TWFyaw';
+  const SAMPLE_CODE = '6x6:6.7.f.s.13.1j@TWFyaw';
   const HIDE_ABOUT_KEY = 'fences.hideAbout';
   const DEGREE_HELPER_DELAY_MS = 300;
 
