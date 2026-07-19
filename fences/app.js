@@ -28,7 +28,7 @@
 
   const SAMPLE_CODE = '6x6:6.7.f.s.13.1j@TWFyaw';
   const HIDE_ABOUT_KEY = 'fences.hideAbout';
-  const DEGREE_HELPER_DELAY_MS = 300;
+  const DEGREE_HELPER_DELAY_MS = 400;
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
   // resumes its search where it left off instead of starting over
