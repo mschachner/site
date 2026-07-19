@@ -267,7 +267,6 @@
   .shared-status[data-kind="ok"] { color: var(--ok); }
   .shared-status[data-kind="bad"] { color: var(--bad); }
   .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-  .play-timer-row { display: flex; justify-content: flex-end; }
   .rules-shell { max-height: min(820px, calc(100vh - 28px)); overflow: auto; }
   .rules-head {
     position: sticky; top: 0; z-index: 1;
@@ -376,11 +375,11 @@
       </section>
 
       <section class="card" id="playRunCard" hidden>
-        <div class="play-timer-row">
+        <div class="chip-row">
+          <div class="chip" id="runByline">Puzzle by Anonymous</div>
           <span class="timer" id="timer">0.0 s</span>
         </div>
         <p class="note" id="runInfo" style="margin: 10px 0 0"></p>
-        <p class="note" id="runByline" style="margin: 4px 0 0; font-style: italic" hidden></p>
         <div class="boardctl">
           <label class="check-row"><input type="checkbox" id="timerChk" checked> Timer</label>
           <div class="btn-row" style="margin-top: 10px">
@@ -468,7 +467,7 @@
 </div>
 <dialog class="rules-dialog confirm-dialog" id="sharedDialog" aria-labelledby="sharedTitle" aria-describedby="sharedInfo sharedStatus">
   <div class="confirm-body">
-    <h2 class="win-h" id="sharedTitle">Ready for a puzzle?</h2>
+    <h2 class="win-h" id="sharedTitle">Fences+</h2>
     <p id="sharedInfo"></p>
     <p class="shared-byline" id="sharedByline" hidden></p>
     <p class="shared-status" id="sharedStatus">Checking puzzle…</p>
@@ -1666,8 +1665,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     } else {
       $('runInfo').textContent =
         `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}`;
-      $('runByline').textContent = byline ? `by ${byline}` : '';
-      $('runByline').hidden = !byline;
+      $('runByline').textContent = `Puzzle by ${byline || 'Anonymous'}`;
       $('timer').hidden = !$('timerChk').checked;
       $('pResetBtn').disabled = playPhase !== 'run';
       $('undoBtn').disabled = !playUndo.length;
