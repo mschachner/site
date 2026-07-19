@@ -262,7 +262,12 @@
   .confirm-dialog { width: min(430px, calc(100vw - 28px)); }
   .confirm-body { padding: 22px 24px 24px; }
   .confirm-body p { margin: 0; color: var(--muted); }
+  .confirm-body .shared-byline { margin-top: 6px; color: var(--ink); font-style: italic; }
+  .confirm-body .shared-status { margin-top: 12px; font-size: 13px; }
+  .shared-status[data-kind="ok"] { color: var(--ok); }
+  .shared-status[data-kind="bad"] { color: var(--bad); }
   .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .play-timer-row { display: flex; justify-content: flex-end; }
   .rules-shell { max-height: min(820px, calc(100vh - 28px)); overflow: auto; }
   .rules-head {
     position: sticky; top: 0; z-index: 1;
@@ -371,11 +376,11 @@
       </section>
 
       <section class="card" id="playRunCard" hidden>
-        <div class="chip-row">
-          <div class="chip" id="runChip" data-kind="search"><span class="pip"></span><span id="runChipText">Solving…</span></div>
+        <div class="play-timer-row">
           <span class="timer" id="timer">0.0 s</span>
         </div>
         <p class="note" id="runInfo" style="margin: 10px 0 0"></p>
+        <p class="note" id="runByline" style="margin: 4px 0 0; font-style: italic" hidden></p>
         <div class="boardctl">
           <label class="check-row"><input type="checkbox" id="timerChk" checked> Timer</label>
           <div class="btn-row" style="margin-top: 10px">
@@ -461,6 +466,18 @@
     </aside>
   </main>
 </div>
+<dialog class="rules-dialog confirm-dialog" id="sharedDialog" aria-labelledby="sharedTitle" aria-describedby="sharedInfo sharedStatus">
+  <div class="confirm-body">
+    <h2 class="win-h" id="sharedTitle">Ready for a puzzle?</h2>
+    <p id="sharedInfo"></p>
+    <p class="shared-byline" id="sharedByline" hidden></p>
+    <p class="shared-status" id="sharedStatus">Checking puzzle…</p>
+    <div class="confirm-actions">
+      <button id="sharedRulesBtn">How to play</button>
+      <button id="sharedStartBtn" class="primary" disabled>Start puzzle</button>
+    </div>
+  </div>
+</dialog>
 <dialog class="rules-dialog" id="rulesDialog" aria-labelledby="rulesTitle">
   <div class="rules-shell">
     <header class="rules-head">
@@ -976,6 +993,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   // ---------- state ----------
   let R = 8, C = 8, L = 1;      // the visible board: dots down/across, loops
   let clues = new Set();        // edge and cell-dot clue ids
+  let byline = '';              // optional creator attribution packaged with the puzzle
   let engine = null;
   let running = false, paused = false, stopped = false;
   let lastPaint = 0;
@@ -983,14 +1001,15 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   // top-level mode: the Play tab or the Create workshop. Each keeps its own
   // board; the globals above always hold the visible tab's, swapped on switch.
   let tab = 'play';
-  const tabState = { play: null, create: { R: 8, C: 8, L: 1, clues: new Set() } };
+  const tabState = { play: null, create: { R: 8, C: 8, L: 1, clues: new Set(), byline: '' } };
 
   let playPhase = 'setup';   // setup | run | won
   let playSolution = null;   // Set of solution edges, fixed once the puzzle verifies unique
   let playMarks = null;      // player marks per edge: 0 none, 1 fence, 2 ×
   let playUndo = [], playRedo = []; // actions contain one or more [edge, before, after] changes
   let timerIv = null, playT0 = 0, playMs = 0;
-  let startSharedPuzzle = false; // a valid puzzle in the URL starts once verification finishes
+  let sharedPuzzlePrompt = false;
+  let returnToSharedPrompt = false;
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
   // resumes its search where it left off instead of starting over
@@ -1000,12 +1019,35 @@ if (typeof module !== 'undefined') module.exports = { Fences };
 
   // ---------- level codes ----------
   // "RxC:ids" ("RxC~L:ids" for multi-loop), ids = sorted clue ids in base36
-  // joined by dots; an empty id list is a legal (clueless) puzzle
+  // joined by dots. An optional "@base64url" suffix carries the creator byline.
+  function encodeText(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decodeText(str) {
+    try {
+      const base64 = str.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - str.length % 4) % 4);
+      const binary = atob(base64);
+      const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0));
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch { return null; }
+  }
   const codeOf = () =>
     `${R}x${C}${L > 1 ? '~' + L : ''}:` +
-    [...clues].sort((a, b) => a - b).map(i => i.toString(36)).join('.');
+    [...clues].sort((a, b) => a - b).map(i => i.toString(36)).join('.') +
+    (byline ? '@' + encodeText(byline) : '');
   function parseCode(str) {
-    const m = /^\s*(\d+)\s*x\s*(\d+)\s*(?:~\s*(\d+))?\s*:\s*([0-9a-z.\s]*)$/i.exec(str || '');
+    let raw = String(str || '').trim(), parsedByline = '';
+    const at = raw.lastIndexOf('@');
+    if (at >= 0) {
+      const encoded = raw.slice(at + 1);
+      parsedByline = encoded && /^[0-9a-z_-]+$/i.test(encoded) ? decodeText(encoded) : null;
+      if (!parsedByline || parsedByline.length > 80) return null;
+      raw = raw.slice(0, at);
+    }
+    const m = /^\s*(\d+)\s*x\s*(\d+)\s*(?:~\s*(\d+))?\s*:\s*([0-9a-z.\s]*)$/i.exec(raw);
     if (!m) return null;
     const r = +m[1], c = +m[2], l = m[3] ? +m[3] : 1;
     if (r < 2 || r > 40 || c < 2 || c > 40 || l < 1 || l > 400) return null;
@@ -1013,7 +1055,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     const body = m[4].replace(/\s+/g, '');
     const ids = body ? body.split('.').map(s => s ? parseInt(s, 36) : NaN) : [];
     if (ids.some(i => !Number.isInteger(i) || i < 0 || i >= top)) return null;
-    return { R: r, C: c, L: l, clues: new Set(ids) };
+    return { R: r, C: c, L: l, clues: new Set(ids), byline: parsedByline };
   }
   function shareUrl() {
     const url = new URL(location.href);
@@ -1486,7 +1528,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   function afterCluesChanged() {
     paintClues();
     if (tab === 'create') restartSolve();
-    else { pv.key = null; pv.sync(); }
+    else { byline = ''; pv.key = null; pv.sync(); }
   }
 
   function toggleClue(e) {
@@ -1590,7 +1632,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       this.eng = new Fences(R, C, clues, { loops: L, maxSolutions: 2 });
       if (this.eng.done && this.eng.solutions === 1) this.solution = new Set(this.eng.lastSolution);
       updatePlayUI();
-      if (this.eng.done) maybeStartSharedPuzzle();
+      updateSharedPrompt();
       schedule();
     },
     step() { // one budget slice per tick; true while more work remains
@@ -1598,7 +1640,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       this.eng.run(12);
       if (this.eng.done && this.eng.solutions === 1) this.solution = new Set(this.eng.lastSolution);
       updatePlayUI();
-      if (this.eng.done) maybeStartSharedPuzzle();
+      updateSharedPrompt();
       return !this.eng.done;
     },
   };
@@ -1622,10 +1664,10 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       else setPChip('bad', 'Multiple solutions — add clues');
       $('startBtn').disabled = !pv.solution;
     } else {
-      $('runChip').dataset.kind = playPhase === 'won' ? 'ok' : 'search';
-      $('runChipText').textContent = playPhase === 'won' ? 'Solved!' : 'Solving…';
       $('runInfo').textContent =
         `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}`;
+      $('runByline').textContent = byline ? `by ${byline}` : '';
+      $('runByline').hidden = !byline;
       $('timer').hidden = !$('timerChk').checked;
       $('pResetBtn').disabled = playPhase !== 'run';
       $('undoBtn').disabled = !playUndo.length;
@@ -1663,6 +1705,9 @@ if (typeof module !== 'undefined') module.exports = { Fences };
 
   function startPlay() {
     if (!pv.solution) return;
+    sharedPuzzlePrompt = false;
+    returnToSharedPrompt = false;
+    if ($('sharedDialog').open) $('sharedDialog').close();
     playSolution = pv.solution;
     playMarks = new Int8Array(Ecount());
     playUndo = []; playRedo = [];
@@ -1678,10 +1723,22 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     updateHint();
     if (solvedNow()) winGame(); // degenerate code: every solution edge given
   }
-  function maybeStartSharedPuzzle() {
-    if (!startSharedPuzzle) return;
-    startSharedPuzzle = false;
-    if (pv.solution) startPlay();
+  function updateSharedPrompt() {
+    if (!sharedPuzzlePrompt) return;
+    const eng = pv.eng, start = $('sharedStartBtn'), status = $('sharedStatus');
+    start.disabled = !pv.solution;
+    if (!eng || !eng.done) {
+      status.dataset.kind = '';
+      status.textContent = 'Checking puzzle…';
+    } else if (pv.solution) {
+      status.dataset.kind = 'ok';
+      status.textContent = 'Puzzle checked — ready to start.';
+    } else {
+      status.dataset.kind = 'bad';
+      status.textContent = eng.solutions === 0
+        ? 'This puzzle has no solution.'
+        : 'This puzzle has more than one solution.';
+    }
   }
   function winGame() {
     playPhase = 'won';
@@ -1747,12 +1804,13 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   document.querySelectorAll('input[name="entry"]').forEach(rb =>
     rb.addEventListener('change', () => {
       const manual = document.querySelector('input[name="entry"]:checked').value === 'manual';
+      if (manual) byline = '';
       $('codeRow').hidden = manual;
       $('codeErr').hidden = true;
       $('manualRows').hidden = !manual;
     }));
   function setPuzzle(p) {
-    R = p.R; C = p.C; L = p.L; clues = p.clues;
+    R = p.R; C = p.C; L = p.L; clues = p.clues; byline = p.byline || '';
     $('pRowsIn').value = R; $('pColsIn').value = C; $('pLoopsIn').value = L;
   }
   function showCodeEntry(code, invalid = false) {
@@ -1765,6 +1823,9 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   function loadSharedPuzzle(code) {
     const p = parseCode(code);
     if (!p) {
+      sharedPuzzlePrompt = false;
+      returnToSharedPrompt = false;
+      if ($('sharedDialog').open) $('sharedDialog').close();
       if (playPhase === 'setup') showCodeEntry(code, true);
       return false;
     }
@@ -1773,8 +1834,16 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     document.querySelectorAll('.export-overlay:not(#winOverlay)').forEach(el => el.remove());
     showCodeEntry(code);
     setPuzzle(p);
-    startSharedPuzzle = true;
     buildBoard();
+    sharedPuzzlePrompt = true;
+    $('sharedInfo').textContent =
+      `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}`;
+    $('sharedByline').textContent = byline ? `by ${byline}` : '';
+    $('sharedByline').hidden = !byline;
+    $('sharedStartBtn').disabled = true;
+    $('sharedStatus').dataset.kind = '';
+    $('sharedStatus').textContent = 'Checking puzzle…';
+    if (!$('sharedDialog').open) $('sharedDialog').showModal();
     pv.key = null; pv.sync();
     updateHint();
     return true;
@@ -1782,6 +1851,9 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   function loadCode() {
     const p = parseCode($('codeIn').value);
     if (!p) { $('codeErr').hidden = false; return; }
+    sharedPuzzlePrompt = false;
+    returnToSharedPrompt = false;
+    if ($('sharedDialog').open) $('sharedDialog').close();
     $('codeErr').hidden = true;
     setPuzzle(p);
     buildBoard();
@@ -1795,6 +1867,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     $('pColsIn').value = c; $('pRowsIn').value = r;
     if (r === R && c === C) return;
     R = r; C = c;
+    byline = '';
     clues.clear();
     buildBoard();
     pv.key = null; pv.sync();
@@ -1806,6 +1879,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     $('pLoopsIn').value = l;
     if (l === L) return;
     L = l;
+    byline = '';
     pv.key = null; pv.sync();
   });
   $('pClearBtn').addEventListener('click', () => {
@@ -1853,10 +1927,10 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   // ---------- tab switching ----------
   function switchTab(t) {
     if (t === tab) return;
-    tabState[tab] = { R, C, L, clues };
+    tabState[tab] = { R, C, L, clues, byline };
     tab = t;
     const s = tabState[t];
-    R = s.R; C = s.C; L = s.L; clues = s.clues;
+    R = s.R; C = s.C; L = s.L; clues = s.clues; byline = s.byline || '';
     $('tabPlay').setAttribute('aria-selected', String(t === 'play'));
     $('tabCreate').setAttribute('aria-selected', String(t === 'create'));
     $('createCard').hidden = t !== 'create';
@@ -1876,6 +1950,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   $('tabCreate').addEventListener('click', () => switchTab('create'));
 
   // ---------- rules ----------
+  const sharedDialog = $('sharedDialog');
   const rulesDialog = $('rulesDialog');
   function openRules() {
     $('rulesLede').textContent = L === 1
@@ -1888,11 +1963,21 @@ if (typeof module !== 'undefined') module.exports = { Fences };
   $('rulesClose').addEventListener('click', closeRules);
   $('rulesGotIt').addEventListener('click', closeRules);
   rulesDialog.addEventListener('click', ev => { if (ev.target === rulesDialog) closeRules(); });
+  rulesDialog.addEventListener('close', () => {
+    if (!returnToSharedPrompt) return;
+    returnToSharedPrompt = false;
+    if (sharedPuzzlePrompt && playPhase === 'setup' && !sharedDialog.open) sharedDialog.showModal();
+  });
+  $('sharedRulesBtn').addEventListener('click', () => {
+    returnToSharedPrompt = true;
+    sharedDialog.close();
+    openRules();
+  });
+  $('sharedStartBtn').addEventListener('click', startPlay);
 
   // ---------- share ----------
   // one dialog for both modes: a direct puzzle link, the level code, and a high-res PNG puzzle
   // sheet (title, optional byline, the bare puzzle, rules underneath)
-  let exportName = '';
   function openShare() {
     // create shares its live board (unique only); play shares its verified puzzle
     if (tab === 'create' && !(engine && engine.done && engine.solutions === 1)) return;
@@ -2005,7 +2090,7 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       }
       img.src = canvas.toDataURL('image/png');
     }
-    render(exportName);
+    render(byline);
     // sandboxed frames block the download API, so show the image instead:
     // right-click / long-press saves it at full resolution
     const ov = document.createElement('div');
@@ -2053,20 +2138,27 @@ if (typeof module !== 'undefined') module.exports = { Fences };
       } catch { codeOut.select(); copyCode.textContent = 'Copy failed'; }
     });
     codeRow.append(codeLbl, codeOut, copyCode);
-    const nameRow = document.createElement('div');
-    nameRow.className = 'field-row';
-    nameRow.style.margin = '0';
-    const nameLbl = document.createElement('label');
-    nameLbl.textContent = 'By';
-    const nameIn = document.createElement('input');
-    nameIn.type = 'text';
-    nameIn.placeholder = 'optional — adds a “by …” byline';
-    nameIn.value = exportName;
-    nameIn.addEventListener('input', () => {
-      exportName = nameIn.value.trim();
-      render(exportName);
-    });
-    nameRow.append(nameLbl, nameIn);
+    let nameRow = null;
+    if (tab === 'create') {
+      nameRow = document.createElement('div');
+      nameRow.className = 'field-row';
+      nameRow.style.margin = '0';
+      const nameLbl = document.createElement('label');
+      nameLbl.textContent = 'By';
+      const nameIn = document.createElement('input');
+      nameIn.type = 'text';
+      nameIn.maxLength = 80;
+      nameIn.setAttribute('aria-label', 'Byline');
+      nameIn.placeholder = 'optional — adds a “by …” byline';
+      nameIn.value = byline;
+      nameIn.addEventListener('input', () => {
+        byline = nameIn.value.trim();
+        codeOut.value = codeOf();
+        linkOut.value = shareUrl();
+        render(byline);
+      });
+      nameRow.append(nameLbl, nameIn);
+    }
     const note = document.createElement('p');
     note.className = 'note';
     note.style.margin = '0';
@@ -2091,7 +2183,10 @@ if (typeof module !== 'undefined') module.exports = { Fences };
     close.addEventListener('click', () => ov.remove());
     row.appendChild(close);
     ov.addEventListener('click', ev => { if (ev.target === ov) ov.remove(); });
-    box.append(linkRow, codeRow, img, nameRow, note, row);
+    const contents = [linkRow, codeRow, img];
+    if (nameRow) contents.push(nameRow);
+    contents.push(note, row);
+    box.append(...contents);
     ov.appendChild(box);
     document.body.appendChild(ov);
   }
