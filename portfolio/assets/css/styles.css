@@ -410,12 +410,48 @@ h2 + .downloads-heading {
 
 /* ============ Teaching materials ============ */
 
+.materials-accordion {
+  margin-top: 30px;
+}
+
+.materials-accordion summary {
+  padding: 16px 20px;
+}
+
+.materials-accordion summary span {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: var(--green);
+}
+
+.accordion-body {
+  padding: 2px 20px 22px;
+}
+
+.accordion-body .section-intro {
+  margin: 12px 0 6px;
+}
+
+.accordion-body .material {
+  margin: 26px 0 6px;
+}
+
+.material h4 .dl {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 6px;
+}
+
 .material {
   max-width: 720px;
   margin: 34px 0;
 }
 
-.material h3 {
+.material h4 {
+  font-size: 1.08rem;
   margin: 0 0 12px;
 }
 

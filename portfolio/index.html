@@ -313,35 +313,62 @@
       <!-- ============ Teaching materials ============ -->
       <section id="materials">
         <h2>Teaching materials</h2>
-        <p class="section-intro">
-          In my work with the Ithaca High School
-          <a href="https://math.cornell.edu/k12-enrichment">Mathematics student seminar</a>,
-          I developed a unit on logic, set theory, and the foundations of mathematics.
-          You can find the materials I prepared for the unit below.
-        </p>
 
-        <div class="material">
-          <h3>Mathematical Logic: The Rules of Mathematics and How to Break Them</h3>
-          <object class="pdf-embed" data="materials/ihs-2025.pdf" type="application/pdf">
-            <p class="pdf-fallback"><a href="materials/ihs-2025.pdf">Mathematical Logic: The Rules of Mathematics and How to Break Them (PDF)</a></p>
-          </object>
-          <p class="pdf-download"><a href="materials/ihs-2025.pdf">Download (PDF)</a></p>
-        </div>
+        <div class="accordion materials-accordion">
+          <details>
+            <summary><span>Cornell Prison Education Program</span></summary>
+            <div class="accordion-body">
 
-        <div class="material">
-          <h3>Set Theory Cheat Sheet: Days 1–5</h3>
-          <object class="pdf-embed" data="materials/cheatsheet.pdf" type="application/pdf">
-            <p class="pdf-fallback"><a href="materials/cheatsheet.pdf">Set Theory Cheat Sheet: Days 1–5 (PDF)</a></p>
-          </object>
-          <p class="pdf-download"><a href="materials/cheatsheet.pdf">Download (PDF)</a></p>
-        </div>
+              <div class="material">
+                <h4>MATH 112 Complete Lecture Notes, Spring 2026 <a class="dl" href="materials/MATH112_lecture_notes.pdf">(download pdf)</a></h4>
+                <object class="pdf-embed" data-src="materials/MATH112_lecture_notes.pdf" type="application/pdf">
+                  <p class="pdf-fallback"><a href="materials/MATH112_lecture_notes.pdf">MATH 112 Complete Lecture Notes, Spring 2026 (PDF)</a></p>
+                </object>
+              </div>
 
-        <div class="material">
-          <h3>Philosophy Day</h3>
-          <object class="pdf-embed" data="materials/philosophy.pdf" type="application/pdf">
-            <p class="pdf-fallback"><a href="materials/philosophy.pdf">Philosophy Day (PDF)</a></p>
-          </object>
-          <p class="pdf-download"><a href="materials/philosophy.pdf">Download (PDF)</a></p>
+            </div>
+          </details>
+          <details>
+            <summary><span>Ithaca High School Math Seminar</span></summary>
+            <div class="accordion-body">
+
+              <p class="section-intro">
+                In my work with the Ithaca High School
+                <a href="https://math.cornell.edu/k12-enrichment">Mathematics student seminar</a>,
+                I developed a unit on logic, set theory, and the foundations of mathematics.
+                You can find the materials I prepared for the unit below.
+              </p>
+
+              <div class="material">
+                <h4>Mathematical Logic: The Rules of Mathematics and How to Break Them <a class="dl" href="materials/ihs-2025.pdf">(download pdf)</a></h4>
+                <object class="pdf-embed" data-src="materials/ihs-2025.pdf" type="application/pdf">
+                  <p class="pdf-fallback"><a href="materials/ihs-2025.pdf">Mathematical Logic: The Rules of Mathematics and How to Break Them (PDF)</a></p>
+                </object>
+              </div>
+
+              <div class="material">
+                <h4>Set Theory Cheat Sheet: Days 1–5 <a class="dl" href="materials/cheatsheet.pdf">(download pdf)</a></h4>
+                <object class="pdf-embed" data-src="materials/cheatsheet.pdf" type="application/pdf">
+                  <p class="pdf-fallback"><a href="materials/cheatsheet.pdf">Set Theory Cheat Sheet: Days 1–5 (PDF)</a></p>
+                </object>
+              </div>
+
+              <div class="material">
+                <h4>Philosophy Day <a class="dl" href="materials/philosophy.pdf">(download pdf)</a></h4>
+                <object class="pdf-embed" data-src="materials/philosophy.pdf" type="application/pdf">
+                  <p class="pdf-fallback"><a href="materials/philosophy.pdf">Philosophy Day (PDF)</a></p>
+                </object>
+              </div>
+
+              <div class="material">
+                <h4>Logic project proposals <a class="dl" href="materials/project-proposals.pdf">(download pdf)</a></h4>
+                <object class="pdf-embed" data-src="materials/project-proposals.pdf" type="application/pdf">
+                  <p class="pdf-fallback"><a href="materials/project-proposals.pdf">Logic project proposals (PDF)</a></p>
+                </object>
+              </div>
+
+            </div>
+          </details>
         </div>
       </section>
 
@@ -384,6 +411,16 @@
       (function () {
         var panels = ['about', 'experience', 'evaluations', 'materials', 'outreach'];
         var links = document.querySelectorAll('.nav-links a, .nav-name');
+        // Load a group's PDF embeds the first time its dropdown is opened
+        document.querySelectorAll('#materials details').forEach(function (d) {
+          d.addEventListener('toggle', function () {
+            if (!d.open) return;
+            d.querySelectorAll('.pdf-embed[data-src]').forEach(function (o) {
+              o.setAttribute('data', o.getAttribute('data-src'));
+              o.removeAttribute('data-src');
+            });
+          });
+        });
 
         function show(id) {
           if (panels.indexOf(id) === -1) id = 'about';
