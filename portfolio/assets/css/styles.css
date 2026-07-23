@@ -408,6 +408,35 @@ h2 + .downloads-heading {
 }
 
 
+/* ============ Teaching materials ============ */
+
+.material {
+  max-width: 720px;
+  margin: 34px 0;
+}
+
+.material h3 {
+  margin: 0 0 12px;
+}
+
+.pdf-embed {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+}
+
+.pdf-fallback {
+  padding: 18px;
+}
+
+.pdf-download {
+  margin-top: 8px;
+  font-size: 0.92rem;
+}
+
+
 /* ============ Outreach ============ */
 
 .outreach-photo {
