@@ -112,6 +112,7 @@
           </div>
           <div class="btn-row">
             <button id="clearBtn">Clear clues</button>
+            <button id="testBtn">Test</button>
             <button id="shareBtn" class="primary">Share</button>
           </div>
         </div>
@@ -129,6 +130,9 @@
             <span class="row-h">Unlikely</span>
             <input type="checkbox" id="rareChk" aria-label="Unlikely edges">
             <input type="checkbox" id="rareDotChk" aria-label="Unlikely dots">
+          </div>
+          <div class="btn-row overlay-btns">
+            <button id="cluesOnlyBtn" class="toggle" aria-pressed="false" title="Hide every overlay above, then bring them all back">Clues only</button>
           </div>
           <div class="check-col">
             <label class="check-row"><input type="checkbox" id="pctChk"> Edge percentages</label>
@@ -257,6 +261,7 @@
 <div class="tip" id="tip"></div>
 
 <script src="fences-engine.js"></script>
+<script src="precomputed.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

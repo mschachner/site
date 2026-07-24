@@ -22,6 +22,7 @@
   let timerIv = null, playT0 = 0, playMs = 0;
   let degreeHelperTimer = null;
   let sharedPuzzlePrompt = false;
+  let testReturnTab = null; // set when Create sent this puzzle over to be tried
   let returnToSharedPrompt = false;
   let returnToAboutPrompt = false;
   let autoStartPuzzle = false;
@@ -35,6 +36,36 @@
   const stateCache = new Map(); // key -> engine, insertion order = LRU
   const CACHE_MAX = 64;
   const cacheKey = () => `${R}x${C}~${L}|${[...clues].sort((a, b) => a - b).join(',')}`;
+
+  // ---------- precomputed empty boards ----------
+  // The clueless board is the search the workshop opens on, and the longest it
+  // ever runs (4,638,576 solutions at 8x8). Its answer never varies, so
+  // precomputed.js ships the finished tallies for every single-loop board up
+  // to 8x8 and the heatmap is simply there on arrival. Everything else — any
+  // clue at all, more than one loop, a larger grid — still searches live.
+  function fillTally(into, str) { // base-36 counts, dot separated, one per index
+    const parts = String(str).split('.');
+    if (parts.length !== into.length) return false; // stale data: fall back to searching
+    for (let i = 0; i < parts.length; i++) {
+      const n = parseInt(parts[i], 36);
+      if (!Number.isFinite(n)) return false;
+      into[i] = n;
+    }
+    return true;
+  }
+  function precomputedBoard() {
+    if (clues.size || L !== 1) return null;
+    const rec = globalThis.FencesPrecomputed && FencesPrecomputed[`${R}x${C}`];
+    if (!rec) return null;
+    const [solutions, nodes, edgeTally, cellTally] = rec;
+    const eng = new Fences(R, C, clues, { loops: L });
+    if (!fillTally(eng.heat, edgeTally) || !fillTally(eng.cellHeat, cellTally)) return null;
+    eng.solutions = solutions;
+    eng.nodes = nodes;
+    eng.done = true;
+    eng.precomputed = true;
+    return eng;
+  }
 
   // ---------- level codes ----------
   // "RxC:ids" ("RxC~L:ids" for multi-loop), ids = sorted clue ids in base36
@@ -464,7 +495,7 @@
     $('stClues').textContent = fmtInt(clues.size);
     $('stSolutions').textContent = fmtInt(sols);
     $('stNodes').textContent = engine ? fmtNodes(engine.nodes) : '0';
-    $('stTime').textContent = fmtTime(engine ? engine.elapsedMs : 0);
+    $('stTime').textContent = engine && engine.precomputed ? 'precomputed' : fmtTime(engine ? engine.elapsedMs : 0);
     $('freqScale').classList.toggle('off', !(sols > 1 && (showHeat || showCellHeat)));
 
     updateWasteUI();
@@ -490,6 +521,8 @@
     const unique = engine && engine.done && engine.solutions === 1;
     $('shareBtn').disabled = !unique;
     $('shareBtn').title = unique ? '' : 'Share needs a unique solution';
+    $('testBtn').disabled = !unique;
+    $('testBtn').title = unique ? 'Solve this puzzle yourself, then come back' : 'Test needs a unique solution';
   }
   function updateWasteUI() {
     const st = $('wasteStatus');
@@ -534,7 +567,7 @@
     if (cached) {
       stateCache.delete(key); stateCache.set(key, cached); // LRU bump
     } else {
-      cached = new Fences(R, C, clues, { loops: L });
+      cached = precomputedBoard() || new Fences(R, C, clues, { loops: L });
       cached.elapsedMs = 0;
       stateCache.set(key, cached);
       if (stateCache.size > CACHE_MAX) stateCache.delete(stateCache.keys().next().value);
@@ -595,7 +628,9 @@
     updateStatus(); updateButtons();
   });
   // overlay toggles are independent; updateStatus keeps the gradient legend in step
+  const overlaySetters = new Map();
   function bindOverlay(id, set) {
+    overlaySetters.set(id, set);
     $(id).addEventListener('change', () => {
       set($(id).checked);
       paintHeat();
@@ -609,6 +644,27 @@
   bindOverlay('rareChk', v => highlightRare = v);
   bindOverlay('rareDotChk', v => highlightRareDots = v);
   bindOverlay('pctChk', v => showPct = v);
+  // clues-only: strip the six board overlays to see the puzzle as a solver
+  // meets it, then put them back exactly as they were rather than reset
+  const OVERLAY_IDS = ['forcedChk', 'forcedDotChk', 'heatChk', 'cellHeatChk', 'rareChk', 'rareDotChk'];
+  let overlaysHidden = null; // the checkbox states parked while the view is on
+  function setCluesOnly(on) {
+    if (on === !!overlaysHidden) return;
+    if (on) overlaysHidden = OVERLAY_IDS.map(id => $(id).checked);
+    OVERLAY_IDS.forEach((id, i) => {
+      const box = $(id);
+      box.checked = on ? false : overlaysHidden[i];
+      box.disabled = on;
+      overlaySetters.get(id)(box.checked);
+    });
+    if (!on) overlaysHidden = null;
+    const btn = $('cluesOnlyBtn');
+    btn.setAttribute('aria-pressed', String(on));
+    btn.textContent = on ? 'Show overlays' : 'Clues only';
+    paintHeat();
+    updateStatus();
+  }
+  $('cluesOnlyBtn').addEventListener('click', () => setCluesOnly(!overlaysHidden));
   $('wasteChk').addEventListener('change', () => {
     waste.on = $('wasteChk').checked;
     waste.sync();
@@ -643,6 +699,16 @@
     restartSolve();
   }
   $('loopsIn').addEventListener('change', applyLoops);
+
+  // Test puzzle: hand the board on the workbench to Play and start it, so a
+  // puzzle can be solved once before it goes out. The draft is not disturbed —
+  // Create still holds it, and leaving the puzzle comes straight back to it.
+  function testPuzzle() {
+    if (tab !== 'create' || !(engine && engine.done && engine.solutions === 1)) return;
+    loadSharedPuzzle(codeOf(), false); // checks it over, then starts on its own
+    testReturnTab = 'create';
+  }
+  $('testBtn').addEventListener('click', testPuzzle);
 
   // ---------- play mode ----------
   // setup-phase verifier: a puzzle is playable when it has exactly one
@@ -904,12 +970,14 @@
       sharedPuzzlePrompt = false;
       returnToSharedPrompt = false;
       autoStartPuzzle = false;
+      testReturnTab = null;
       if ($('sharedDialog').open) $('sharedDialog').close();
       if (playPhase === 'setup') showCodeEntry(code, true);
       return false;
     }
     if (tab !== 'play') switchTab('play');
     if (playPhase !== 'setup') quitPlay();
+    testReturnTab = null;
     document.querySelectorAll('.export-overlay:not(#winOverlay)').forEach(el => el.remove());
     showCodeEntry(code);
     setPuzzle(p);
@@ -935,6 +1003,7 @@
     sharedPuzzlePrompt = false;
     returnToSharedPrompt = false;
     autoStartPuzzle = false;
+    testReturnTab = null;
     if ($('sharedDialog').open) $('sharedDialog').close();
     $('codeErr').hidden = true;
     setPuzzle(p);
@@ -1008,6 +1077,11 @@
   $('quitConfirmBtn').addEventListener('click', () => {
     quitDialog.close();
     quitPlay();
+    if (testReturnTab) { // a test run ends where it started, in the workshop
+      const back = testReturnTab;
+      testReturnTab = null;
+      switchTab(back);
+    }
   });
   quitDialog.addEventListener('click', ev => { if (ev.target === quitDialog) quitDialog.close(); });
   document.addEventListener('keydown', ev => {
@@ -1025,6 +1099,7 @@
   // ---------- tab switching ----------
   function switchTab(t) {
     if (t === tab) return;
+    testReturnTab = null; // moving by hand: no test run to return from
     cancelDegree2Helper();
     tabState[tab] = { R, C, L, clues, byline };
     tab = t;
