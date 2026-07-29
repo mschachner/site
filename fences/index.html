@@ -29,14 +29,39 @@
 
     <aside class="panel">
       <section class="card" id="playSetupCard">
-        <p class="note">Enter a puzzle to play — it needs exactly one solution.</p>
         <div class="radio-row">
-          <label><input type="radio" name="entry" value="code" checked> Level code</label>
+          <label><input type="radio" name="entry" value="random" checked> Random</label>
+          <label><input type="radio" name="entry" value="code"> Level code</label>
           <label><input type="radio" name="entry" value="manual"> By hand</label>
         </div>
-        <div class="field-row" id="codeRow">
+        <div class="field-row" id="codeRow" hidden>
           <input id="codeIn" type="text" style="width: auto; flex: 1" placeholder="paste a level code" aria-label="Level code">
           <button id="loadBtn">Load</button>
+        </div>
+        <div id="randomRows">
+          <div class="field-row">
+            <label for="gRowsIn">Dimensions</label>
+            <input id="gRowsIn" type="number" min="2" max="40" value="8" aria-label="Rows of dots">
+            <span class="times">×</span>
+            <input id="gColsIn" type="number" min="2" max="40" value="8" aria-label="Columns of dots">
+          </div>
+          <div class="field-row">
+            <label for="gDiffSel">Difficulty</label>
+            <select id="gDiffSel" aria-label="Difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="gLoopsIn">Loops</label>
+            <input id="gLoopsIn" type="number" min="1" max="400" value="1" aria-label="Number of loops in the solution">
+            <label class="check-row"><input type="checkbox" id="gDotsChk"> Dot clues</label>
+          </div>
+          <div class="btn-row">
+            <button id="genBtn" class="primary">Generate</button>
+          </div>
         </div>
         <p class="note" id="codeErr" style="color: var(--bad); margin: 0" hidden>That code didn&rsquo;t parse — check it was copied whole.</p>
         <div id="manualRows" hidden>
@@ -261,6 +286,7 @@
 <div class="tip" id="tip"></div>
 
 <script src="fences-engine.js"></script>
+<script src="fences-gen.js"></script>
 <script src="precomputed.js"></script>
 <script src="app.js"></script>
 </body>

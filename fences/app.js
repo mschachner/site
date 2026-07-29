@@ -555,6 +555,7 @@
     }
     if (tab === 'create' && waste.step()) more = true;
     if (pv.step()) more = true;
+    if (gen.step()) more = true;
     const now = performance.now();
     if (now - lastPaint > 110 || !more) { paintHeat(); paintBangs(); lastPaint = now; }
     updateStatus(); updateButtons();
@@ -587,7 +588,7 @@
   function afterCluesChanged() {
     paintClues();
     if (tab === 'create') restartSolve();
-    else { byline = ''; pv.key = null; pv.sync(); }
+    else { byline = ''; gen.cancel(); pv.key = null; pv.sync(); }
   }
 
   function toggleClue(e) {
@@ -737,6 +738,73 @@
     },
   };
 
+  // random puzzles: each difficulty implies clue kinds and a loop count, and
+  // picking harder clue kinds by hand raises the difficulty to match
+  const GEN_DEFAULTS = {
+    easy:   { dots: false, loops: 1 },
+    medium: { dots: false, loops: 1 },
+    hard:   { dots: true,  loops: 1 },
+    expert: { dots: true,  loops: 2 },
+  };
+  const gen = {
+    g: null, status: '',
+    cancel() { this.g = null; this.status = ''; },
+    begin() {
+      const r = Math.min(40, Math.max(2, +$('gRowsIn').value || 8));
+      const c = Math.min(40, Math.max(2, +$('gColsIn').value || 8));
+      const l = Math.min(400, Math.max(1, +$('gLoopsIn').value || 1));
+      $('gRowsIn').value = r; $('gColsIn').value = c; $('gLoopsIn').value = l;
+      const diff = $('gDiffSel').value;
+      R = r; C = c;
+      L = diff === 'easy' || diff === 'medium' ? 1 : l;
+      clues = new Set(); byline = '';
+      $('pRowsIn').value = R; $('pColsIn').value = C; $('pLoopsIn').value = L;
+      buildBoard();
+      pv.key = null; pv.eng = null; pv.solution = null;
+      this.status = '';
+      this.g = new FencesGen(R, C, { loops: L, difficulty: diff, dots: $('gDotsChk').checked });
+      updatePlayUI();
+      schedule();
+    },
+    step() {
+      if (!this.g || tab !== 'play' || playPhase !== 'setup') return false;
+      const g = this.g;
+      if (g.step(12)) { updatePlayUI(); return true; }
+      this.g = null;
+      if (g.error) { this.status = g.error; updatePlayUI(); return false; }
+      clues = new Set(g.result);
+      paintClues();
+      // generation already proved this exact clue set unique, so hand the
+      // verifier its finished answer instead of searching again
+      pv.key = cacheKey();
+      pv.eng = { done: true, solutions: 1, impossible: null };
+      pv.solution = new Set(g.solution);
+      updatePlayUI();
+      return false;
+    },
+  };
+  function bumpGenDifficulty() {
+    const sel = $('gDiffSel');
+    if ((+$('gLoopsIn').value > 1 || $('gDotsChk').checked) &&
+        (sel.value === 'easy' || sel.value === 'medium')) sel.value = 'hard';
+  }
+  $('gDiffSel').addEventListener('change', () => {
+    const d = GEN_DEFAULTS[$('gDiffSel').value];
+    $('gDotsChk').checked = d.dots;
+    const cap = Math.floor((+$('gRowsIn').value * +$('gColsIn').value) / 4) || 1;
+    $('gLoopsIn').value = Math.max(1, Math.min(d.loops, cap));
+  });
+  $('gDotsChk').addEventListener('change', bumpGenDifficulty);
+  $('gLoopsIn').addEventListener('change', () => {
+    $('gLoopsIn').value = Math.min(400, Math.max(1, +$('gLoopsIn').value || 1));
+    bumpGenDifficulty();
+  });
+  for (const id of ['gRowsIn', 'gColsIn'])
+    $(id).addEventListener('change', () => {
+      $(id).value = Math.min(40, Math.max(2, +$(id).value || 8));
+    });
+  $('genBtn').addEventListener('click', () => gen.begin());
+
   function setPChip(kind, text) {
     $('pChip').dataset.kind = kind;
     $('pChipText').textContent = text;
@@ -748,7 +816,10 @@
     $('playRunCard').hidden = setup;
     if (setup) {
       const eng = pv.eng;
-      if (!eng) setPChip('warn', 'Enter a puzzle');
+      if (gen.g) setPChip('search', `Generating… ${Math.round(gen.g.progress() * 100)}%`);
+      else if (gen.status) setPChip('bad', gen.status);
+      else if (entryMode() === 'random' && !clues.size) setPChip('warn', 'Generate a puzzle');
+      else if (!eng) setPChip('warn', 'Enter a puzzle');
       else if (eng.impossible) setPChip('bad', eng.impossible === 'loops' ? 'Too many loops for this grid' : 'Impossible grid');
       else if (!eng.done) setPChip('search', 'Checking…');
       else if (eng.solutions === 1) setPChip('ok', 'Unique solution — ready');
@@ -944,14 +1015,18 @@
       : 'Click an edge for a fence clue · click a cell&rsquo;s middle to mark it inside&nbsp;● or outside&nbsp;○ · right-click a dot to remove it';
   }
 
-  // play setup: entry method, level code, manual dimensions
+  // play setup: entry method, level code, manual dimensions, random puzzles
+  const entryMode = () => document.querySelector('input[name="entry"]:checked').value;
   document.querySelectorAll('input[name="entry"]').forEach(rb =>
     rb.addEventListener('change', () => {
-      const manual = document.querySelector('input[name="entry"]:checked').value === 'manual';
-      if (manual) byline = '';
-      $('codeRow').hidden = manual;
+      const mode = entryMode();
+      if (mode !== 'code') byline = '';
+      $('codeRow').hidden = mode !== 'code';
       $('codeErr').hidden = true;
-      $('manualRows').hidden = !manual;
+      $('manualRows').hidden = mode !== 'manual';
+      $('randomRows').hidden = mode !== 'random';
+      if (mode !== 'random') gen.cancel();
+      updatePlayUI();
     }));
   function setPuzzle(p) {
     R = p.R; C = p.C; L = p.L; clues = p.clues; byline = p.byline || '';
@@ -962,6 +1037,8 @@
     $('codeIn').value = code;
     $('codeRow').hidden = false;
     $('manualRows').hidden = true;
+    $('randomRows').hidden = true;
+    gen.cancel();
     $('codeErr').hidden = !invalid;
   }
   function loadSharedPuzzle(code, showPrompt = true) {
@@ -1005,6 +1082,7 @@
     autoStartPuzzle = false;
     testReturnTab = null;
     if ($('sharedDialog').open) $('sharedDialog').close();
+    gen.cancel();
     $('codeErr').hidden = true;
     setPuzzle(p);
     buildBoard();
@@ -1101,6 +1179,7 @@
     if (t === tab) return;
     testReturnTab = null; // moving by hand: no test run to return from
     cancelDegree2Helper();
+    gen.cancel();
     tabState[tab] = { R, C, L, clues, byline };
     tab = t;
     const s = tabState[t];

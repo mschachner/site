@@ -160,10 +160,17 @@
     width: 64px; padding: 5px 8px;
   }
   input[type="number"]:focus-visible, input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  select {
+    font: inherit; font-size: 13.5px;
+    color: var(--ink); background: var(--card2);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 5px 8px;
+  }
+  select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   .export-box input[type="text"] { width: auto; flex: 1; }
 
-  .radio-row { display: flex; gap: 14px; margin-bottom: 10px; font-size: 13.5px; }
-  .radio-row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .radio-row { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; font-size: 13.5px; }
+  .radio-row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
   input[type="radio"] { accent-color: var(--accent); }
 
   .timer { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
