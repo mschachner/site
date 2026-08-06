@@ -15,12 +15,15 @@
   let tab = 'play';
   const tabState = { play: null, create: { R: 8, C: 8, L: 1, clues: new Set(), byline: '' } };
 
-  let playPhase = 'setup';   // setup | run | won
+  let playPhase = 'setup';   // setup | run | won | given (gave up: solution shown)
   let playSolution = null;   // Set of solution edges, fixed once the puzzle verifies unique
   let playMarks = null;      // player marks per edge: 0 none, 1 fence, 2 ×
-  let playUndo = [], playRedo = []; // actions contain one or more [edge, before, after] changes
+  let playDots = null;       // player cell annotations: 0 none, 1 indoors ●, 2 outdoors ○
+  let playUndo = [], playRedo = []; // actions contain one or more ['e'|'d', index, before, after] changes
   let timerIv = null, playT0 = 0, playMs = 0;
-  let degreeHelperTimer = null;
+  let helperTimer = null;
+  let pendingMerge = null;   // the just-cycled edge/dot, so quick re-clicks coalesce into one undo step
+  let confettiCv = null, confettiRaf = 0;
   let sharedPuzzlePrompt = false;
   let testReturnTab = null; // set when Create sent this puzzle over to be tried
   let returnToSharedPrompt = false;
@@ -122,7 +125,7 @@
   // svg element caches, rebuilt on resize
   let heatEls = [], clueEls = [], neverEls = [], pctEls = [], bangEls = [];
   let dotClueEls = [], cellBangEls = [], cellHeatEls = [];
-  let playEls = [], playXEls = [], dotEls = [];
+  let playEls = [], playXEls = [], playDotEls = [], cellHitEls = [], dotEls = [];
 
   // ---------- geometry ----------
   const S = 40, PAD = 22;
@@ -201,17 +204,21 @@
     const gCHeat = el('g', {});
     const F = Fcount();
     dotClueEls = new Array(F); cellBangEls = new Array(F); cellHeatEls = new Array(F);
+    playDotEls = new Array(F); cellHitEls = new Array(F);
     for (let f = 0; f < F; f++) {
       const cx = PAD + (f % (C - 1) + 0.5) * S, cy = PAD + (((f / (C - 1)) | 0) + 0.5) * S;
       const hc = el('circle', { cx, cy, r: 5, class: 'cheat', display: 'none' });
       cellHeatEls[f] = hc; gCHeat.appendChild(hc);
       const dc = el('circle', { cx, cy, r: 6.2, class: 'celldot', display: 'none' });
       dotClueEls[f] = dc; gCell.appendChild(dc);
+      const pd = el('circle', { cx, cy, r: 6.2, class: 'pdot', display: 'none' });
+      playDotEls[f] = pd; gPlay.appendChild(pd);
       const bg = el('text', { x: cx + 10, y: cy - 7, dy: '0.34em', 'text-anchor': 'middle', class: 'bang', display: 'none' });
       bg.textContent = '!';
       cellBangEls[f] = bg; gBang.appendChild(bg);
       const hit = el('circle', { cx, cy, r: 11.5, class: 'hitc' });
       hit.dataset.f = f;
+      cellHitEls[f] = hit;
       gHit.appendChild(hit);
     }
     dotEls = new Array(R * C);
@@ -224,8 +231,9 @@
     svg.append(gTrack, gHeat, gCHeat, gNever, gClue, gPlay, gCell, gDot, gPct, gBang, gHit);
     gHit.addEventListener('click', ev => {
       const t = ev.target;
-      if (tab === 'play' && playPhase !== 'setup') { // solving: edges cycle player marks
+      if (tab === 'play' && playPhase !== 'setup') { // solving: edges and dots cycle player marks
         if (t.dataset.e !== undefined) playToggle(+t.dataset.e);
+        else if (t.dataset.f !== undefined) playDotToggle(+t.dataset.f);
         return;
       }
       if (t.dataset.e !== undefined) toggleClue(+t.dataset.e);
@@ -236,7 +244,14 @@
     });
     gHit.addEventListener('contextmenu', ev => {
       const t = ev.target;
-      if (t.dataset.f === undefined || (tab === 'play' && playPhase !== 'setup')) return;
+      if (t.dataset.f === undefined) return;
+      if (tab === 'play' && playPhase !== 'setup') {
+        if (playPhase === 'run' && playDots && playDots[+t.dataset.f]) {
+          ev.preventDefault();
+          playDotClear(+t.dataset.f);
+        }
+        return;
+      }
       ev.preventDefault();
       clearDot(+t.dataset.f);
     });
@@ -270,8 +285,10 @@
     for (let f = 0; f < dotClueEls.length; f++) {
       const dc = dotClueEls[f];
       const isIn = clues.has(dotIn(f));
-      dc.setAttribute('display', isIn || clues.has(dotOut(f)) ? '' : 'none');
+      const given = isIn || clues.has(dotOut(f));
+      dc.setAttribute('display', given ? '' : 'none');
       dc.setAttribute('class', 'celldot ' + (isIn ? 'in' : 'out'));
+      cellHitEls[f].classList.toggle('given', given);
     }
   }
   let showForced = true, showForcedDots = true;
@@ -828,13 +845,19 @@
       $('startBtn').disabled = !pv.solution;
     } else {
       $('runInfo').textContent =
-        `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}`;
+        `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · ${clues.size} clue${clues.size === 1 ? '' : 's'}` +
+        (playPhase === 'given' ? ' · solution revealed' : '');
       $('runByline').textContent = `Puzzle by ${byline || 'Anonymous'}`;
       $('timer').hidden = !$('timerChk').checked;
       $('pResetBtn').disabled = playPhase !== 'run';
       $('undoBtn').disabled = !playUndo.length;
       $('redoBtn').disabled = playPhase !== 'run' || !playRedo.length;
+      $('hintBtn').disabled = playPhase !== 'run';
+      $('giveUpBtn').disabled = playPhase !== 'run';
       $('degree2Chk').disabled = playPhase !== 'run';
+      $('dotHelperChk').disabled = playPhase !== 'run';
+      $('loopHelperChk').disabled = playPhase !== 'run';
+      $('dotHelperRow').hidden = !puzzleHasDots();
     }
   }
 
@@ -842,25 +865,68 @@
     return FencesRules.vertexDegreeState(R, C, v, clues, playMarks);
   }
 
-  function applyDegree2Helper(action, protectedEdge = -1) {
-    if (!$('degree2Chk').checked || !playMarks) return;
-    const result = FencesRules.applyDegree2(R, C, clues, playMarks, protectedEdge);
-    playMarks = result.marks;
-    action.push(...result.changes);
+  function puzzleHasDots() {
+    const E = Ecount();
+    for (const id of clues) if (id >= E) return true;
+    return false;
+  }
+  const dotHelperOn = () => $('dotHelperChk').checked && puzzleHasDots();
+
+  const anyHelperOn = () =>
+    $('degree2Chk').checked || $('loopHelperChk').checked || dotHelperOn();
+
+  // the enabled helpers run together to a joint fixpoint: each one's marks
+  // can unlock another, so alternate until none has anything left to add
+  function applyHelpers(action, protectedEdge = -1, protectedCell = -1) {
+    if (!playMarks) return;
+    const deg2 = $('degree2Chk').checked, dots = dotHelperOn() && !!playDots;
+    const loop = $('loopHelperChk').checked;
+    for (;;) {
+      let changed = false;
+      if (deg2) {
+        const result = FencesRules.applyDegree2(R, C, clues, playMarks, protectedEdge);
+        if (result.changes.length) {
+          playMarks = result.marks;
+          for (const [e, b, a] of result.changes) action.push(['e', e, b, a]);
+          changed = true;
+        }
+      }
+      if (dots) {
+        const result = FencesRules.applyDotHelper(R, C, clues, playMarks, playDots, protectedEdge, protectedCell);
+        if (result.changes.length || result.dotChanges.length) {
+          playMarks = result.marks; playDots = result.dots;
+          for (const [e, b, a] of result.changes) action.push(['e', e, b, a]);
+          for (const [f, b, a] of result.dotChanges) action.push(['d', f, b, a]);
+          changed = true;
+        }
+      }
+      if (loop) {
+        const result = FencesRules.applyLoopHelper(R, C, L, clues, playMarks, protectedEdge);
+        if (result.changes.length) {
+          playMarks = result.marks;
+          for (const [e, b, a] of result.changes) action.push(['e', e, b, a]);
+          changed = true;
+        }
+      }
+      if (!changed) return;
+    }
   }
 
-  function cancelDegree2Helper() {
-    clearTimeout(degreeHelperTimer);
-    degreeHelperTimer = null;
+  function cancelHelpers() {
+    clearTimeout(helperTimer);
+    helperTimer = null;
   }
 
-  function scheduleDegree2Helper(action, protectedEdge) {
-    cancelDegree2Helper();
-    if (!$('degree2Chk').checked) return;
-    degreeHelperTimer = setTimeout(() => {
-      degreeHelperTimer = null;
-      if (tab !== 'play' || playPhase !== 'run' || !$('degree2Chk').checked) return;
-      applyDegree2Helper(action, protectedEdge);
+  function scheduleHelpers(action, protectedEdge = -1, protectedCell = -1) {
+    cancelHelpers();
+    if (!anyHelperOn()) return;
+    helperTimer = setTimeout(() => {
+      helperTimer = null;
+      if (tab !== 'play' || playPhase !== 'run') return;
+      // a click burst that cycled back to its starting state left no action
+      // on the undo stack, and left the board exactly as the helpers saw it
+      if (playUndo[playUndo.length - 1] !== action) return;
+      applyHelpers(action, protectedEdge, protectedCell);
       if (solvedNow()) { winGame(); return; }
       paintPlay();
       updatePlayUI();
@@ -870,11 +936,17 @@
   function paintPlay() {
     const solving = tab === 'play' && playPhase !== 'setup';
     boardEl.classList.toggle('playing', solving);
+    boardEl.classList.toggle('dotplay', tab === 'play' && playPhase === 'run' && puzzleHasDots());
     for (let e = 0; e < playEls.length; e++) {
       const m = solving && playMarks ? playMarks[e] : 0;
       playEls[e].setAttribute('display', m === 1 ? '' : 'none');
       if (m === 1) playEls[e].style.stroke = playPhase === 'won' ? 'var(--ok)' : '';
       playXEls[e].setAttribute('display', m === 2 ? '' : 'none');
+    }
+    for (let f = 0; f < playDotEls.length; f++) {
+      const d = solving && playDots ? playDots[f] : 0;
+      playDotEls[f].setAttribute('display', d ? '' : 'none');
+      if (d) playDotEls[f].setAttribute('class', 'pdot ' + (d === 1 ? 'in' : 'out'));
     }
     const showDegreeErrors = solving && playMarks && $('degree2Chk').checked;
     for (let v = 0; v < dotEls.length; v++) {
@@ -883,17 +955,57 @@
     }
   }
 
+  // quick re-clicks on one edge or cell keep updating a single undo action:
+  // cycling is how a state is *chosen*, so only the settled choice should be
+  // one undo step. A full cycle back to the start removes the action outright.
+  function pushToggleAction(kind, idx, before, after) {
+    const now = performance.now();
+    const m = pendingMerge;
+    if (m && m.kind === kind && m.idx === idx && now <= m.until &&
+        m.action.length === 1 && playUndo[playUndo.length - 1] === m.action) {
+      m.action[0][3] = after;
+      playRedo = [];
+      if (m.action[0][2] === after) { playUndo.pop(); pendingMerge = null; }
+      else m.until = now + DEGREE_HELPER_DELAY_MS;
+      return m.action;
+    }
+    const action = [[kind, idx, before, after]];
+    playUndo.push(action);
+    playRedo = [];
+    pendingMerge = { kind, idx, action, until: now + DEGREE_HELPER_DELAY_MS };
+    return action;
+  }
+
   function playToggle(e) { // cycle: none -> fence -> × -> none
     if (playPhase !== 'run' || clues.has(e)) return;
     const before = playMarks[e], after = (before + 1) % 3;
     playMarks[e] = after;
-    const action = [[e, before, after]];
-    playUndo.push(action);
-    playRedo = [];
+    const action = pushToggleAction('e', e, before, after);
     if (solvedNow()) { winGame(); return; }
     paintPlay();
     updatePlayUI();
-    scheduleDegree2Helper(action, e);
+    scheduleHelpers(action, e);
+  }
+
+  function playDotToggle(f) { // cycle: none -> indoors ● -> outdoors ○ -> none
+    if (playPhase !== 'run' || !playDots || !puzzleHasDots()) return;
+    if (clues.has(dotIn(f)) || clues.has(dotOut(f))) return; // given dots are fixed
+    const before = playDots[f], after = (before + 1) % 3;
+    playDots[f] = after;
+    const action = pushToggleAction('d', f, before, after);
+    paintPlay();
+    updatePlayUI();
+    scheduleHelpers(action, -1, f);
+  }
+
+  function playDotClear(f) { // right-click: drop the player's dot
+    if (playPhase !== 'run' || !playDots || !playDots[f]) return;
+    const before = playDots[f];
+    playDots[f] = 0;
+    const action = pushToggleAction('d', f, before, 0);
+    paintPlay();
+    updatePlayUI();
+    scheduleHelpers(action, -1, f);
   }
   function solvedNow() {
     const E = Ecount();
@@ -904,7 +1016,7 @@
 
   function startPlay() {
     if (!pv.solution) return;
-    cancelDegree2Helper();
+    cancelHelpers();
     sharedPuzzlePrompt = false;
     returnToSharedPrompt = false;
     returnToAboutPrompt = false;
@@ -912,8 +1024,12 @@
     if ($('sharedDialog').open) $('sharedDialog').close();
     playSolution = pv.solution;
     playMarks = new Int8Array(Ecount());
+    playDots = new Int8Array(Fcount());
     playUndo = []; playRedo = [];
+    pendingMerge = null;
     $('degree2Chk').checked = false;
+    $('dotHelperChk').checked = false;
+    $('loopHelperChk').checked = false;
     playPhase = 'run';
     playT0 = performance.now();
     clearInterval(timerIv);
@@ -950,8 +1066,64 @@
         : 'This puzzle has more than one solution.';
     }
   }
+  // ---------- confetti ----------
+  function stopConfetti() {
+    cancelAnimationFrame(confettiRaf);
+    if (confettiCv) confettiCv.remove();
+    confettiCv = null;
+  }
+  function launchConfetti() {
+    stopConfetti();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = document.createElement('canvas');
+    cv.className = 'confetti';
+    document.body.appendChild(cv);
+    confettiCv = cv;
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const W = innerWidth, H = innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const ctx = cv.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const colors = ['#b3541e', '#0e6e69', '#557c3e', '#9c3a8c', '#c04a12', '#e0a537'];
+    const parts = [];
+    for (let i = 0; i < 160; i++) parts.push({
+      x: Math.random() * W, y: -30 - Math.random() * H * 0.4,
+      vx: (Math.random() - 0.5) * 110, vy: 150 + Math.random() * 170,
+      w: 5.5 + Math.random() * 5, h: 8 + Math.random() * 6,
+      rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 9,
+      sway: 30 + Math.random() * 60, phase: Math.random() * Math.PI * 2,
+      color: colors[i % colors.length],
+    });
+    const LIFE = 4200; // ms; the last 700 fade out
+    let last = performance.now(), elapsed = 0;
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now; elapsed += dt * 1000;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalAlpha = Math.max(0, Math.min(1, (LIFE - elapsed) / 700));
+      let falling = false;
+      for (const p of parts) {
+        p.vy += 230 * dt; // gravity
+        p.x += (p.vx + Math.cos(p.phase + elapsed / 300) * p.sway) * dt;
+        p.y += p.vy * dt;
+        p.rot += p.vr * dt;
+        if (p.y < H + 30) falling = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        // squashing the height as it spins reads as a fluttering ribbon
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * (0.35 + 0.65 * Math.abs(Math.cos(p.phase + elapsed / 220))));
+        ctx.restore();
+      }
+      if (elapsed < LIFE && falling) confettiRaf = requestAnimationFrame(frame);
+      else stopConfetti();
+    }
+    confettiRaf = requestAnimationFrame(frame);
+  }
+
   function winGame() {
-    cancelDegree2Helper();
+    cancelHelpers();
     playPhase = 'won';
     playMs = performance.now() - playT0;
     clearInterval(timerIv); timerIv = null;
@@ -959,11 +1131,14 @@
     $('winText').textContent =
       `${R}×${C} dots · ${L} loop${L > 1 ? 's' : ''} · solved in ${fmtTime(playMs)}`;
     $('winOverlay').hidden = false;
+    launchConfetti();
     paintPlay();
     updatePlayUI();
   }
   function quitPlay() { // back to setup; the verified puzzle stays loaded
-    cancelDegree2Helper();
+    cancelHelpers();
+    stopConfetti();
+    pendingMerge = null;
     playPhase = 'setup';
     playUndo = []; playRedo = [];
     clearInterval(timerIv); timerIv = null;
@@ -987,7 +1162,11 @@
     if (!action || !playMarks) return;
     if (playPhase === 'won') resumePlayAfterWin();
     const changes = redo ? action : action.slice().reverse();
-    for (const [e, before, after] of changes) playMarks[e] = redo ? after : before;
+    for (const [kind, i, before, after] of changes) {
+      const v = redo ? after : before;
+      if (kind === 'e') playMarks[i] = v;
+      else if (playDots) playDots[i] = v;
+    }
     paintPlay();
     updatePlayUI();
     if (solvedNow()) winGame();
@@ -995,7 +1174,7 @@
 
   function undoPlay() {
     if ((playPhase !== 'run' && playPhase !== 'won') || !playUndo.length) return;
-    cancelDegree2Helper();
+    cancelHelpers();
     const action = playUndo.pop();
     playRedo.push(action);
     applyPlayHistory(action, false);
@@ -1003,15 +1182,71 @@
 
   function redoPlay() {
     if (playPhase !== 'run' || !playRedo.length) return;
-    cancelDegree2Helper();
+    cancelHelpers();
     const action = playRedo.pop();
     playUndo.push(action);
     applyPlayHistory(action, true);
   }
 
+  function giveHint() { // draw one edge of the solution (or × one stray fence)
+    if (playPhase !== 'run' || !playSolution || !playMarks) return;
+    cancelHelpers();
+    pendingMerge = null;
+    const E = Ecount(), missing = [], stray = [];
+    for (let e = 0; e < E; e++) {
+      if (clues.has(e)) continue;
+      if (playSolution.has(e)) { if (playMarks[e] !== 1) missing.push(e); }
+      else if (playMarks[e] === 1) stray.push(e);
+    }
+    const pool = missing.length ? missing : stray;
+    if (!pool.length) return;
+    const e = pool[(Math.random() * pool.length) | 0];
+    const after = missing.length ? 1 : 2;
+    const action = [['e', e, playMarks[e], after]];
+    playMarks[e] = after;
+    playUndo.push(action);
+    playRedo = [];
+    flashHint(e);
+    if (solvedNow()) { winGame(); return; }
+    paintPlay();
+    updatePlayUI();
+    scheduleHelpers(action, e);
+  }
+
+  function flashHint(e) { // a brief glow so the revealed edge is findable
+    const svg = boardEl.querySelector('svg');
+    if (!svg) return;
+    const [x1, y1, x2, y2] = edgeEnds(e);
+    const line = el('line', {
+      x1: PAD + x1 * S, y1: PAD + y1 * S, x2: PAD + x2 * S, y2: PAD + y2 * S,
+      class: 'hintflash',
+    });
+    line.addEventListener('animationend', () => line.remove());
+    setTimeout(() => line.remove(), 2000); // reduced motion: no animationend
+    svg.appendChild(line);
+  }
+
+  function giveUp() { // reveal the whole solution; the attempt is over
+    if (playPhase !== 'run' || !playSolution || !playMarks) return;
+    cancelHelpers();
+    pendingMerge = null;
+    for (let e = 0; e < playMarks.length; e++)
+      playMarks[e] = !clues.has(e) && playSolution.has(e) ? 1 : 0;
+    if (playDots) playDots.fill(0);
+    playUndo = []; playRedo = [];
+    playPhase = 'given';
+    playMs = performance.now() - playT0;
+    clearInterval(timerIv); timerIv = null;
+    $('timer').textContent = fmtTime(playMs);
+    paintPlay();
+    updatePlayUI();
+  }
+
   function updateHint() {
     $('hint').innerHTML = tab === 'play' && playPhase !== 'setup'
-      ? 'Click an edge to draw a fence · click again for ×, again to clear'
+      ? (puzzleHasDots()
+        ? 'Click an edge to draw a fence · click again for ×, again to clear · click a cell to note it inside&nbsp;● or outside&nbsp;○'
+        : 'Click an edge to draw a fence · click again for ×, again to clear')
       : 'Click an edge for a fence clue · click a cell&rsquo;s middle to mark it inside&nbsp;● or outside&nbsp;○ · right-click a dot to remove it';
   }
 
@@ -1117,29 +1352,38 @@
   });
   $('startBtn').addEventListener('click', startPlay);
   $('timerChk').addEventListener('change', updatePlayUI);
-  $('degree2Chk').addEventListener('change', () => {
-    cancelDegree2Helper();
+  function helperToggled() {
+    cancelHelpers();
     if (playPhase !== 'run' || !playMarks) { paintPlay(); return; }
     const action = [];
-    applyDegree2Helper(action);
+    applyHelpers(action);
     if (action.length) {
       playUndo.push(action);
       playRedo = [];
+      pendingMerge = null;
     }
     if (solvedNow()) { winGame(); return; }
     paintPlay();
     updatePlayUI();
-  });
+  }
+  $('degree2Chk').addEventListener('change', helperToggled);
+  $('dotHelperChk').addEventListener('change', helperToggled);
+  $('loopHelperChk').addEventListener('change', helperToggled);
   $('undoBtn').addEventListener('click', undoPlay);
   $('redoBtn').addEventListener('click', redoPlay);
+  $('hintBtn').addEventListener('click', giveHint);
   $('pResetBtn').addEventListener('click', () => {
     if (playPhase !== 'run' || !playMarks) return;
-    cancelDegree2Helper();
+    cancelHelpers();
+    pendingMerge = null;
     const action = [];
     for (let e = 0; e < playMarks.length; e++)
-      if (playMarks[e]) action.push([e, playMarks[e], 0]);
-    for (const [e] of action) playMarks[e] = 0;
-    applyDegree2Helper(action);
+      if (playMarks[e]) action.push(['e', e, playMarks[e], 0]);
+    if (playDots)
+      for (let f = 0; f < playDots.length; f++)
+        if (playDots[f]) action.push(['d', f, playDots[f], 0]);
+    for (const [kind, i] of action) (kind === 'e' ? playMarks : playDots)[i] = 0;
+    applyHelpers(action);
     if (!action.length) return;
     playUndo.push(action);
     playRedo = [];
@@ -1147,6 +1391,16 @@
     paintPlay();
     updatePlayUI();
   });
+  const giveUpDialog = $('giveUpDialog');
+  $('giveUpBtn').addEventListener('click', () => {
+    if (playPhase === 'run' && !giveUpDialog.open) giveUpDialog.showModal();
+  });
+  $('giveUpCancelBtn').addEventListener('click', () => giveUpDialog.close());
+  $('giveUpConfirmBtn').addEventListener('click', () => {
+    giveUpDialog.close();
+    giveUp();
+  });
+  giveUpDialog.addEventListener('click', ev => { if (ev.target === giveUpDialog) giveUpDialog.close(); });
   const quitDialog = $('quitDialog');
   $('quitBtn').addEventListener('click', () => {
     if (!quitDialog.open) quitDialog.showModal();
@@ -1178,7 +1432,7 @@
   function switchTab(t) {
     if (t === tab) return;
     testReturnTab = null; // moving by hand: no test run to return from
-    cancelDegree2Helper();
+    cancelHelpers();
     gen.cancel();
     tabState[tab] = { R, C, L, clues, byline };
     tab = t;

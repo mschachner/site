@@ -97,7 +97,12 @@
         <div class="boardctl">
           <div class="check-options">
             <label class="check-row"><input type="checkbox" id="timerChk" checked> Timer</label>
-            <label class="check-row" title="Automatically applies the two-edges-per-vertex rule"><input type="checkbox" id="degree2Chk"> Degree-2 helper</label>
+          </div>
+          <div class="helpers" role="group" aria-labelledby="helpersTitle">
+            <span class="helpers-title" id="helpersTitle">Helpers</span>
+            <label class="helper-row"><input type="checkbox" id="degree2Chk"><span class="helper-name">Degree-2</span><span class="helper-desc">exactly two edges per dot</span></label>
+            <label class="helper-row" id="dotHelperRow" hidden><input type="checkbox" id="dotHelperChk"><span class="helper-name">Dots</span><span class="helper-desc">inside and outside logic</span></label>
+            <label class="helper-row"><input type="checkbox" id="loopHelperChk"><span class="helper-name">Loops</span><span class="helper-desc">blocks closing loops too soon</span></label>
           </div>
           <div class="btn-row" style="margin-top: 10px">
             <button id="undoBtn" class="history-btn" aria-label="Undo" title="Undo (⌘Z)" disabled>
@@ -106,7 +111,9 @@
             <button id="redoBtn" class="history-btn" aria-label="Redo" title="Redo (⇧⌘Z)" disabled>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4"/><path d="M19 11h-8a5 5 0 0 0-5 5v1"/></svg>
             </button>
+            <button id="hintBtn" title="Fill in one edge of the solution" disabled>Hint</button>
             <button id="pResetBtn">Clear entries</button>
+            <button id="giveUpBtn" class="danger" title="Reveal the full solution" disabled>Give up</button>
             <button id="quitBtn" class="danger">Exit puzzle</button>
             <button id="pShareBtn" class="primary">Share</button>
           </div>
@@ -263,6 +270,16 @@
       </div>
       <div class="rules-controls"><span class="rules-cycle">blank &rarr; fence &rarr; &times;</span><span>While playing, click an edge to cycle through your marks. The &times; is a handy note that an edge is not used.</span></div>
       <div class="rules-foot"><button class="primary" id="rulesGotIt">Got it</button></div>
+    </div>
+  </div>
+</dialog>
+<dialog class="rules-dialog confirm-dialog" id="giveUpDialog" aria-labelledby="giveUpTitle" aria-describedby="giveUpText">
+  <div class="confirm-body">
+    <h2 class="win-h" id="giveUpTitle">Reveal the solution?</h2>
+    <p id="giveUpText">The finished fence will be drawn, and this attempt ends.</p>
+    <div class="confirm-actions">
+      <button id="giveUpCancelBtn">Keep trying</button>
+      <button id="giveUpConfirmBtn" class="primary">Reveal it</button>
     </div>
   </div>
 </dialog>

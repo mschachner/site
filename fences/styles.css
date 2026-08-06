@@ -183,6 +183,45 @@
   }
   input[type="checkbox"] { accent-color: var(--accent); }
 
+  /* ---- solve helpers: one per line, toggle switch + name + short note ---- */
+  .helpers { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
+  .helpers-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .helper-row {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13.5px; cursor: pointer; min-width: 0;
+  }
+  .helper-row .helper-name { font-weight: 600; flex: none; }
+  .helper-row .helper-desc { color: var(--muted); font-size: 12px; }
+  .helper-row input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 31px; height: 18px; margin: 0; flex: none;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card2);
+    position: relative; cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .helper-row input[type="checkbox"]::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--line);
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(70, 45, 20, 0.28);
+    transition: left 0.15s ease;
+  }
+  .helper-row input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+  .helper-row input[type="checkbox"]:checked::after { left: 15px; border-color: var(--accent); }
+  .helper-row input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .helper-row input[type="checkbox"]:disabled { opacity: 0.45; cursor: default; }
+  .helper-row:has(input:disabled) { cursor: default; }
+  .helper-row:has(input:disabled) .helper-name,
+  .helper-row:has(input:disabled) .helper-desc { opacity: 0.55; }
+  @media (prefers-reduced-motion: reduce) {
+    .helper-row input[type="checkbox"], .helper-row input[type="checkbox"]::after { transition: none; }
+  }
+
   .chk-grid {
     display: grid; grid-template-columns: 1fr 56px 56px;
     gap: 8px 0; align-items: center; justify-items: center;
@@ -225,13 +264,30 @@
   .celldot.out { fill: none; stroke: var(--clue); stroke-width: 2.6; }
   .pline { stroke: var(--ink); stroke-width: 4.6; stroke-linecap: round; pointer-events: none; }
   .pmark { stroke: var(--muted); stroke-width: 2; stroke-opacity: 0.8; stroke-linecap: round; pointer-events: none; }
+  .pdot.in  { fill: var(--ink); pointer-events: none; }
+  .pdot.out { fill: none; stroke: var(--ink); stroke-width: 2.4; pointer-events: none; }
+  .hintflash {
+    stroke: var(--accent); stroke-width: 9; stroke-linecap: round;
+    opacity: 0; pointer-events: none;
+    animation: hintflash 1.2s ease-out;
+  }
+  @keyframes hintflash { from { opacity: 0.9; } to { opacity: 0; } }
   .hit   { stroke: transparent; stroke-width: 15; stroke-linecap: butt; cursor: pointer; }
   .hitc  { fill: transparent; cursor: pointer; }
   .playing .hitc { cursor: default; }
+  .playing.dotplay .hitc { cursor: pointer; }
+  .playing.dotplay .hitc.given { cursor: default; }
   @media (hover: hover) and (pointer: fine) {
     .hit:hover { stroke: var(--hover); }
     .hitc:hover { fill: var(--hover); }
     .playing .hitc:hover { fill: transparent; }
+    .playing.dotplay .hitc:hover { fill: var(--hover); }
+    .playing.dotplay .hitc.given:hover { fill: transparent; }
+  }
+
+  .confetti {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 30; pointer-events: none;
   }
 
   .export-overlay {
