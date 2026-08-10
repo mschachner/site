@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 9;
+const BUILD = 10;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -614,10 +614,10 @@ function setPlate(clue) {
   $('column').innerHTML = '';
   $('column').classList.remove('two');
   $('empty').style.display = 'block';
-  const rv = $('reveal');
-  rv.innerHTML = '';
-  rv.className = 'reveal';
+  $('reveal').innerHTML = '';
+  $('revealcard').classList.remove('open');
   $('listbtn').textContent = 'Show wordlist';
+  $('upcoming').value = '';
 
   buildTrip();
   say('', '');
@@ -972,13 +972,13 @@ function roll() {
   $('inp').focus();
 }
 
-/** Dev wordlist with click-to-mark-removal curation. */
+/** Dev wordlist (its own card below the play card), click-to-mark-removal. */
 function toggleList() {
   const box = $('reveal');
   listOpen = !listOpen;
   $('listbtn').textContent = listOpen ? 'Hide wordlist' : 'Show wordlist';
-  if (!listOpen) { box.className = 'reveal'; return; }
-  box.className = 'reveal open';
+  $('revealcard').classList.toggle('open', listOpen);
+  if (!listOpen) return;
   if (!box.childElementCount) {
     for (const w of Object.keys(answers).sort()) {
       const a = answers[w];
@@ -1010,24 +1010,85 @@ function syncReveal() {
   });
 }
 
-/** Export accumulated decisions as CSV; the download empties the queue. */
-function dlDecisions() {
-  const lines = ['word,change'];
-  for (const [w, c] of decisions) lines.push(w + ',' + c);
-  const d = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const stamp = d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
-                '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'],
-                                        { type: 'text/plain' }));
-  a.download = 'decisions-' + stamp + '.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  decisions.clear();
-  persistDecisions();
-  syncReveal();
-  render();
+/* ---- dictionary commits ----
+ *
+ * Pending decisions (rescues and removals) are committed straight to the
+ * repo via the GitHub contents API: DICT inside data.js is edited in place
+ * (ELIG and SCHED stay frozen, so no past or future plate changes), and
+ * dictionary.txt is regenerated to match. The site deploy workflow then
+ * ships the new dictionary automatically.
+ *
+ * Needs a fine-grained personal access token (contents read/write on
+ * mschachner/plates), asked for once and kept in this browser only.
+ */
+
+const GH_TOKEN_KEY = 'plates-gh-token';
+const GH_API = 'https://api.github.com/repos/mschachner/plates/contents/';
+
+function ghHeaders() {
+  return { Authorization: 'Bearer ' + unstore(GH_TOKEN_KEY, ''),
+           Accept: 'application/vnd.github+json' };
+}
+
+/** UTF-8-safe base64 codecs for the contents API. */
+function b64encode(s) { return btoa(unescape(encodeURIComponent(s))); }
+function b64decode(s) { return decodeURIComponent(escape(atob(s.replace(/\n/g, '')))); }
+
+async function ghGet(file) {
+  const r = await fetch(GH_API + file, { headers: ghHeaders() });
+  if (!r.ok) throw new Error(file + ': HTTP ' + r.status);
+  return r.json();
+}
+
+async function ghPut(file, text, sha, message) {
+  const r = await fetch(GH_API + file, {
+    method: 'PUT',
+    headers: ghHeaders(),
+    body: JSON.stringify({ message, content: b64encode(text), sha }),
+  });
+  if (!r.ok) throw new Error(file + ': HTTP ' + r.status);
+}
+
+async function commitDictionary() {
+  if (!decisions.size) return say('no pending dictionary changes', 'err');
+  if (!unstore(GH_TOKEN_KEY, '')) return openModal('ghmodal');
+  const btn = $('commitbtn');
+  btn.disabled = true;
+  say('committing\u2026', 'ok');
+  try {
+    const data = await ghGet('data.js');
+    const text = b64decode(data.content);
+    const m = text.match(/const DICT = "([^"]*)"/);
+    if (!m) throw new Error('DICT not found in data.js');
+    const words = new Set(m[1].split(' '));
+    let added = 0, removed = 0;
+    for (const [w, c] of decisions) {
+      if (c === 'add' && !words.has(w)) { words.add(w); added++; }
+      else if (c === 'remove' && words.delete(w)) removed++;
+    }
+    const list = [...words].sort();
+    const msg = 'Dictionary: +' + added + ' \u2212' + removed +
+                ' (in-game curation)';
+    await ghPut('data.js',
+                text.replace(m[0], 'const DICT = "' + list.join(' ') + '"'),
+                data.sha, msg);
+    const dict = await ghGet('dictionary.txt');
+    await ghPut('dictionary.txt', list.join('\n') + '\n', dict.sha, msg);
+    decisions.clear();
+    persistDecisions();
+    syncReveal();
+    render();
+    say('committed +' + added + ' \u2212' + removed +
+        ' \u2014 live after the next deploy', 'ok');
+  } catch (e) {
+    // A 401 means the stored token is bad or expired: forget it and re-ask.
+    if (String(e.message).includes('401')) {
+      store(GH_TOKEN_KEY, '');
+      openModal('ghmodal');
+    }
+    say('commit failed \u2014 ' + e.message, 'err');
+  }
+  btn.disabled = false;
 }
 
 /** Dev: unlock a finished day (also un-records it from stats). */
@@ -1074,6 +1135,8 @@ function render() {
                nRem + ' marked for removal');
   }
   $('count').textContent = parts.join(' · ');
+  $('commitbtn').textContent = decisions.size
+    ? 'Commit changes (' + decisions.size + ')' : 'Commit changes';
   document.documentElement.style.setProperty('--rankc',
     RANK_COLORS[Math.max(0, ranks.findIndex(([n]) => n === rank()))]);
   document.body.classList.toggle('liftoff', rank() === 'Liftoff');
@@ -1157,7 +1220,32 @@ function wireEvents() {
   $('rollbtn').addEventListener('click', roll);
   $('todaybtn').addEventListener('click', goDaily);
   $('listbtn').addEventListener('click', toggleList);
-  $('dlbtn').addEventListener('click', dlDecisions);
+  $('commitbtn').addEventListener('click', commitDictionary);
+  $('ghform').addEventListener('submit', e => {
+    e.preventDefault();
+    const t = $('ghtoken').value.trim();
+    if (!t) return;
+    store(GH_TOKEN_KEY, t);
+    closeModal('ghmodal');
+    commitDictionary();
+  });
+  // Upcoming plates: the next 14 scheduled days, playable ahead of time.
+  const up = $('upcoming');
+  const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  for (let k = 1; k <= 14; k++) {
+    const idx = dayIndex() + k, n = SCHED.length;
+    const d = todayDate();
+    d.setDate(d.getDate() + k);
+    const o = document.createElement('option');
+    o.value = SCHED[((idx % n) + n) % n];
+    o.textContent = '#' + (idx + 1) + ' \u2014 ' + d.getDate() + ' ' +
+                    MO[d.getMonth()] + ' \u2014 ' + o.value.toUpperCase();
+    up.appendChild(o);
+  }
+  up.addEventListener('change', () => {
+    if (up.value) { setPlate(up.value); $('inp').focus(); }
+  });
   $('resetfinbtn').addEventListener('click', resetFinish);
   $('resettodaybtn').addEventListener('click', resetToday);
   document.querySelectorAll('#seg button').forEach(b =>

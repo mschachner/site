@@ -119,7 +119,7 @@
   .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,3fr);
             grid-template-areas:"words play"; gap:calc(24px*var(--sp)) calc(44px*var(--sp));
             width:100%; margin:0; align-items:start; }
-  .half { display:flex; justify-content:center; min-width:0; }
+  .half { display:flex; flex-direction:column; align-items:center; min-width:0; }
   .half.left { grid-area:words; }
   .half.right { grid-area:play; }
   .card { background:var(--card); border:1px solid var(--hair); border-radius:14px;
@@ -236,9 +236,8 @@
   @keyframes pop { from { transform:scale(.97); opacity:0; } to { transform:scale(1); opacity:1; } }
   .actions { margin-top:2px; margin-bottom:calc(34px*var(--sp)); display:flex;
              gap:10px; flex-wrap:nowrap; justify-content:center; }
-  body.dev .actions { flex-wrap:wrap; }
-  .actions button { background:none; color:var(--ink); border:1px solid var(--hair);
-                    font-size:14px; padding:9px 16px; }
+  .actions button, .devpanel button { background:none; color:var(--ink);
+                    border:1px solid var(--hair); font-size:14px; padding:9px 16px; }
   .actions button:hover { border-color:var(--ink); }
   .actions > button { min-width:92px; }
   #hintbtn { background:#1a57c2; border-color:#1a57c2; color:#fff; }
@@ -264,6 +263,16 @@
                 pointer-events:none; transition:opacity .2s ease;
                 width:min(520px,86vw); margin:14px auto 4px; left:0; right:0; }
   .plateflash.show { opacity:1; }
+  .devpanel { width:100%; display:flex; flex-direction:column; gap:12px;
+              border-top:1px solid var(--bar); padding-top:calc(22px*var(--sp));
+              margin-bottom:calc(20px*var(--sp)); }
+  .devrow { display:flex; gap:10px; align-items:center; justify-content:center;
+            flex-wrap:wrap; }
+  .devlabel { font-size:11.5px; color:var(--muted); text-transform:uppercase;
+              letter-spacing:.1em; min-width:82px; text-align:right; }
+  #upcoming { font-size:14px; padding:8px 10px; border-radius:var(--radius);
+              border:1px solid var(--hair); background:var(--card);
+              color:var(--ink); font-family:var(--font); }
   .seg { display:flex; border:1px solid var(--hair); border-radius:var(--radius); overflow:hidden; }
   .seg button { border:none; border-radius:0; background:none; color:var(--muted);
                 font-size:13px; padding:9px 12px; }
@@ -271,9 +280,11 @@
 
 /* ---- 10. dev & finished gates ---- */
   body:not(.dev) .devonly { display:none !important; }
-  body:not(.dev) .reveal { display:none !important; }
-  .reveal { width:100%; margin-top:26px; display:none; }
-  .reveal.open { display:block; }
+  /* The dev wordlist lives in its own card below the play card; visible only
+     in dev mode while toggled open. */
+  .revealcard { display:none; margin-top:calc(24px*var(--sp)); width:min(980px, 100%); }
+  body.dev .revealcard.open { display:block; }
+  .reveal { width:100%; }
   .rword { display:flex; gap:10px; align-items:baseline; padding:5px 8px; border-radius:7px;
            cursor:pointer; font-size:15px; }
   .rword:hover { background:var(--chip); }
