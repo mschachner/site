@@ -175,7 +175,7 @@
   body.fin #copytextbtn { display:inline-block; }
   .pline { transition:filter .25s ease, color .6s ease; display:flex; align-items:center;
            font-family:var(--plate-font);
-           font-size:clamp(28px, 21.5cqw, 999px); font-weight:400; letter-spacing:.1em;
+           font-size:clamp(28px, var(--pline-size, 21.5cqw), 999px); font-weight:400; letter-spacing:.1em;
            color:var(--rankc, var(--accent)); line-height:1;
            transform:scaleY(1.2); transform-origin:center; margin-top:6cqw; }
   .plate:hover .pline { filter:blur(5px); }
@@ -286,7 +286,9 @@
   .row .tag.vp { color:var(--gold); }
   .row .tag.snug { color:var(--accent); }
   .row.vp { color:var(--gold); font-weight:700; }
-  .row.rescued { color:var(--good); cursor:pointer; }
+  /* Rescued/off-list words are highlighted only for the editor; players see
+     them as ordinary found words (the un-rescue click is dev-gated too). */
+  body.dev .row.rescued { color:var(--good); cursor:pointer; }
   .row.hinted { color:var(--muted); letter-spacing:.18em; }
   @keyframes pop { from { transform:scale(.97); opacity:0; } to { transform:scale(1); opacity:1; } }
   .actions { margin-top:2px; margin-bottom:calc(34px*var(--sp)); display:flex;

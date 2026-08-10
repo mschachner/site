@@ -41,7 +41,7 @@ const EPOCH = [2026, 7, 9];
 /** Burial bonuses by tier: flat, half-buried, buried. See RULES.md. */
 const TIER_BONUS = [0, 10, 25];
 
-/** Points per letter beyond the clue's three. */
+/** Points per letter beyond the clue's length. */
 const LENGTH_POINTS = 5;
 
 /** Snug (contiguous clue) and Vanity Plate bonuses. */
@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 21;
+const BUILD = 23;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -136,7 +136,7 @@ function scoreWord(w, clue) {
                (w[w.length - 1] !== clue[clue.length - 1] ? 1 : 0);
   const snug = w.includes(clue);
   return {
-    p: LENGTH_POINTS * (w.length - 3) + TIER_BONUS[tier] + (snug ? SNUG_BONUS : 0),
+    p: LENGTH_POINTS * (w.length - clue.length) + TIER_BONUS[tier] + (snug ? SNUG_BONUS : 0),
     s: snug ? 1 : 0,
   };
 }
@@ -617,6 +617,8 @@ function setPlate(clue) {
   $('ptop').textContent = plateTopText();
   $('fclue').textContent = CLUE.toUpperCase();
   $('fptop').textContent = plateTopText();
+  document.documentElement.style.setProperty('--pline-size',
+    (21.5 * 8 / (CLUE.length + 5)).toFixed(2) + 'cqw');
   $('column').innerHTML = '';
   $('column').classList.remove('two');
   $('empty').style.display = 'block';
@@ -652,7 +654,7 @@ function submitWord() {
   inp.value = '';
   if (!w) return;
   const W = w.toUpperCase();
-  if (w.length < 4) return say('too short', 'err');
+  if (w.length <= CLUE.length) return say('too short', 'err');
   if (!isValid(w, CLUE)) return say(W + " doesn't contain " + UP, 'err');
   if (found.includes(w)) return say('already found', 'err');
 
@@ -816,10 +818,20 @@ async function drawPlate() {
   ctx.save();
   ctx.translate(W / 2, H * 0.56);
   ctx.scale(1, 1.2);                     // same die-stretch as the page plate
-  ctx.font = '176px "License Plate", "Avenir Next", sans-serif';
-  try { ctx.letterSpacing = '18px'; } catch (e) { /* older engines */ }
-  ctx.fillText(CLUE.toUpperCase() + '-' +
-               String(Math.min(9999, total)).padStart(4, '0'), 0, 0);
+  // 176px suits a 3-letter plate; longer clues shrink to fit the face.
+  const line = CLUE.toUpperCase() + '-' +
+               String(Math.min(9999, total)).padStart(4, '0');
+  let size = 176;
+  const setFont = () => {
+    ctx.font = size + 'px "License Plate", "Avenir Next", sans-serif';
+    try { ctx.letterSpacing = Math.round(size * 18 / 176) + 'px'; }
+    catch (e) { /* older engines */ }
+  };
+  setFont();
+  const maxW = W - 130;
+  const tw = ctx.measureText(line).width;
+  if (tw > maxW) { size = Math.floor(size * maxW / tw); setFont(); }
+  ctx.fillText(line, 0, 0);
   ctx.restore();
   ctx.font = '600 30px "Atkinson Hyperlegible Next", "Avenir Next", "Segoe UI", sans-serif';
   try { ctx.letterSpacing = '5px'; } catch (e) { /* older engines */ }
