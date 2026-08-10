@@ -104,6 +104,21 @@
              color:var(--accent); line-height:1; transform:scaleY(1.2); }
   .exlist { font-size:15px; line-height:1.8; }
   .exlist b { color:var(--accent); font-weight:700; }
+  /* Dictionary-changes review list. */
+  .revlist { max-height:320px; overflow:auto; margin:4px 0 2px; }
+  .revrow { display:flex; align-items:center; gap:12px; padding:6px 8px;
+            border-radius:7px; }
+  .revrow:hover { background:var(--chip); }
+  .revkind { flex:none; width:70px; text-align:center; font-size:11px;
+             font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+             border-radius:6px; padding:3px 0; }
+  .revkind.add { background:#e6eeda; color:var(--good); }
+  .revkind.remove { background:#f3ded9; color:var(--bad); }
+  .revword { font-size:15px; }
+  .revx { margin-left:auto; background:none; border:none; color:var(--muted);
+          font-size:18px; padding:2px 8px; cursor:pointer; }
+  .revx:hover { color:var(--bad); }
+  .revempty { color:var(--muted); }
   .modal.devm { max-width:360px; }
   .devm form { display:flex; gap:10px; margin-top:4px; }
   .devm input { font-size:16px; text-align:left; letter-spacing:normal;
@@ -298,9 +313,13 @@
   .revealcard { display:none; margin-top:calc(24px*var(--sp)); width:min(980px, 100%);
                 padding:calc(26px*var(--sp)) calc(30px*var(--sp)); }
   body.dev .revealcard.open { display:block; }
-  .reveal { width:100%; }
+  /* Multi-column when the card is wide enough; rows never split across a
+     column break. Long words can be tight in a narrow column, so each row
+     may shrink its text rather than overflow. */
+  .reveal { width:100%; columns:15em; column-gap:30px; }
+  .reveal div[data-w] { break-inside:avoid; }
   .rword { display:flex; gap:10px; align-items:baseline; padding:5px 8px; border-radius:7px;
-           cursor:pointer; font-size:15px; }
+           cursor:pointer; font-size:15px; white-space:nowrap; min-width:0; }
   .rword:hover { background:var(--chip); }
   .rword b { margin-left:auto; font-variant-numeric:tabular-nums; font-weight:600;
              color:var(--muted); font-size:13px; }

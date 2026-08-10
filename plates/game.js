@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 13;
+const BUILD = 15;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -574,8 +574,13 @@ function flashLabel(el, text) {
   if (el.dataset.flashing) return;
   el.dataset.flashing = '1';
   const t = el.textContent;
+  el.style.minWidth = el.offsetWidth + 'px';   // hold width during the flash
   el.textContent = text;
-  setTimeout(() => { el.textContent = t; delete el.dataset.flashing; }, 1200);
+  setTimeout(() => {
+    el.textContent = t;
+    el.style.minWidth = '';
+    delete el.dataset.flashing;
+  }, 1200);
 }
 
 /* ================================================================
@@ -1049,6 +1054,37 @@ async function ghPut(file, text, sha, message) {
   if (!r.ok) throw new Error(file + ': HTTP ' + r.status);
 }
 
+/** Review modal: list every pending decision, each discardable. */
+function openReview() {
+  const box = $('revlist');
+  box.innerHTML = '';
+  if (!decisions.size) {
+    box.innerHTML = '<p class="revempty">No pending changes.</p>';
+  }
+  for (const [w, c] of [...decisions].sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+    const row = document.createElement('div');
+    row.className = 'revrow';
+    row.innerHTML = '<span class="revkind ' + c + '">' + c + '</span>' +
+                    '<span class="revword">' + w.toUpperCase() + '</span>';
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'revx';
+    x.innerHTML = '&times;';
+    x.title = 'Discard this change';
+    x.onclick = () => {
+      decisions.delete(w);
+      persistDecisions();
+      syncReveal();
+      render();
+      openReview();                        // repaint the list in place
+    };
+    row.appendChild(x);
+    box.appendChild(row);
+  }
+  $('revcommit').disabled = !decisions.size;
+  openModal('reviewmodal');
+}
+
 async function commitDictionary() {
   if (!decisions.size) return say('no pending dictionary changes', 'err');
   if (!unstore(GH_TOKEN_KEY, '')) return openModal('ghmodal');
@@ -1144,7 +1180,7 @@ function render() {
   }
   $('count').textContent = parts.join(' · ');
   $('commitbtn').textContent = decisions.size
-    ? 'Commit changes (' + decisions.size + ')' : 'Commit changes';
+    ? 'Review / commit (' + decisions.size + ')' : 'Review / commit';
   document.documentElement.style.setProperty('--rankc',
     RANK_COLORS[Math.max(0, ranks.findIndex(([n]) => n === rank()))]);
   document.body.classList.toggle('liftoff', rank() === 'Liftoff');
@@ -1228,7 +1264,11 @@ function wireEvents() {
   $('rollbtn').addEventListener('click', roll);
   $('todaybtn').addEventListener('click', goDaily);
   $('listbtn').addEventListener('click', toggleList);
-  $('commitbtn').addEventListener('click', commitDictionary);
+  $('commitbtn').addEventListener('click', openReview);
+  $('revcommit').addEventListener('click', () => {
+    closeModal('reviewmodal');
+    commitDictionary();
+  });
   $('ghform').addEventListener('submit', e => {
     e.preventDefault();
     const t = $('ghtoken').value.trim();
