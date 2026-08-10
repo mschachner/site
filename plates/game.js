@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 19;
+const BUILD = 20;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -203,6 +203,7 @@ let hintsUsed = 0;
 let finished = false;     // player pressed Finish (locks the day)
 let isDaily = false;      // current plate is today's scheduled plate
 let listOpen = false;     // dev wordlist visibility
+let candOpen = false;     // dev candidates visibility
 let diff = 'easy';        // dev roll difficulty band
 let tripPts = null;       // rail geometry, rebuilt on resize
 
@@ -622,6 +623,10 @@ function setPlate(clue) {
   $('reveal').innerHTML = '';
   $('revealcard').classList.remove('open');
   $('listbtn').textContent = 'Show wordlist';
+  candOpen = false;
+  $('candlist').innerHTML = '';
+  $('candcard').classList.remove('open');
+  $('candbtn').textContent = 'Show candidates';
   $('upcoming').value = '';
 
   buildTrip();
@@ -1006,6 +1011,64 @@ function toggleList() {
   syncReveal();
 }
 
+/**
+ * Candidate pool (dev): candidates.js defines EXTRA — every SCOWL
+ * lowercase-only word of length >= 4 that is NOT in the game dictionary.
+ * It's ~800KB, so it loads only when a dev first opens the candidates card.
+ */
+let extraLoaded = null;
+function loadExtra() {
+  if (!extraLoaded) {
+    extraLoaded = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'candidates.js?v=' + BUILD;
+      s.onload = resolve;
+      s.onerror = () => {
+        extraLoaded = null;
+        reject(new Error('could not load candidates.js'));
+      };
+      document.head.appendChild(s);
+    });
+  }
+  return extraLoaded;
+}
+
+/** Dev candidates card: out-of-dictionary words fitting the current clue. */
+async function toggleCands() {
+  candOpen = !candOpen;
+  $('candbtn').textContent = candOpen ? 'Hide candidates' : 'Show candidates';
+  $('candcard').classList.toggle('open', candOpen);
+  if (!candOpen) return;
+  const box = $('candlist');
+  if (!box.childElementCount) {
+    try { await loadExtra(); } catch (e) { return say(e.message, 'err'); }
+    const fits = EXTRA.filter(w => isValid(w, CLUE));
+    $('candcount').textContent =
+      fits.length + ' words outside the dictionary fit this clue · click to queue an addition';
+    for (const w of fits) {
+      const row = document.createElement('div');
+      row.dataset.w = w;
+      row.innerHTML = w.toUpperCase() + ' <b>' + scoreWord(w, CLUE).p + '</b>';
+      row.onclick = () => {
+        if (decisions.get(w) === 'add') decisions.delete(w);
+        else decisions.set(w, 'add');
+        persistDecisions();
+        syncCand();
+        render();
+      };
+      box.appendChild(row);
+    }
+  }
+  syncCand();
+}
+
+function syncCand() {
+  document.querySelectorAll('#candlist div[data-w]').forEach(row => {
+    row.className = 'cword' +
+      (decisions.get(row.dataset.w) === 'add' ? ' adding' : '');
+  });
+}
+
 function syncReveal() {
   document.querySelectorAll('#reveal div[data-w]').forEach(row => {
     const w = row.dataset.w;
@@ -1074,6 +1137,7 @@ function openReview() {
       decisions.delete(w);
       persistDecisions();
       syncReveal();
+      syncCand();
       render();
       openReview();                        // repaint the list in place
     };
@@ -1090,6 +1154,7 @@ async function commitDictionary() {
   const btn = $('commitbtn');
   btn.disabled = true;
   say('committing\u2026', 'ok');
+  const committed = [...decisions];
   try {
     const data = await ghGet('data.js');
     const text = b64decode(data.content);
@@ -1109,6 +1174,25 @@ async function commitDictionary() {
                 data.sha, msg);
     const dict = await ghGet('dictionary.txt');
     await ghPut('dictionary.txt', list.join('\n') + '\n', dict.sha, msg);
+    // Keep the dev candidate pool in step: committed additions leave EXTRA,
+    // removals re-enter it (close enough for curation tooling — a removed
+    // non-SCOWL rescue re-entering the pool is harmless).
+    try {
+      const cand = await ghGet('candidates.js');
+      const ctext = b64decode(cand.content);
+      const cm = ctext.match(/const EXTRA = "([^"]*)"/);
+      if (cm) {
+        const pool = new Set(cm[1].split(' '));
+        for (const [w, c] of committed) {
+          if (c === 'add') pool.delete(w);
+          else if (w.length >= 4) pool.add(w);
+        }
+        await ghPut('candidates.js',
+                    ctext.replace(cm[0],
+                      'const EXTRA = "' + [...pool].sort().join(' ') + '"'),
+                    cand.sha, msg);
+      }
+    } catch (e) { /* pool sync is best-effort */ }
     decisions.clear();
     persistDecisions();
     syncReveal();
@@ -1269,6 +1353,7 @@ function wireEvents() {
   $('rollbtn').addEventListener('click', roll);
   $('todaybtn').addEventListener('click', goDaily);
   $('listbtn').addEventListener('click', toggleList);
+  $('candbtn').addEventListener('click', toggleCands);
   $('commitbtn').addEventListener('click', openReview);
   $('revcommit').addEventListener('click', () => {
     closeModal('reviewmodal');

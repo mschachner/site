@@ -354,6 +354,16 @@
   .rword .tag.vp { color:var(--gold); }
   .rword .tag.snug { color:var(--accent); }
   .rword.missed { color:var(--muted); }
+  /* Candidate rows: outside-the-dictionary words; click queues an addition. */
+  .cword { display:flex; gap:10px; align-items:baseline; padding:5px 8px;
+           border-radius:7px; cursor:pointer; font-size:15px;
+           white-space:nowrap; min-width:0; color:var(--muted);
+           break-inside:avoid; }
+  .cword:hover { background:var(--chip); }
+  .cword b { margin-left:auto; font-variant-numeric:tabular-nums;
+             font-weight:600; color:var(--muted); font-size:13px; }
+  .cword.adding { color:var(--good); font-weight:700; }
+  .cword.adding b { color:var(--good); }
   .rword.removed { text-decoration:line-through; color:var(--bad); }
   .rword.removed b { color:var(--bad); }
 @media (min-width: 1401px) {
