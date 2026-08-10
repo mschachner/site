@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 23;
+const BUILD = 25;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -205,6 +205,7 @@ let isDaily = false;      // current plate is today's scheduled plate
 let listOpen = false;     // dev wordlist visibility
 let candOpen = false;     // dev candidates visibility
 let diff = 'easy';        // dev roll difficulty band
+let rollLen = 'any';      // dev roll clue length: '3' | '4' | 'any'
 let tripPts = null;       // rail geometry, rebuilt on resize
 
 /** Pending dictionary edits (dev): word -> 'add' | 'remove'. */
@@ -654,7 +655,9 @@ function submitWord() {
   inp.value = '';
   if (!w) return;
   const W = w.toUpperCase();
-  if (w.length <= CLUE.length) return say('too short', 'err');
+  // A word exactly the clue's length can only be the clue itself, spelled
+  // out — allowed (OAF is valid for O-A-F). Anything shorter can't fit.
+  if (w.length < CLUE.length) return say('too short', 'err');
   if (!isValid(w, CLUE)) return say(W + " doesn't contain " + UP, 'err');
   if (found.includes(w)) return say('already found', 'err');
 
@@ -986,9 +989,18 @@ function setDiff(d) {
   roll();
 }
 
-/** Roll a random eligible clue in the current band (never persists/stats). */
+function setRollLen(l) {
+  rollLen = l;
+  document.querySelectorAll('#lenseg button').forEach(b =>
+    b.classList.toggle('active', b.dataset.l === l));
+  roll();
+}
+
+/** Roll a random eligible clue in the current band and length choice. */
 function roll() {
-  const pool = ELIG.filter(([c, g]) => inBand(g) && c !== CLUE);
+  const pool = ELIG.filter(([c, g]) => inBand(g) && c !== CLUE &&
+    (rollLen === 'any' || c.length === +rollLen));
+  if (!pool.length) return say('no eligible clues for that combination', 'err');
   setPlate(pool[Math.floor(Math.random() * pool.length)][0]);
   $('inp').focus();
 }
@@ -1401,6 +1413,8 @@ function wireEvents() {
   $('nearliftbtn').addEventListener('click', nearLiftoff);
   document.querySelectorAll('#seg button').forEach(b =>
     b.addEventListener('click', () => setDiff(b.dataset.d)));
+  document.querySelectorAll('#lenseg button').forEach(b =>
+    b.addEventListener('click', () => setRollLen(b.dataset.l)));
 
   // Leaving without pressing Finish forfeits the day's stats entry, so warn
   // when today's plate has real progress. (Browsers show their own generic
