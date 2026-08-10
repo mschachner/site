@@ -202,10 +202,11 @@
 
 /* ---- 5. cards & wordlist ---- */
   .cardhead { display:flex; justify-content:space-between; align-items:baseline;
-              font-weight:700; font-size:19px; letter-spacing:.02em; }
+              gap:18px; font-weight:700; font-size:19px; letter-spacing:.02em; }
+  .cardhead > span:first-child { white-space:nowrap; }
   .rule { height:1px; background:var(--hair); margin:calc(12px*var(--sp)) 0 calc(16px*var(--sp)); }
   .count { font-size:13px; font-weight:400; color:var(--muted);
-           font-variant-numeric:tabular-nums; }
+           font-variant-numeric:tabular-nums; text-align:right; }
   .empty { color:var(--muted); font-size:15px; font-style:italic; padding:6px 8px; }
   .tiles { display:flex; gap:40px; margin-bottom:18px; }
   .tile { display:flex; flex-direction:column; }
@@ -282,7 +283,8 @@
   body:not(.dev) .devonly { display:none !important; }
   /* The dev wordlist lives in its own card below the play card; visible only
      in dev mode while toggled open. */
-  .revealcard { display:none; margin-top:calc(24px*var(--sp)); width:min(980px, 100%); }
+  .revealcard { display:none; margin-top:calc(24px*var(--sp)); width:min(980px, 100%);
+                padding:calc(26px*var(--sp)) calc(30px*var(--sp)); }
   body.dev .revealcard.open { display:block; }
   .reveal { width:100%; }
   .rword { display:flex; gap:10px; align-items:baseline; padding:5px 8px; border-radius:7px;

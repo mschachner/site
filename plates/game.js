@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 10;
+const BUILD = 11;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -1091,6 +1091,14 @@ async function commitDictionary() {
   btn.disabled = false;
 }
 
+/** Dev: set the score one short word from Liftoff, to test the celebration. */
+function nearLiftoff() {
+  if (finished) return say('reset finish first', 'err');
+  total = Math.max(0, ranks[ranks.length - 1][1] - LENGTH_POINTS);
+  render();
+  say('one word from Liftoff', 'ok');
+}
+
 /** Dev: unlock a finished day (also un-records it from stats). */
 function resetFinish(ev) {
   finished = false;
@@ -1248,6 +1256,7 @@ function wireEvents() {
   });
   $('resetfinbtn').addEventListener('click', resetFinish);
   $('resettodaybtn').addEventListener('click', resetToday);
+  $('nearliftbtn').addEventListener('click', nearLiftoff);
   document.querySelectorAll('#seg button').forEach(b =>
     b.addEventListener('click', () => setDiff(b.dataset.d)));
 
