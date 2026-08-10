@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 18;
+const BUILD = 19;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -1304,6 +1304,17 @@ function wireEvents() {
   $('nearliftbtn').addEventListener('click', nearLiftoff);
   document.querySelectorAll('#seg button').forEach(b =>
     b.addEventListener('click', () => setDiff(b.dataset.d)));
+
+  // Leaving without pressing Finish forfeits the day's stats entry, so warn
+  // when today's plate has real progress. (Browsers show their own generic
+  // wording; the handler just opts in. Dev rolls and finished days never
+  // warn, and neither does an untouched page.)
+  window.addEventListener('beforeunload', e => {
+    if (isDaily && !finished && found.length > 0) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 
   // Modals: any .close button or backdrop click closes; Escape closes all.
   document.querySelectorAll('.overlay').forEach(ov => {
