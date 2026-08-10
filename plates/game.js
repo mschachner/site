@@ -71,7 +71,7 @@ const BUILD = 12;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
-const GATE_TIP = (TAP ? 'Tap' : 'Click') + ' Finish to share';
+const GATE_TIP = (TAP ? 'Tap' : 'Click') + " Finish to share once you're done!";
 
 /* ================================================================
  * 2. Small utilities
