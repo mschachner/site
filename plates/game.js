@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 16;
+const BUILD = 18;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -900,7 +900,7 @@ function openLiftoff() {
 }
 
 /** Yesterday's full answer list: found words bolded, VP in gold. */
-function openYesterday() {
+function renderYesterday() {
   const info = yesterdayInfo();
   const sub = $('ysub');
   const box = $('ylist');
@@ -922,7 +922,6 @@ function openYesterday() {
       box.appendChild(row);
     }
   }
-  openModal('yestmodal');
 }
 
 /* ================================================================
@@ -1210,8 +1209,14 @@ function wireEvents() {
 
   // Header
   $('rulesbtn').addEventListener('click', () => openModal('rulesmodal'));
-  $('statsbtn').addEventListener('click', () => { renderStats(); openModal('statsmodal'); });
-  $('yestbtn').addEventListener('click', openYesterday);
+  // Collapsible Stats / Yesterday sections. Stats content is kept fresh by
+  // render(); yesterday's answer list is computed on first expand.
+  $('statshead').addEventListener('click', () =>
+    $('statsdisc').classList.toggle('open'));
+  $('yesthead').addEventListener('click', () => {
+    if (!$('yestdisc').classList.contains('open')) renderYesterday();
+    $('yestdisc').classList.toggle('open');
+  });
   // The dev switch shows only where it's relevant: on a browser that has
   // unlocked dev mode before, or when the page is visited with #dev.
   const syncDevVisibility = () => document.body.classList.toggle('devvis',

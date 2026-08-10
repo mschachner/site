@@ -235,6 +235,33 @@
   .count { font-size:13px; font-weight:400; color:var(--muted);
            font-variant-numeric:tabular-nums; text-align:right; }
   .empty { color:var(--muted); font-size:15px; font-style:italic; padding:6px 8px; }
+  /* Collapsible Stats / Yesterday sections below the play card. */
+  .discs { width:min(980px, 100%); margin-top:calc(20px*var(--sp));
+           display:flex; flex-direction:column; gap:4px; }
+  .dischead { display:flex; align-items:center; gap:10px; background:none;
+              border:none; color:var(--ink); font-family:var(--font);
+              font-size:17px; font-weight:700; letter-spacing:.01em;
+              padding:8px 4px; cursor:pointer; }
+  .dischead:hover { color:var(--accent); }
+  .chev { display:inline-block; width:14px; font-size:22px; line-height:1;
+          color:var(--accent); transition:transform .25s ease; }
+  .disc.open .chev { transform:rotate(90deg); }
+  .discbody { display:grid; grid-template-rows:0fr;
+              transition:grid-template-rows .3s ease; }
+  .disc.open .discbody { grid-template-rows:1fr; }
+  .discinner { overflow:hidden; min-height:0; }
+  .discpad { margin-left:14px; border-left:2px solid #cdb190;
+             padding:6px 4px 16px 20px; }
+  /* The disclosures sit on the tan page surface, not a cream card, so the
+     muted palette needs a darker cut here to stay readable. */
+  .discpad .ysub, .discpad .tile span, .discpad .distrow,
+  .discpad .yword, .discpad .yword b, .discpad .distrow b { color:#77593a; }
+  .discpad .distrow .dbar i { background:#c9ab82; }
+  .discpad .yword.got { color:var(--ink); }
+  .discpad .yword.vp { color:var(--gold); }
+  .discpad .distrow.today { color:var(--ink); }
+  .discpad .distrow.today .dbar i { background:var(--accent); }
+
   .tiles { display:flex; gap:40px; margin-bottom:18px; }
   .tile { display:flex; flex-direction:column; }
   .tile b { font-size:28px; line-height:1.1; }
