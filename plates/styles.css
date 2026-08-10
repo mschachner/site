@@ -154,7 +154,6 @@
           transition:color .6s ease; display:none; }
   body.fin .pbot { display:block; }
   body.liftoff .plate { background:#17151a; }
-  body.liftoff .platecover { color:#fffaf0; }
   body.fin #form { display:none; }
   body.fin #hintbtn { display:none; }
   #copytextbtn { display:none; }
@@ -165,9 +164,13 @@
            color:var(--rankc, var(--accent)); line-height:1;
            transform:scaleY(1.2); transform-origin:center; margin-top:6cqw; }
   .plate:hover .pline { filter:blur(5px); }
+  /* A translucent cream scrim washes out the blurred plate so the cover
+     text stays readable over any plate color (including Liftoff's black). */
   .platecover { position:absolute; inset:0; display:flex; align-items:center;
                 justify-content:center; opacity:0; transition:opacity .25s ease;
-                font-weight:700; font-size:19px; letter-spacing:.04em; color:var(--ink); }
+                font-weight:700; font-size:19px; letter-spacing:.04em;
+                color:var(--ink); background:rgba(255, 250, 240, .62);
+                border-radius:12px; }
   .plate:hover .platecover, .platecover.show { opacity:1; }
   .odo { display:inline-flex; }
   .digit { display:inline-block; height:1em; overflow:hidden; }
