@@ -95,6 +95,15 @@
                        filter:drop-shadow(0 3px 6px rgba(120,72,32,.35)); }
   .wby { margin:10px 0 4px; }
   .modal.liftoffm { text-align:center; max-width:400px; }
+  /* How-to-play example: mock plate beside valid/invalid word lists. */
+  .exrow { display:flex; align-items:center; justify-content:center; gap:22px;
+           margin:16px 0 18px; }
+  .explate { flex:none; border:3px solid var(--accent); border-radius:10px;
+             background:var(--card); padding:15px 16px 13px;
+             font-family:var(--plate-font); font-size:27px; letter-spacing:.08em;
+             color:var(--accent); line-height:1; transform:scaleY(1.2); }
+  .exlist { font-size:15px; line-height:1.8; }
+  .exlist b { color:var(--accent); font-weight:700; }
   .modal.devm { max-width:360px; }
   .devm form { display:flex; gap:10px; margin-top:4px; }
   .devm input { font-size:16px; text-align:left; letter-spacing:normal;
