@@ -4,6 +4,7 @@
  * with difficulty), and SCHED (the baked daily schedule).
  *
  * Sections:
+ *   0.  Migration to platesgame.com
  *   1.  Configuration
  *   2.  Small utilities (DOM, dates, storage)
  *   3.  Core game logic (validity, scoring, answer lists, schedule)
@@ -26,6 +27,42 @@
  */
 
 'use strict';
+
+/* ================================================================
+ * 0. Migration
+ * ================================================================ */
+
+(function () {
+  var PREFIX = 'plates-';
+
+  var m = location.hash.match(/[#&]migrate=([A-Za-z0-9_-]+)/);
+  if (!m) return;
+
+  // Scrub the payload from the address bar regardless of what happens next.
+  history.replaceState(null, '', location.pathname + location.search);
+
+  var data;
+  try {
+    var b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    data = JSON.parse(new TextDecoder().decode(bytes));
+  } catch (e) { return; }
+
+  // Import only onto a fresh origin: if this browser already has Plates data
+  // on platesgame.com (they played here first), keep the existing data.
+  for (var j = 0; j < localStorage.length; j++) {
+    if (localStorage.key(j).indexOf(PREFIX) === 0) return;
+  }
+
+  Object.keys(data).forEach(function (k) {
+    if (k.indexOf(PREFIX) !== 0) return;      // defense in depth
+    if (k === 'plates-gh-token') return;      // never accept a token this way
+    try { localStorage.setItem(k, data[k]); } catch (e) { /* ignore */ }
+  });
+})();
+
 
 /* ================================================================
  * 1. Configuration
