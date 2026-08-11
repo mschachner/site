@@ -67,7 +67,7 @@ const RANK_COLORS = ['#8a8781', '#17151a', '#1e6b34', '#1b3a8c',
 const LIFTOFF_BG = '#17151a';
 
 /** Deploy build number — keep in step with the ?v= query in index.html. */
-const BUILD = 25;
+const BUILD = 26;
 
 /** Touch devices get "Tap" wording. */
 const TAP = matchMedia('(pointer: coarse)').matches;
@@ -1415,6 +1415,18 @@ function wireEvents() {
     b.addEventListener('click', () => setDiff(b.dataset.d)));
   document.querySelectorAll('#lenseg button').forEach(b =>
     b.addEventListener('click', () => setRollLen(b.dataset.l)));
+  // Custom clue: type any 3- or 4-letter clue and load it as a test plate.
+  $('clueform').addEventListener('submit', e => {
+    e.preventDefault();
+    const c = $('cluein').value.trim().toLowerCase();
+    if (!/^[a-z]{3,4}$/.test(c)) {
+      return say('clue must be 3 or 4 letters', 'err');
+    }
+    $('cluein').value = '';
+    setPlate(c);
+    say(Object.keys(answers).length + ' answers for ' + UP, 'ok');
+    $('inp').focus();
+  });
 
   // Leaving without pressing Finish forfeits the day's stats entry, so warn
   // when today's plate has real progress. (Browsers show their own generic

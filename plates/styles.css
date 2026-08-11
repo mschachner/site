@@ -330,6 +330,12 @@
   #upcoming { font-size:14px; padding:8px 10px; border-radius:var(--radius);
               border:1px solid var(--hair); background:var(--card);
               color:var(--ink); font-family:var(--font); }
+  .clueform { display:flex; gap:8px; }
+  .clueform input { width:76px; font-size:14px; padding:8px 10px;
+                    border-radius:var(--radius); border:1px solid var(--hair);
+                    background:var(--card); color:var(--ink);
+                    font-family:var(--font); text-transform:uppercase;
+                    text-align:center; letter-spacing:.08em; }
   .seg { display:flex; border:1px solid var(--hair); border-radius:var(--radius); overflow:hidden; }
   .seg button { border:none; border-radius:0; background:none; color:var(--muted);
                 font-size:13px; padding:9px 12px; }
