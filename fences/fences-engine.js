@@ -12,6 +12,11 @@
    unequal closes are rejected immediately (equal areas also rule out
    nesting, since a nested loop is strictly smaller); completions with a
    nested loop are additionally caught in record() as a safety net.
+   Because every dot lies on a loop and no loop nests inside another, no
+   loop encloses a dot, so by Pick's theorem a loop's area is dots/2 - 1
+   and equal areas mean equal dot counts: every loop takes exactly N/L
+   dots, an even number since grid loops have even length. Grids whose
+   dots cannot split that way are rejected up front as impossible.
    Clue ids: 0..E-1 are edges; E + 2*cell marks cell indoors, E + 2*cell + 1
    outdoors. Cells are the grid's faces plus one outer face (always outdoors);
    indoors means inside a loop (exactly one, since nesting is forbidden, so
@@ -100,6 +105,7 @@ class Fences {
     if (R < 2 || C < 2) { this.impossible = 'small'; this.done = true; return; }
     if (this.N % 2 === 1) { this.impossible = 'parity'; this.done = true; return; }
     if (4 * this.L > this.N) { this.impossible = 'loops'; this.done = true; return; }
+    if (this.N % this.L !== 0 || (this.N / this.L) % 2 === 1) { this.impossible = 'split'; this.done = true; return; }
 
     for (let v = 0; v < this.N; v++) this.queue[this.qTail++] = v;
     let ok = true;
@@ -498,12 +504,13 @@ function applyDotHelper(R, C, clues, marks, dots, protectedEdge = -1, protectedC
 }
 
 /* The loop helper's pure logic. A blank edge joining the two ends of one
-   open path would close a loop right now. Closing is premature while it
-   would make finishing with exactly `loops` loops impossible: the count
-   would run past the target, dots would be left over once the last allowed
-   loop closes, or too few dots would remain for the loops still owed (each
-   needs at least 4). Such edges are ×-ed. Only clean simple paths are read;
-   components with a branching dot are left alone, as is the player's work. */
+   open path would close a loop right now. Every loop in a solution takes
+   exactly N/loops dots (no loop may enclose a dot, so by Pick's theorem
+   area is dots/2 - 1 and the equal-area rule is an equal-dots rule), so
+   closing is wrong unless the path holds exactly that share — or the loop
+   count would run past the target. Such edges are ×-ed. Only clean simple
+   paths are read; components with a branching dot are left alone, as is
+   the player's work. */
 function applyLoopHelper(R, C, loops, clues, marks, protectedEdge = -1) {
   const N = R * C, HE = R * (C - 1), E = HE + (R - 1) * C;
   const endsOf = e => {
@@ -532,11 +539,12 @@ function applyLoopHelper(R, C, loops, clues, marks, protectedEdge = -1) {
     if (deg[v] === 1) ends[r]++;
     else if (deg[v] > 2) bad[r] = 1;
   }
-  let closedLoops = 0, closedDots = 0; // loops the player has already finished
+  let closedLoops = 0; // loops the player has already finished
   for (let v = 0; v < N; v++)
-    if (find(v) === v && size[v] && !ends[v] && !bad[v]) { closedLoops++; closedDots += size[v]; }
+    if (find(v) === v && size[v] && !ends[v] && !bad[v]) closedLoops++;
   const nextMarks = Int8Array.from(marks);
   const changes = [];
+  const share = N / loops; // dots every loop must take, exactly
   const left = loops - closedLoops - 1; // loops still owed after one more closes
   for (let e = 0; e < E; e++) {
     if (e === protectedEdge || nextMarks[e] !== 0 || clues.has(e)) continue;
@@ -544,8 +552,7 @@ function applyLoopHelper(R, C, loops, clues, marks, protectedEdge = -1) {
     if (deg[u] !== 1 || deg[v] !== 1) continue;
     const r = find(u);
     if (find(v) !== r || bad[r] || ends[r] !== 2) continue; // not one clean open path
-    const rem = N - closedDots - size[r]; // dots left for the loops still owed
-    if (left < 0 || (left === 0 ? rem !== 0 : rem < 4 * left)) {
+    if (left < 0 || size[r] !== share) {
       nextMarks[e] = 2;
       changes.push([e, 0, 2]);
     }

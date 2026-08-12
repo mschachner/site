@@ -33,6 +33,8 @@
   const SAMPLE_CODE = '6x6:6.7.f.s.13.1j@TWFyaw';
   const HIDE_ABOUT_KEY = 'fences.hideAbout';
   const DEGREE_HELPER_DELAY_MS = 400;
+  const impossibleMsg = why => why === 'loops' ? 'Too many loops for this grid'
+    : why === 'split' ? 'Dots can’t split into equal loops' : 'Impossible grid';
 
   // solve-state cache: revisiting a clue configuration (incl. the empty board)
   // resumes its search where it left off instead of starting over
@@ -518,7 +520,7 @@
     updateWasteUI();
 
     if (engine && engine.impossible)
-      setChip('bad', engine.impossible === 'loops' ? 'Too many loops for this grid' : 'Impossible grid');
+      setChip('bad', impossibleMsg(engine.impossible));
     else if (engine && engine.done) {
       if (sols === 0) setChip('bad', 'No solutions');
       else if (sols === 1) setChip('ok', 'Unique solution');
@@ -837,7 +839,7 @@
       else if (gen.status) setPChip('bad', gen.status);
       else if (entryMode() === 'random' && !clues.size) setPChip('warn', 'Generate a puzzle');
       else if (!eng) setPChip('warn', 'Enter a puzzle');
-      else if (eng.impossible) setPChip('bad', eng.impossible === 'loops' ? 'Too many loops for this grid' : 'Impossible grid');
+      else if (eng.impossible) setPChip('bad', impossibleMsg(eng.impossible));
       else if (!eng.done) setPChip('search', 'Checking…');
       else if (eng.solutions === 1) setPChip('ok', 'Unique solution — ready');
       else if (eng.solutions === 0) setPChip('bad', 'No solutions — remove a clue');
