@@ -2,21 +2,23 @@
    `loops` disjoint loops that together pass through every dot (2-factors of
    the grid graph with a fixed component count) and include all clue edges.
    Edge states: 0 unknown, 1 in, 2 out. Every vertex must end at degree 2.
-   Loop structure is tracked per open path via its two endpoints (partner[])
-   and vertex count (plen[]): an edge joining two ends of the same path closes
-   a loop, allowed only while loops remain to be closed, only if enough dots
-   remain for the rest (each grid loop needs at least 4), and, for the final
-   loop, only if it covers every remaining dot.
    No loop may lie inside another, and all loops must enclose the same
-   number of cells. Areas are computed by shoelace when a loop closes and
-   unequal closes are rejected immediately (equal areas also rule out
-   nesting, since a nested loop is strictly smaller); completions with a
-   nested loop are additionally caught in record() as a safety net.
-   Because every dot lies on a loop and no loop nests inside another, no
-   loop encloses a dot, so by Pick's theorem a loop's area is dots/2 - 1
-   and equal areas mean equal dot counts: every loop takes exactly N/L
-   dots, an even number since grid loops have even length. Grids whose
-   dots cannot split that way are rejected up front as impossible.
+   number of cells. Because every dot lies on a loop and no loop nests
+   inside another, no loop encloses a dot, so by Pick's theorem a loop's
+   area is dots/2 - 1 and the equal-area rule is an equal-dots rule: every
+   loop takes exactly share = N/L dots (an even number, since grid loops
+   have even length) and encloses exactly share/2 - 1 cells, and a
+   solution has exactly N/2 - L indoor cells in total. Grids whose dots
+   cannot split that way are rejected up front as impossible.
+   Loop structure is tracked per open path via its two endpoints (partner[])
+   and vertex count (plen[]): an edge joining two ends of the same path
+   closes a loop, allowed only while loops remain to be closed and only if
+   the path holds exactly its share of the dots. A closing loop's shoelace
+   area must equal its quota, which rejects unequal areas and enclosed
+   dots (hence nesting) immediately; completions with a nested loop are
+   additionally caught in record() as a safety net. The indoor total is
+   policed in propagate(): face runs that overshoot either the indoor or
+   the outdoor quota are pruned.
    Clue ids: 0..E-1 are edges; E + 2*cell marks cell indoors, E + 2*cell + 1
    outdoors. Cells are the grid's faces plus one outer face (always outdoors);
    indoors means inside a loop (exactly one, since nesting is forbidden, so
@@ -65,6 +67,7 @@ class Fences {
     this.faceEdges = faceEdges;
     this.faceVal = new Int8Array(F + 1); // 0 unknown, 1 in, 2 out
     this.faceVal[F] = 2;
+    this.inCells = 0; this.outCells = 0; // decided cells, checked against the quotas
     this.fQueue = new Int32Array(F + 4); this.fqHead = 0; this.fqTail = 0;
     this.cellHeat = new Float64Array(F);
 
@@ -84,9 +87,7 @@ class Fences {
     this.partner = new Int32Array(this.N);
     this.plen = new Int32Array(this.N);
     for (let v = 0; v < this.N; v++) { this.partner[v] = v; this.plen[v] = 1; }
-    this.closed = 0;  // loops closed so far
-    this.closedV = 0; // dots used up by closed loops
-    this.closedAreas = new Int32Array(this.L); // enclosed cells per closed loop
+    this.closed = 0; // loops closed so far
 
     this.trailE = new Int32Array(E + F + 4); this.teTop = 0; // edges + face records
     this.trailP = new Int32Array(12 * E); this.tpTop = 0;
@@ -106,6 +107,10 @@ class Fences {
     if (this.N % 2 === 1) { this.impossible = 'parity'; this.done = true; return; }
     if (4 * this.L > this.N) { this.impossible = 'loops'; this.done = true; return; }
     if (this.N % this.L !== 0 || (this.N / this.L) % 2 === 1) { this.impossible = 'split'; this.done = true; return; }
+    this.share = this.N / this.L;        // dots on every loop, exactly
+    this.shareArea = this.share / 2 - 1; // cells inside every loop, exactly
+    this.maxIn = this.N / 2 - this.L;    // indoor cells in any solution, exactly
+    this.maxOut = F - this.maxIn;
 
     for (let v = 0; v < this.N; v++) this.queue[this.qTail++] = v;
     let ok = true;
@@ -153,6 +158,7 @@ class Fences {
 
   setFaceVal(f, v) { // caller guarantees faceVal[f] === 0 and f !== outer
     this.faceVal[f] = v;
+    if (v === 1) this.inCells++; else this.outCells++;
     this.trailE[this.teTop++] = ~f; // negative trail records undo face values
     this.fQueue[this.fqTail++] = f;
   }
@@ -164,16 +170,12 @@ class Fences {
     const partner = this.partner, plen = this.plen;
     const eu = partner[u], ev = partner[v];
     const closes = eu === v; // u and v are the two ends of one open path
-    let area = 0;
     if (closes) {
-      const left = this.L - this.closed - 1;       // loops still owed after this one
-      const rem = this.N - this.closedV - plen[u]; // dots not on any closed loop
-      if (left < 0) return false;
-      if (left === 0 ? rem !== 0 : rem < 4 * left) return false;
-      if (this.L > 1) { // all loops must enclose the same number of cells
-        area = this.loopArea(u, v);
-        if (this.closed > 0 && area !== this.closedAreas[0]) return false;
-      }
+      if (this.closed >= this.L) return false;  // no loops left to close
+      if (plen[u] !== this.share) return false; // each loop takes exactly N/L dots
+      // and encloses exactly its quota of cells: an enclosed dot could only
+      // be covered by a nested loop, so any excess is fatal right here
+      if (this.L > 1 && this.loopArea(u, v) !== this.shareArea) return false;
     }
     const fa = this.eFaceA[e], fb = this.eFaceB[e];
     const fva = this.faceVal[fa], fvb = this.faceVal[fb];
@@ -189,8 +191,7 @@ class Fences {
     degIn[u]++; degIn[v]++;
     this.degUnk[u]--; this.degUnk[v]--;
     if (closes) {
-      this.closedAreas[this.closed] = area;
-      this.closed++; this.closedV += plen[u];
+      this.closed++;
     } else {
       const len = plen[eu] + plen[ev];
       partner[eu] = ev; partner[ev] = eu;
@@ -224,6 +225,8 @@ class Fences {
     const fq = this.fQueue, faceVal = this.faceVal, fe = this.faceEdges;
     const eA = this.eFaceA, eB = this.eFaceB;
     for (;;) {
+      // a solution has exactly maxIn indoor and maxOut outdoor cells
+      if (this.inCells > this.maxIn || this.outCells > this.maxOut) return false;
       while (this.qHead < this.qTail) {
         const v = q[this.qHead++];
         const di = degIn[v], du = degUnk[v];
@@ -264,7 +267,12 @@ class Fences {
     const trailE = this.trailE, state = this.state, EU = this.EU, EV = this.EV;
     while (this.teTop > mark) {
       const rec = trailE[--this.teTop];
-      if (rec < 0) { this.faceVal[~rec] = 0; continue; }
+      if (rec < 0) {
+        const f = ~rec;
+        if (this.faceVal[f] === 1) this.inCells--; else this.outCells--;
+        this.faceVal[f] = 0;
+        continue;
+      }
       const e = rec >> 2, u = EU[e], v = EV[e];
       state[e] = 0;
       this.degUnk[u]++; this.degUnk[v]++;
@@ -277,7 +285,7 @@ class Fences {
           this.plen[x] = tp[t + i + 2];
         }
         this.tpTop = t;
-        if (rec & 2) { this.closed--; this.closedV -= this.plen[u]; } // reopen the loop
+        if (rec & 2) this.closed--; // reopen the loop
       }
     }
   }
