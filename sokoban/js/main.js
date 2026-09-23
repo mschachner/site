@@ -12,9 +12,23 @@ import {
   loadSettings, saveSettings, loadScores, clearScores, scoreKey, recordScore,
 } from './storage.js';
 import { randomSeed } from './rng.js';
+import { icon, mountIcons } from './icons.js';
+import { openPicker, closePicker, narrow } from './ui.js';
 
 // touch-first device: keyboard shortcuts are irrelevant in copy/help
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches;
+
+// puzzle parameters shown in the header pickers
+const PARAM_OPTIONS = {
+  difficulty: ['easy', 'medium', 'hard', 'expert'].map((v) => ({ value: v, label: v })),
+  boxes: [1, 2, 3, 4, 5, 6].map((n) => ({ value: String(n), label: String(n) })),
+  // `short` is what the header cell shows; the picker lists the full label
+  size: Object.entries(SIZES).map(([v, s]) => ({
+    value: v,
+    label: s.label,
+    short: s.label.replace('extra ', 'x-'),
+  })),
+};
 
 // ---------- state ----------
 
@@ -233,6 +247,7 @@ const actions = {
   newPuzzle,
   panel: togglePanel,
   escape() {
+    closePicker();
     if (!panelEl.classList.contains('hidden')) closePanel();
     else if (phase === 'paused') actions.pause();
   },
@@ -255,7 +270,11 @@ function syncHud() {
   $('timer').classList.toggle('off', !settings.timer);
   $('timerToggle').classList.toggle('active', settings.timer);
   if (hasGame) {
-    $('moveStat').textContent = `${game.moves} moves · optimal ${game.puzzle.optimal.moves}`;
+    // long form for wide screens, compact "n / optimal" for narrow ones
+    const opt = game.puzzle.optimal.moves;
+    $('moveStat').innerHTML =
+      `<span class="stat-long">${game.moves} moves · optimal ${opt}</span>` +
+      `<span class="stat-short"><b>${game.moves}</b><span class="stat-sep">/</span>${opt}</span>`;
     const r = game.puzzle.rating;
     $('rating').textContent = r;
     $('rating').dataset.rating = r;
@@ -267,7 +286,55 @@ function syncHud() {
   $('redoBtn').disabled = !hasGame || !game.redoStack.length || phase === 'paused' || phase === 'won';
   $('resetBtn').disabled = !hasGame;
   $('pauseBtn').disabled = !settings.timer || (phase !== 'playing' && phase !== 'paused');
-  $('pauseBtn').textContent = phase === 'paused' ? '▶' : '⏸';
+  const paused = phase === 'paused';
+  if ($('pauseBtn').dataset.state !== String(paused)) {
+    $('pauseBtn').dataset.state = String(paused);
+    $('pauseBtn').innerHTML = icon(paused ? 'play' : 'pause');
+    $('pauseBtn').setAttribute('aria-label', paused ? 'resume' : 'pause');
+  }
+}
+
+// ---------- puzzle parameters ----------
+
+function syncParams() {
+  for (const btn of document.querySelectorAll('.param')) {
+    const key = btn.dataset.picker;
+    const val = String(settings[key]);
+    const opt = PARAM_OPTIONS[key].find((o) => o.value === val);
+    btn.querySelector('.param-text').textContent = opt?.short ?? opt?.label ?? val;
+  }
+}
+
+function bindParams() {
+  for (const btn of document.querySelectorAll('.param')) {
+    const key = btn.dataset.picker;
+    btn.onclick = () => {
+      if (btn.getAttribute('aria-expanded') === 'true') {
+        closePicker();
+        return;
+      }
+      openPicker({
+        trigger: btn,
+        title: key,
+        options: PARAM_OPTIONS[key],
+        value: String(settings[key]),
+        onSelect(v) {
+          settings[key] = key === 'boxes' ? Number(v) : v;
+          saveSettings(settings);
+          syncParams();
+        },
+      });
+    };
+  }
+}
+
+// undo/redo/reset/pause sit in the HUD on wide screens and in a
+// thumb-reachable bottom bar on narrow ones.
+function placeActions() {
+  const actionsEl = $('actions');
+  const home = narrow.matches ? $('bottomBar') : $('hudActions');
+  if (actionsEl.parentElement !== home) home.appendChild(actionsEl);
+  renderer?.layout();
 }
 
 setInterval(() => {
@@ -308,36 +375,9 @@ function showOverlay(kind, data = {}) {
     card.innerHTML = `
       <p class="card-title">sokoban</p>
       <p class="card-sub">push every box onto a goal dot</p>
-      <div class="card-form">
-        <label>difficulty <select id="ovDifficulty"></select></label>
-        <label>boxes <select id="ovBoxes"></select></label>
-        <label>size <select id="ovSize"></select></label>
-      </div>
       <div class="card-actions">
         <button class="primary" id="ovGen">generate <kbd>enter</kbd></button>
       </div>`;
-    // mirror the topbar selects so either set of controls stays in sync
-    for (const [ovId, srcId] of [
-      ['ovDifficulty', 'difficulty'],
-      ['ovBoxes', 'boxes'],
-      ['ovSize', 'size'],
-    ]) {
-      const sel = card.querySelector('#' + ovId);
-      const src = $(srcId);
-      sel.innerHTML = src.innerHTML;
-      sel.value = src.value;
-      sel.onchange = () => {
-        src.value = sel.value;
-        src.onchange();
-      };
-      // Enter generates even while a dialog select holds focus
-      sel.onkeydown = (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          newPuzzle();
-        }
-      };
-    }
     card.querySelector('#ovGen').onclick = newPuzzle;
   } else if (kind === 'paused') {
     card.innerHTML = `
@@ -353,8 +393,8 @@ function showOverlay(kind, data = {}) {
     const opt = game.puzzle.optimal.moves;
     const delta = game.moves - opt;
     const badges = [
-      lastRecords.bestTime ? '<span class="badge">★ best time</span>' : '',
-      lastRecords.bestMoves ? '<span class="badge">★ best moves</span>' : '',
+      lastRecords.bestTime ? `<span class="badge">${icon('star')}best time</span>` : '',
+      lastRecords.bestMoves ? `<span class="badge">${icon('star')}best moves</span>` : '',
     ].join('');
     card.innerHTML = `
       <p class="card-title">solved</p>
@@ -389,9 +429,12 @@ function togglePanel(view) {
     closePanel();
     return;
   }
+  closePicker();
   panelView = view;
   panelEl.classList.remove('hidden');
+  $('panelScrim').classList.remove('hidden');
   panelEl.replaceChildren();
+  panelEl.scrollTop = 0;
   if (view === 'settings') buildSettingsPanel();
   else if (view === 'scores') buildScoresPanel();
   else buildHelpPanel();
@@ -399,13 +442,14 @@ function togglePanel(view) {
 
 function closePanel() {
   panelEl.classList.add('hidden');
+  $('panelScrim').classList.add('hidden');
   panelView = null;
 }
 
 function panelHeader(title) {
   const head = document.createElement('div');
   head.className = 'panel-head';
-  head.innerHTML = `<h2>${title}</h2><button class="icon" aria-label="close">×</button>`;
+  head.innerHTML = `<h2>${title}</h2><button class="icon" aria-label="close">${icon('close')}</button>`;
   head.querySelector('button').onclick = closePanel;
   panelEl.appendChild(head);
   return head;
@@ -500,7 +544,7 @@ function buildSettingsPanel() {
   const customize = document.createElement('details');
   customize.className = 'customize';
   customize.open = customizeOpen;
-  customize.innerHTML = '<summary>customize</summary>';
+  customize.innerHTML = `<summary>${icon('chevron')}customize</summary>`;
   customize.addEventListener('toggle', () => (customizeOpen = customize.open));
   const grid = document.createElement('div');
   grid.className = 'color-grid';
@@ -663,8 +707,8 @@ function buildScoresPanel() {
       row.innerHTML = `
         <div class="score-cat">${diff} · ${SIZES[size]?.label ?? size} · ${boxes} box${boxes === '1' ? '' : 'es'}</div>
         <div class="score-vals">
-          <span title="best time">⏱ ${s.time ? fmtTime(s.time.ms, true) : '—'}</span>
-          <span title="best moves vs optimal">⇄ ${s.moves ? `${s.moves.moves} (+${s.moves.delta})` : '—'}</span>
+          <span title="best time">${icon('timer')}${s.time ? fmtTime(s.time.ms, true) : '—'}</span>
+          <span title="best moves vs optimal">${icon('moves')}${s.moves ? `${s.moves.moves} (+${s.moves.delta})` : '—'}</span>
         </div>`;
       body.appendChild(row);
     }
@@ -690,12 +734,13 @@ function buildHelpPanel() {
   body.className = 'panel-body';
   const controls = IS_TOUCH
     ? `
-      <div><kbd>swipe</kbd><span>move — hold &amp; drag to keep moving</span></div>
-      <div><kbd>↶ ↷</kbd><span>undo / redo</span></div>
-      <div><kbd>⟲</kbd><span>reset puzzle</span></div>
-      <div><kbd>⏸</kbd><span>pause (timer on)</span></div>
-      <div><kbd>◐</kbd><span>settings</span></div>
-      <div><kbd>★</kbd><span>scores</span></div>`
+      <div><i class="key-ic">${icon('swipe')}</i><span>swipe to move — hold &amp; drag to keep moving</span></div>
+      <div><i class="key-ic">${icon('undo')}${icon('redo')}</i><span>undo / redo</span></div>
+      <div><i class="key-ic">${icon('reset')}</i><span>reset puzzle</span></div>
+      <div><i class="key-ic">${icon('pause')}</i><span>pause (timer on)</span></div>
+      <div><i class="key-ic">${icon('timer')}</i><span>timer on / off</span></div>
+      <div><i class="key-ic">${icon('sliders')}</i><span>settings</span></div>
+      <div><i class="key-ic">${icon('star')}</i><span>scores</span></div>`
     : `
       <div><kbd>↑↓←→</kbd> / <kbd>wasd</kbd> / <kbd>hjkl</kbd><span>move</span></div>
       <div><kbd>swipe</kbd><span>move (touch) — hold &amp; drag to keep moving</span></div>
@@ -720,24 +765,15 @@ function buildHelpPanel() {
 // ---------- wiring ----------
 
 function init() {
+  mountIcons();
   renderer = new Renderer(boardEl);
   applyTheme(currentTheme());
 
-  const diffSel = $('difficulty');
-  const sizeSel = $('size');
-  const boxSel = $('boxes');
-  diffSel.value = settings.difficulty;
-  sizeSel.value = settings.size;
-  boxSel.value = String(settings.boxes);
-  const onParam = () => {
-    settings.difficulty = diffSel.value;
-    settings.size = sizeSel.value;
-    settings.boxes = Number(boxSel.value);
-    saveSettings(settings);
-  };
-  diffSel.onchange = onParam;
-  sizeSel.onchange = onParam;
-  boxSel.onchange = onParam;
+  syncParams();
+  bindParams();
+  placeActions();
+  narrow.addEventListener('change', placeActions);
+  $('panelScrim').onclick = closePanel;
 
   $('newBtn').onclick = () => {
     newPuzzle();

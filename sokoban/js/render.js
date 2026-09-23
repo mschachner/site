@@ -87,8 +87,10 @@ export class Renderer {
     const w = this.bw;
     const h = this.bh;
     const wrap = this.board.parentElement;
+    // #boardWrap is the flex remainder of the column, so its own box is the
+    // space left after the header, hud, hint and bottom bar.
     const availW = wrap.clientWidth - 16;
-    const availH = Math.max(240, window.innerHeight - wrap.getBoundingClientRect().top - 96);
+    const availH = Math.max(200, wrap.clientHeight - 16);
     const cell = Math.max(22, Math.min(72, Math.floor(Math.min(availW / w, availH / h))));
     this.board.style.setProperty('--cell', cell + 'px');
     this.board.style.width = w * cell + 'px';
