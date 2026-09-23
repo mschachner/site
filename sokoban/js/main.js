@@ -184,10 +184,12 @@ function startAttempt() {
 // Reset plays the attempt backwards: every move is undone on a fast tick
 // with the board's movement transition shortened to match, so the pieces
 // glide back along the path they took. Long attempts undo several moves per
-// tick to keep the whole rewind under a second.
-const REWIND_MAX_MS = 900;
-const REWIND_STEP_MAX = 80;
-const REWIND_STEP_MIN = 24;
+// tick so the whole rewind takes about a third of a second whatever the
+// length. The tick length is its own constant, independent of the theme's
+// animation-speed setting.
+const REWIND_MAX_MS = 320;
+const REWIND_STEP_MAX = 40;
+const REWIND_STEP_MIN = 16;
 
 function rewind() {
   const n = game.moves;
