@@ -379,6 +379,9 @@ html.dark .tile.e-b { --in-b: inset 0 calc(var(--cell) * -0.3) calc(var(--cell) 
   will-change: transform;
 }
 #board.no-anim .box, #board.no-anim .player { transition: none; }
+/* rewind: steps are too short for the springy ease; run them linear so the
+   motion reads as tape scrubbing backwards */
+#board.rewinding .box, #board.rewinding .player { transition-timing-function: linear; }
 
 .box::after {
   content: "";

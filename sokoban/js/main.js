@@ -47,7 +47,7 @@ const settings = Object.assign(
 
 let game = null;
 let renderer = null;
-let phase = 'boot'; // boot | generating | ready | playing | paused | won
+let phase = 'boot'; // boot | generating | ready | playing | paused | rewinding | won
 let lastRecords = { bestTime: false, bestMoves: false };
 
 const clock = {
@@ -170,6 +170,8 @@ function loadPuzzle(puzzle) {
 }
 
 function startAttempt() {
+  boardEl.classList.remove('rewinding');
+  boardEl.style.removeProperty('--anim');
   game.reset();
   renderer.update({ instant: true });
   clock.reset();
@@ -177,6 +179,51 @@ function startAttempt() {
   hideOverlay();
   boardEl.classList.remove('won', 'paused');
   syncHud();
+}
+
+// Reset plays the attempt backwards: every move is undone on a fast tick
+// with the board's movement transition shortened to match, so the pieces
+// glide back along the path they took. Long attempts undo several moves per
+// tick to keep the whole rewind under a second.
+const REWIND_MAX_MS = 900;
+const REWIND_STEP_MAX = 80;
+const REWIND_STEP_MIN = 24;
+
+function rewind() {
+  const n = game.moves;
+  if (!n) {
+    startAttempt();
+    return;
+  }
+  const g = game;
+  phase = 'rewinding';
+  clock.stop();
+  hideOverlay();
+  boardEl.classList.remove('won', 'paused');
+  const step = Math.max(REWIND_STEP_MIN, Math.min(REWIND_STEP_MAX, REWIND_MAX_MS / n));
+  const perTick = Math.ceil((n * step) / REWIND_MAX_MS);
+  boardEl.classList.add('rewinding');
+  boardEl.style.setProperty('--anim', step + 'ms');
+  syncHud();
+  const tick = () => {
+    // a new puzzle (or a load) replaced the game mid-rewind: stop quietly
+    if (game !== g || phase !== 'rewinding') return;
+    for (let i = 0; i < perTick && g.undo(); i++);
+    renderer.update();
+    syncHud();
+    if (g.moves) {
+      setTimeout(tick, step);
+    } else {
+      // let the last step land before restoring the normal transition
+      setTimeout(() => {
+        if (game !== g || phase !== 'rewinding') return;
+        boardEl.classList.remove('rewinding');
+        boardEl.style.removeProperty('--anim');
+        startAttempt();
+      }, step);
+    }
+  };
+  setTimeout(tick, 0);
 }
 
 function finishWin() {
@@ -192,7 +239,9 @@ function finishWin() {
         moves: game.moves,
         optimal: game.puzzle.optimal.moves,
       });
-  setTimeout(() => showOverlay('won'), 350);
+  setTimeout(() => {
+    if (phase === 'won') showOverlay('won');
+  }, 350);
   syncHud();
 }
 
@@ -226,8 +275,8 @@ const actions = {
     }
   },
   reset() {
-    if (!game || phase === 'generating') return;
-    startAttempt();
+    if (!game || phase === 'generating' || phase === 'rewinding') return;
+    rewind();
   },
   pause() {
     if (!settings.timer) return;
@@ -282,9 +331,10 @@ function syncHud() {
     $('moveStat').textContent = '…';
     $('rating').textContent = '';
   }
-  $('undoBtn').disabled = !hasGame || !game.history.length || phase === 'paused' || phase === 'won';
-  $('redoBtn').disabled = !hasGame || !game.redoStack.length || phase === 'paused' || phase === 'won';
-  $('resetBtn').disabled = !hasGame;
+  const frozen = phase === 'paused' || phase === 'won' || phase === 'rewinding';
+  $('undoBtn').disabled = !hasGame || !game.history.length || frozen;
+  $('redoBtn').disabled = !hasGame || !game.redoStack.length || frozen;
+  $('resetBtn').disabled = !hasGame || phase === 'rewinding';
   $('pauseBtn').disabled = !settings.timer || (phase !== 'playing' && phase !== 'paused');
   const paused = phase === 'paused';
   if ($('pauseBtn').dataset.state !== String(paused)) {
@@ -408,7 +458,7 @@ function showOverlay(kind, data = {}) {
         <button id="ovReplay">replay <kbd>r</kbd></button>
         <button class="primary" id="ovNew">new puzzle <kbd>enter</kbd></button>
       </div>`;
-    card.querySelector('#ovReplay').onclick = startAttempt;
+    card.querySelector('#ovReplay').onclick = actions.reset;
     card.querySelector('#ovNew').onclick = newPuzzle;
   }
   overlayEl.appendChild(card);
