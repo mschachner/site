@@ -9,7 +9,8 @@
   --ink-soft: hsl(152, 8%, 32%);
   --green: #303e37;
   --accent: #8b5a2b;
-  --gold-deep: goldenrod;
+  --gold-deep: goldenrod;          /* decorative rules only (2.2:1 on cream) */
+  --gold-ink: #8a6508;             /* gold for text and icons: 5.1:1 on cream */
   --border: rgba(48, 62, 55, 0.16);
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Nunito", "Verdana", sans-serif;
@@ -47,12 +48,60 @@ a {
 }
 
 a:hover {
-  color: var(--gold-deep);
+  color: var(--gold-ink);
 }
 
 img {
   display: block;
   max-width: 100%;
+  height: auto;
+}
+
+
+/* ============ Accessibility helpers ============ */
+
+/* Consistent, visible keyboard focus ring in every browser */
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* Sections receive programmatic focus on navigation; no ring needed for that */
+main:focus,
+main > section:focus {
+  outline: none;
+}
+
+/* Text for screen readers only (e.g. course names on otherwise ambiguous links) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link: off-screen until focused */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  padding: 8px 14px;
+  background: var(--green);
+  color: var(--bg);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+  outline-color: var(--accent);
 }
 
 
@@ -94,7 +143,7 @@ nav {
 }
 
 .nav-links a:hover {
-  color: var(--gold-deep);
+  color: var(--gold-ink);
 }
 
 .nav-links a[aria-current] {
@@ -114,11 +163,31 @@ main > section {
   max-width: 880px;
   margin: 0 auto;
   padding: 48px 24px 56px;
+}
+
+/* Tabbed view only when JS is running (the .js class is set in <head>);
+   without JS, and in print, the sections stack as one document. */
+.js main > section:not(.active) {
   display: none;
 }
 
-main > section.active {
-  display: block;
+@media print {
+  .js main > section:not(.active) {
+    display: block;
+  }
+
+  .js .hero:not(.active) {
+    display: flex;
+  }
+
+  nav,
+  .skip-link {
+    display: none;
+  }
+
+  main > section + section {
+    break-before: page;
+  }
 }
 
 h2 {
@@ -155,7 +224,7 @@ section > p,
 
 /* ============ Header ============ */
 
-.hero.active {
+.hero {
   display: flex;
   align-items: flex-start;
   gap: 48px;
@@ -184,6 +253,7 @@ section > p,
 }
 
 .hero-badges {
+  list-style: none;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -317,9 +387,8 @@ section > p,
   display: block;
   margin-top: 8px;
   font-style: normal;
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  letter-spacing: 0.02em;
   color: var(--ink-soft);
 }
 
@@ -376,16 +445,21 @@ h2 + .downloads-heading {
   display: none;
 }
 
+/* The +/− marker is decorative (details already exposes expanded state);
+   the second declaration uses CSS alt-text syntax to hide it from screen readers
+   where supported, and the first keeps the marker in older browsers. */
 .accordion summary::after {
   content: '+';
+  content: '+' / '';
   font-family: var(--font-display);
   font-size: 1.1rem;
-  color: var(--gold-deep);
+  color: var(--gold-ink);
   line-height: 1;
 }
 
 .accordion details[open] summary::after {
   content: '−';
+  content: '−' / '';
 }
 
 .accordion summary:hover {
@@ -418,11 +492,12 @@ h2 + .downloads-heading {
   padding: 16px 20px;
 }
 
-.materials-accordion summary span {
+.materials-accordion summary h3 {
   font-family: var(--font-display);
   font-weight: 500;
   font-size: 1.3rem;
   color: var(--green);
+  margin: 0;
 }
 
 .accordion-body {
@@ -437,12 +512,19 @@ h2 + .downloads-heading {
   margin: 26px 0 6px;
 }
 
-.material h4 .dl {
+.material-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0 0 12px;
+}
+
+.material .dl {
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
   white-space: nowrap;
-  margin-left: 6px;
 }
 
 .material {
@@ -452,7 +534,7 @@ h2 + .downloads-heading {
 
 .material h4 {
   font-size: 1.08rem;
-  margin: 0 0 12px;
+  margin: 0;
 }
 
 .pdf-embed {

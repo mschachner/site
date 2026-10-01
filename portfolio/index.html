@@ -9,10 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Sections are only hidden/tabbed when JS is running; without it the page is one scrollable document -->
+    <script>document.documentElement.classList.add('js');</script>
   </head>
   <body>
 
-    <nav>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <nav aria-label="Site sections">
       <div class="nav-inner">
         <a class="nav-name" href="#about">Mark Schachner</a>
         <ul class="nav-links">
@@ -25,12 +29,12 @@
       </div>
     </nav>
 
-    <main>
+    <main id="main" tabindex="-1">
 
       <!-- ============ About ============ -->
-      <section id="about" class="hero">
+      <section id="about" class="hero" tabindex="-1" aria-labelledby="about-heading">
         <div class="hero-text">
-          <h1>Mark Schachner</h1>
+          <h1 id="about-heading">Mark Schachner</h1>
           <p class="hero-tagline">Mathematics educator &amp; Ph.D. candidate, Cornell&nbsp;University</p>
           <p class="hero-blurb">
             I am a Ph.D. candidate in mathematics at Cornell University, graduating in spring 2027. I have taught mathematics at the university, high school, and elementary levels, both in classrooms and in a correctional facility.
@@ -38,10 +42,10 @@
           <p class="hero-blurb">
             I care deeply about impactful pedagogy and creating accessible, inclusive environments for learning.
           </p>
-          <div class="hero-badges">
-            <span class="badge">Graduate Student Teaching Award, 2025</span>
-            <span class="badge">NSF Graduate Research Fellow</span>
-          </div>
+          <ul class="hero-badges">
+            <li class="badge">Graduate Student Teaching Award, 2025</li>
+            <li class="badge">NSF Graduate Research Fellow</li>
+          </ul>
           <p class="hero-guide">
             On this site, you can find details on my past <a href="#experience">teaching experiences</a>,
             the associated <a href="#evaluations">course evaluations</a>, some examples of
@@ -50,13 +54,13 @@
           </p>
         </div>
         <figure class="hero-photo">
-          <img src="assets/images/p2.jpg" alt="Mark Schachner speaking in front of a blackboard while teaching MATH 1910">
+          <img src="assets/images/p2.jpg" width="2048" height="1542" alt="Mark Schachner speaking in front of a blackboard while teaching MATH 1910">
         </figure>
       </section>
 
       <!-- ============ Experience ============ -->
-      <section id="experience">
-        <h2>Teaching experience on and off campus</h2>
+      <section id="experience" tabindex="-1" aria-labelledby="experience-heading">
+        <h2 id="experience-heading">Teaching experience on and off campus</h2>
         <p class="section-intro">
           My teaching spans four semesters as a TA and instructor of record at Cornell, college courses taught through the Cornell Prison Education Program, a high school seminar, and summer outreach with underserved students.
         </p>
@@ -151,37 +155,37 @@
       </section>
 
       <!-- ============ Evaluations (incl. Prison Education) ============ -->
-      <section id="evaluations">
-        <h2>Course evaluations</h2>
+      <section id="evaluations" tabindex="-1" aria-labelledby="evaluations-heading">
+        <h2 id="evaluations-heading">Course evaluations</h2>
 
         <h3 class="downloads-heading">Downloads</h3>
         <div class="accordion">
           <details>
             <summary><span>MATH 112 Contemporary Mathematics — Cornell Prison Education Program, Spring 2026</span></summary>
             <ul class="downloads">
-              <li><a href="evaluations/MATH-112-CPEP-Spring-2026.pdf">Student evaluations (PDF)</a></li>
+              <li><a href="evaluations/MATH-112-CPEP-Spring-2026.pdf"><span class="visually-hidden">MATH 112, Spring 2026: </span>Student evaluations (PDF)</a></li>
             </ul>
           </details>
           <details>
             <summary><span>MATH 1120 Calculus II — Spring 2024</span></summary>
             <ul class="downloads">
-              <li><a href="evaluations/MATH-1120-LEC-005-Spring-2024.pdf">LEC 005 (PDF)</a></li>
+              <li><a href="evaluations/MATH-1120-LEC-005-Spring-2024.pdf"><span class="visually-hidden">MATH 1120, Spring 2024: </span>LEC 005 (PDF)</a></li>
             </ul>
           </details>
           <details>
             <summary><span>MATH 2210 Linear Algebra — Spring 2023</span></summary>
             <ul class="downloads">
-              <li><a href="evaluations/MATH-2210-DIS-201-Spring-2023.pdf">DIS 201 (PDF)</a></li>
-              <li><a href="evaluations/MATH-2210-DIS-204-Spring-2023.pdf">DIS 204 (PDF)</a></li>
-              <li><a href="evaluations/MATH-2210-DIS-206-Spring-2023.pdf">DIS 206 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2210-DIS-201-Spring-2023.pdf"><span class="visually-hidden">MATH 2210, Spring 2023: </span>DIS 201 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2210-DIS-204-Spring-2023.pdf"><span class="visually-hidden">MATH 2210, Spring 2023: </span>DIS 204 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2210-DIS-206-Spring-2023.pdf"><span class="visually-hidden">MATH 2210, Spring 2023: </span>DIS 206 (PDF)</a></li>
             </ul>
           </details>
           <details>
             <summary><span>MATH 2940 Linear Algebra for Engineers — Fall 2023</span></summary>
             <ul class="downloads">
-              <li><a href="evaluations/MATH-2940-DIS-213-Fall-2023.pdf">DIS 213 (PDF)</a></li>
-              <li><a href="evaluations/MATH-2940-DIS-215-Fall-2023.pdf">DIS 215 (PDF)</a></li>
-              <li><a href="evaluations/MATH-2940-DIS-216-Fall-2023.pdf">DIS 216 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2940-DIS-213-Fall-2023.pdf"><span class="visually-hidden">MATH 2940, Fall 2023: </span>DIS 213 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2940-DIS-215-Fall-2023.pdf"><span class="visually-hidden">MATH 2940, Fall 2023: </span>DIS 215 (PDF)</a></li>
+              <li><a href="evaluations/MATH-2940-DIS-216-Fall-2023.pdf"><span class="visually-hidden">MATH 2940, Fall 2023: </span>DIS 216 (PDF)</a></li>
             </ul>
           </details>
         </div>
@@ -311,17 +315,20 @@
       </section>
 
       <!-- ============ Teaching materials ============ -->
-      <section id="materials">
-        <h2>Teaching materials</h2>
+      <section id="materials" tabindex="-1" aria-labelledby="materials-heading">
+        <h2 id="materials-heading">Teaching materials</h2>
 
         <div class="accordion materials-accordion">
           <details>
-            <summary><span>Cornell Prison Education Program</span></summary>
+            <summary><h3>Cornell Prison Education Program</h3></summary>
             <div class="accordion-body">
 
               <div class="material">
-                <h4>MATH 112 Complete Lecture Notes, Spring 2026 <a class="dl" href="materials/MATH112_lecture_notes.pdf">(download pdf)</a></h4>
-                <object class="pdf-embed" data-src="materials/MATH112_lecture_notes.pdf" type="application/pdf">
+                <div class="material-head">
+                  <h4>MATH 112 Complete Lecture Notes, Spring 2026</h4>
+                  <a class="dl" href="materials/MATH112_lecture_notes.pdf">(download pdf<span class="visually-hidden">: MATH 112 Complete Lecture Notes</span>)</a>
+                </div>
+                <object class="pdf-embed" title="MATH 112 Complete Lecture Notes, Spring 2026 (embedded PDF)" data-src="materials/MATH112_lecture_notes.pdf" type="application/pdf">
                   <p class="pdf-fallback"><a href="materials/MATH112_lecture_notes.pdf">MATH 112 Complete Lecture Notes, Spring 2026 (PDF)</a></p>
                 </object>
               </div>
@@ -329,7 +336,7 @@
             </div>
           </details>
           <details>
-            <summary><span>Ithaca High School Math Seminar</span></summary>
+            <summary><h3>Ithaca High School Math Seminar</h3></summary>
             <div class="accordion-body">
 
               <p class="section-intro">
@@ -340,29 +347,41 @@
               </p>
 
               <div class="material">
-                <h4>Mathematical Logic: The Rules of Mathematics and How to Break Them <a class="dl" href="materials/ihs-2025.pdf">(download pdf)</a></h4>
-                <object class="pdf-embed" data-src="materials/ihs-2025.pdf" type="application/pdf">
+                <div class="material-head">
+                  <h4>Mathematical Logic: The Rules of Mathematics and How to Break Them</h4>
+                  <a class="dl" href="materials/ihs-2025.pdf">(download pdf<span class="visually-hidden">: Mathematical Logic</span>)</a>
+                </div>
+                <object class="pdf-embed" title="Mathematical Logic: The Rules of Mathematics and How to Break Them (embedded PDF)" data-src="materials/ihs-2025.pdf" type="application/pdf">
                   <p class="pdf-fallback"><a href="materials/ihs-2025.pdf">Mathematical Logic: The Rules of Mathematics and How to Break Them (PDF)</a></p>
                 </object>
               </div>
 
               <div class="material">
-                <h4>Set Theory Cheat Sheet: Days 1–5 <a class="dl" href="materials/cheatsheet.pdf">(download pdf)</a></h4>
-                <object class="pdf-embed" data-src="materials/cheatsheet.pdf" type="application/pdf">
+                <div class="material-head">
+                  <h4>Set Theory Cheat Sheet: Days 1–5</h4>
+                  <a class="dl" href="materials/cheatsheet.pdf">(download pdf<span class="visually-hidden">: Set Theory Cheat Sheet</span>)</a>
+                </div>
+                <object class="pdf-embed" title="Set Theory Cheat Sheet: Days 1–5 (embedded PDF)" data-src="materials/cheatsheet.pdf" type="application/pdf">
                   <p class="pdf-fallback"><a href="materials/cheatsheet.pdf">Set Theory Cheat Sheet: Days 1–5 (PDF)</a></p>
                 </object>
               </div>
 
               <div class="material">
-                <h4>Philosophy Day <a class="dl" href="materials/philosophy.pdf">(download pdf)</a></h4>
-                <object class="pdf-embed" data-src="materials/philosophy.pdf" type="application/pdf">
+                <div class="material-head">
+                  <h4>Philosophy Day</h4>
+                  <a class="dl" href="materials/philosophy.pdf">(download pdf<span class="visually-hidden">: Philosophy Day</span>)</a>
+                </div>
+                <object class="pdf-embed" title="Philosophy Day (embedded PDF)" data-src="materials/philosophy.pdf" type="application/pdf">
                   <p class="pdf-fallback"><a href="materials/philosophy.pdf">Philosophy Day (PDF)</a></p>
                 </object>
               </div>
 
               <div class="material">
-                <h4>Logic project proposals <a class="dl" href="materials/project-proposals.pdf">(download pdf)</a></h4>
-                <object class="pdf-embed" data-src="materials/project-proposals.pdf" type="application/pdf">
+                <div class="material-head">
+                  <h4>Logic project proposals</h4>
+                  <a class="dl" href="materials/project-proposals.pdf">(download pdf<span class="visually-hidden">: Logic project proposals</span>)</a>
+                </div>
+                <object class="pdf-embed" title="Logic project proposals (embedded PDF)" data-src="materials/project-proposals.pdf" type="application/pdf">
                   <p class="pdf-fallback"><a href="materials/project-proposals.pdf">Logic project proposals (PDF)</a></p>
                 </object>
               </div>
@@ -373,8 +392,8 @@
       </section>
 
       <!-- ============ Outreach ============ -->
-      <section id="outreach">
-        <h2>Outreach and mentorship</h2>
+      <section id="outreach" tabindex="-1" aria-labelledby="outreach-heading">
+        <h2 id="outreach-heading">Outreach and mentorship</h2>
         <p>
           As outreach chair of Cornell's chapter of the Association for Women in
           Mathematics (2023–2026), I planned and led the Julia Robinson Math Festival, a
@@ -388,7 +407,7 @@
           students with experienced mentors.
         </p>
         <figure class="outreach-photo">
-          <img src="assets/images/fractals.jpg" alt="A blackboard covered with fractals invented by Little Circle students, including The Infinite Checkerboard and Infinite Pizza Party">
+          <img src="assets/images/fractals.jpg" width="4080" height="1251" alt="A blackboard covered with fractals invented by Little Circle students, including The Infinite Checkerboard and Infinite Pizza Party">
           <figcaption>Fractals invented (discovered?) by Little Circle students, Spring 2023.</figcaption>
         </figure>
       </section>
@@ -411,6 +430,11 @@
       (function () {
         var panels = ['about', 'experience', 'evaluations', 'materials', 'outreach'];
         var links = document.querySelectorAll('.nav-links a, .nav-name');
+        var baseTitle = document.title;
+        var labels = {};
+        document.querySelectorAll('.nav-links a').forEach(function (a) {
+          labels[a.getAttribute('href').slice(1)] = a.textContent.trim();
+        });
         // Load a group's PDF embeds the first time its dropdown is opened
         document.querySelectorAll('#materials details').forEach(function (d) {
           d.addEventListener('toggle', function () {
@@ -422,11 +446,13 @@
           });
         });
 
-        function show(id) {
+        function show(id, moveFocus) {
           if (panels.indexOf(id) === -1) id = 'about';
           panels.forEach(function (p) {
             document.getElementById(p).classList.toggle('active', p === id);
           });
+          // Title reflects the current section so the change is announced by screen readers
+          document.title = id === 'about' ? baseTitle : labels[id] + ' · ' + baseTitle;
           links.forEach(function (a) {
             var target = a.getAttribute('href').slice(1);
             if (a.classList.contains('nav-name')) {
@@ -438,13 +464,24 @@
             }
           });
           window.scrollTo(0, 0);
+          // Move keyboard/screen-reader focus into the newly shown section
+          if (moveFocus) {
+            document.getElementById(id).focus({ preventScroll: true });
+          }
         }
 
         window.addEventListener('hashchange', function () {
-          show(location.hash.slice(1));
+          show(location.hash.slice(1), true);
         });
 
-        show(location.hash.slice(1));
+        // Skip link goes to the visible section rather than changing the hash (which would switch panels)
+        document.querySelector('.skip-link').addEventListener('click', function (e) {
+          e.preventDefault();
+          var target = document.querySelector('main > section.active') || document.getElementById('main');
+          target.focus();
+        });
+
+        show(location.hash.slice(1), false);
       })();
     </script>
   </body>
