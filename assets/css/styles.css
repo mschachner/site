@@ -13,18 +13,20 @@
   --border-primary: rgba(115, 115, 115, 0.297);
   --font-weight-header: 100;
   --font-weight-body: 400;
+  /* Measured from the rendered nav by header.js; this is only a fallback. */
+  --header-height: 100px;
 }
 
 [data-theme="light"] {
   /* Light Mode */
   --bg-primary: hsl(40, 100%, 95%);
-  --bg-navbar: hsl(150, 13%, 40%);
+  --bg-navbar: hsl(150, 13%, 36%);  /* 5.2:1 against antiquewhite (was 40%: 4.4:1) */
   --text-primary: #303e37;
   --text-header: #303e37;
   --text-navbar: antiquewhite;
   --text-accent: #8b5a2b;
-  --link-visited: #b86b12;
-  --link-active: #d4af37;
+  --link-visited: #9a5508;          /* 5.3:1 (was #b86b12: 3.8:1) */
+  --link-active: #8b5a2b;           /* 5.4:1 (was #d4af37: 2.0:1) */
   --border-primary: rgba(0, 0, 0, 0.2);
   --font-weight-header: 400;
   --font-weight-body: 500;
@@ -33,7 +35,6 @@
 * {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
   font-family: "Nunito", "Verdana";
 }
@@ -43,15 +44,35 @@
   transition: none !important;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+  }
+}
+
 /* Exclude SVGs in the theme toggle from the global transition to prevent color flicker */
 #theme-toggle svg, #theme-toggle * {
   transition: none;
 }
 
+html {
+  /* Keep anchor and focus targets from landing under the sticky header */
+  scroll-padding-top: calc(var(--header-height) + 1rem);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 main {
-  margin-top: 100px;
-  max-width: 100vw;
+  margin-top: 20px;
   margin-bottom: 100px;
+  max-width: 100%;
+}
+
+main:focus {
+  outline: none; /* main is the skip-link target; the ring belongs on the link, not the region */
 }
 
 p, li {
@@ -69,20 +90,20 @@ h1, h2, h3, h4 {
 }
 
 h1 {
-  font-size: 25pt;
+  font-size: 2.1rem;
 }
 
 h2 {
-  font-size: 30pt;
+  font-size: 2.5rem;
 }
 
 h3 {
-  font-size: 20pt;
+  font-size: 1.67rem;
 }
 
 h4 {
   color: var(--text-accent);
-  font-size: 15pt;
+  font-size: 1.25rem;
   font-style: italic;
 }
 
@@ -94,6 +115,8 @@ ul, ol {
 
 img {
   border-radius: 1%;
+  max-width: 100%;
+  height: auto;
 }
 
 
@@ -113,6 +136,12 @@ a:hover {
 
 a:active {
   color: var(--link-active);
+}
+
+/* Keyboard focus: currentColor already contrasts with its background everywhere on the site */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 2px;
 }
 
 /* navbar links */
@@ -137,22 +166,56 @@ a:active.navbar {
 }
 
 
+/* skip link */
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 20;
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-navbar);
+  color: var(--text-navbar);
+  text-decoration: none;
+  border-radius: 0 0 10px 10px;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+
 /* nav */
+
+/* Sticky goes on the header: a sticky element only sticks within its parent,
+   and nav's parent (header) would be exactly nav's own height. */
+#app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
 
 nav {
   background-color: var(--bg-navbar);
-  backdrop-filter: blur(6px);
-  position: fixed;
-  width: 100%;
-  top: 0;
-  z-index: 10;
   border-bottom-left-radius: 20px;
 }
 
-/* Remove background and blur from children to fix layering issues */
-nav * {
-  background-color: transparent;
-  backdrop-filter: none;
+.nav-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--text-navbar);
+  display: flex;
+  align-items: center;
 }
 
 nav ul {
@@ -191,7 +254,8 @@ nav ul li {
   transition: 200ms;
 }
 
-.fancy-underline:hover::after {
+.fancy-underline:hover::after,
+.fancy-underline[aria-current="page"]::after {
   width: 100%;
   text-align: center;
 }
@@ -208,7 +272,6 @@ nav ul li {
 .img-home {
   margin: 50px 25px auto 25px;
   width: 35%;
-  height: auto;
 }
 
 .p-home {
@@ -225,7 +288,7 @@ nav ul li {
 }
 
 #img-research {
-  float: right;
+  align-self: flex-start;
   margin: 25px 25px auto 25px;
   min-width: 300px;
   width: 40%;
@@ -238,10 +301,6 @@ nav ul li {
 
 
 /* Teaching & outreach page */
-
-#portfolio-note {
-  margin-top: 125px;
-}
 
 #teaching-container {
   max-width: 1000px;
@@ -256,20 +315,28 @@ nav ul li {
 }
 
 .img-outreach {
-  float: center;
+  display: block;
   margin: 25px;
-  min-width: 500px;
-  width: 1500px;
-  overflow: scroll;
+  max-width: calc(100% - 50px);
 }
 
 /* Logsem page */
 
-table {
+.table-wrap {
+  overflow-x: auto;
   margin: 10px 50px;
+}
+
+table {
   border: 1px solid;
   border-collapse: collapse;
   border-radius: 1%;
+}
+
+caption {
+  color: var(--text-header);
+  text-align: left;
+  padding: 5px 0;
 }
 
 th, td {
@@ -279,10 +346,6 @@ th, td {
   background-color: var(--bg-navbar);
 }
 
-td em {
-  background-color: transparent;
-}
-
 /* Movie night page */
 
 .season {
@@ -290,16 +353,19 @@ td em {
   flex-wrap: wrap;
 }
 
+/* Sticky headings need their own background now that only body paints one */
 .season-name {
   position: sticky;
-  top: 102.5px;
+  top: var(--header-height);
   z-index: 80;
+  background-color: var(--bg-primary);
 }
 
 .theme-name {
   position: sticky;
-  top: 150px;
+  top: calc(var(--header-height) + 2rem + 20px); /* one h3 below the season name */
   z-index: 3;
+  background-color: var(--bg-primary);
 }
 
 #movie-list {
@@ -328,6 +394,10 @@ td em {
   text-indent: 1em hanging;
 }
 
+.movie-sep {
+  color: var(--text-primary);
+}
+
 
 /* Projects page */
 
@@ -337,11 +407,6 @@ td em {
 
 
 /* Milestone page */
-
-#milestone-container {
-  height: 10000px;
-}
-
 
 #milestone-iframe {
   margin: 25px;
@@ -363,18 +428,7 @@ td em {
 
 
 @media only screen and (max-width: 1200px) {
-  .img-research {
-    float:none;
-    margin: 25px;
-    width: 70%;
-  }
-
   #research-container p {
-    width: 70%;
-  }
-
-  .img-movienight {
-    float: none;
     width: 70%;
   }
 }
@@ -390,10 +444,6 @@ td em {
 
 
 @media only screen and (max-width: 870px) {
-  main {
-    margin-top: 135px;
-  }
-
   #home {
     flex-direction: column;
   }
@@ -401,29 +451,22 @@ td em {
   #research-container {
     flex-direction: column;
   }
-  
+
   .img-home {
     width: 65%;
     max-width: 400px;
-    float: none;
   }
 
-  #home-container p {
-    width: 80%;
+  #img-research {
+    width: 70%;
+    min-width: 0;
+    max-width: 400px;
+    margin: 25px;
   }
 
-  .season-name {
-    top: 137.5px;
+  .table-wrap {
+    margin: 10px 30px;
   }
-
-  .theme-name {
-    top: 180px;
-  }
-
-  #portfolio-note {
-    margin-top: 150px;
-  }
-
 }
 
 @media only screen and (max-width: 710px) {
@@ -435,25 +478,6 @@ td em {
   }
 }
 
-@media only screen and (max-width: 486px) {
-  main {
-    margin-top: 175px;
-  }
-
-  .season-name {
-    top: 172.5px;
-  }
-
-  .theme-name {
-    top: 220px;
-  }
-
-  #portfolio-note {
-    margin-top: 190px;
-  }
-
-}
-
 @media only screen and (max-width: 440px) {
   #milestone-iframe {
     margin: 25px;
@@ -462,5 +486,3 @@ td em {
     max-width: 100%;
   }
 }
-
-
