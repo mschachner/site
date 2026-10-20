@@ -11,7 +11,7 @@
   --link-visited: goldenrod;
   --link-active: gold;
   --border-primary: rgba(115, 115, 115, 0.297);
-  --font-weight-header: 100;
+  --font-weight-header: 200;  /* Nunito's lightest weight; 100 was never renderable */
   --font-weight-body: 400;
   /* Measured from the rendered nav by header.js; this is only a fallback. */
   --header-height: 100px;
@@ -36,7 +36,7 @@
   margin: 0;
   padding: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
-  font-family: "Nunito", "Verdana";
+  font-family: "Nunito", "Verdana", sans-serif;
 }
 
 /* Disable transitions when .no-transition class is on html element */
@@ -83,25 +83,33 @@ p, li {
   font-weight: var(--font-weight-body);
 }
 
+/* Paragraph spacing (replaces the <br><br> breaks) */
+main p + p {
+  margin-top: 1em;
+}
+
+/* Paper titles: keep the previous bold look rather than the browser's italic */
+cite {
+  font-style: normal;
+  font-weight: 700;
+}
+
 h1, h2, h3, h4 {
   color: var(--text-header);
   font-weight: var(--font-weight-header);
   padding: 10px 20px;
 }
 
+/* h1 is the page title; the site name in the nav is a plain link (.site-name) */
 h1 {
-  font-size: 2.1rem;
-}
-
-h2 {
   font-size: 2.5rem;
 }
 
-h3 {
+h2 {
   font-size: 1.67rem;
 }
 
-h4 {
+h3, h4 {
   color: var(--text-accent);
   font-size: 1.25rem;
   font-style: italic;
@@ -198,6 +206,13 @@ a:active.navbar {
 nav {
   background-color: var(--bg-navbar);
   border-bottom-left-radius: 20px;
+}
+
+.site-name {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 2.1rem;
+  font-weight: var(--font-weight-header);
 }
 
 .nav-top {
@@ -363,7 +378,7 @@ th, td {
 
 .theme-name {
   position: sticky;
-  top: calc(var(--header-height) + 2rem + 20px); /* one h3 below the season name */
+  top: calc(var(--header-height) + 2rem + 20px); /* one h2 (season name) below the header */
   z-index: 3;
   background-color: var(--bg-primary);
 }
@@ -380,9 +395,10 @@ th, td {
   width: 80%;
 }
 
+/* No z-index here: it would create a stacking context that caps the tooltips
+   below the sticky season headings (z-index 80). */
 .movie-chunk-unthemed {
   position: relative;
-  z-index: 7;
 }
 
 .in-themed {
@@ -390,12 +406,61 @@ th, td {
 }
 
 .movie {
+  position: relative;
   padding-left: 25px;
   text-indent: 1em hanging;
 }
 
 .movie-sep {
   color: var(--text-primary);
+}
+
+/* Tooltips (built from title attributes by tooltips.js). Default placement is
+   below the link; on pointer devices tooltips.js moves it to the right of the
+   link when there is room, so it never covers the next movie. */
+.tip {
+  display: none;
+  position: absolute;
+  left: 25px;
+  top: 100%;
+  z-index: 90;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 2rem));
+  padding: 6px 10px;
+  border-radius: 8px;
+  background-color: var(--bg-navbar);
+  color: var(--text-navbar);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-indent: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tip[data-open] {
+  display: block;
+}
+
+/* "hover" vs "long-press" in the instructions, by input type */
+.if-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .if-pointer {
+    display: none;
+  }
+
+  .if-touch {
+    display: inline;
+  }
+
+  /* Long-press opens the tooltip; keep the OS from also selecting text or
+     showing a link preview */
+  .movie a {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
 }
 
 

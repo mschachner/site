@@ -7,6 +7,10 @@
       <title>Movie night | Mark Schachner</title>
       <link rel="canonical" href="https://mark-schachner.com/movienight.html" />
       <link rel="stylesheet" href="/assets/css/styles.css">
+      <!-- fonts -->
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
       <!-- favicon -->
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
       <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -17,17 +21,18 @@
    <body>
       <header id="app-header"></header> <!-- header stored in header.js-->
       <script src="/assets/js/header.js"></script>
+      <script src="/assets/js/tooltips.js" defer></script>
       <main id="movienight-container">
-         <h2>Movie night</h2>
+         <h1>Movie night</h1>
          <p>
          Since the summer of 2022, I've hosted weekly movie nights in the math department. All are welcome&mdash; if you're interested in joining, let me know!<br>
-         The input box is <a href="https://forms.gle/Q7pfSiPG1VWtuKXr8">here.</a><br>
-         Below are all 152 movie nights. Click for IMDB pages, hover for our thoughts.</p>
+         Here is <a href="https://forms.gle/Q7pfSiPG1VWtuKXr8">the input box</a>.<br>
+         Below are all 152 movie nights. Click for IMDB pages, <span class="if-pointer">hover</span><span class="if-touch">long-press</span> for our thoughts.</p>
          <div id="movie-list">
-            <h3 class="season-name">Autumn 2026</h3>
+            <h2 class="season-name">Autumn 2026</h2>
             <div class="season">
                <div class="theme">
-                  <h4 class="theme-name">XX. One room</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XX.</span> One room</h3>
                   <div class="movie-chunk">
                      <div class="movie">
                         <a href="https://www.imdb.com/title/tt0082783/"
@@ -48,7 +53,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XXI. Campy horror</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XXI.</span> Campy horror</h3>
                   <div class="movie-chunk">
                      <div class="movie">
                         <a href="https://www.imdb.com/title/tt2784512/"
@@ -69,7 +74,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Summer 2026</h3>
+            <h2 class="season-name">Summer 2026</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">
@@ -92,7 +97,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Spring 2026</h3>
+            <h2 class="season-name">Spring 2026</h2>
             <div class="season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed in-themed">
@@ -107,7 +112,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XVI. Danny DeVito</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XVI.</span> Danny DeVito</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0117008/"
@@ -124,7 +129,7 @@
                </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XVII. The courtroom</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XVII.</span> The courtroom</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0104952/"
@@ -137,7 +142,7 @@
                </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XVIII. Groovy night!</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XVIII.</span> Groovy night!</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0076666/"
@@ -150,7 +155,7 @@
                </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XIX. Nonlinearity</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XIX.</span> Nonlinearity</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt27695005/"
@@ -163,10 +168,10 @@
                </div>
                </div>
             </div>
-            <h3 class="season-name">Autumn 2025</h3>
+            <h2 class="season-name">Autumn 2025</h2>
             <div class="season">
                <div class="theme">
-                  <h4 class="theme-name">XIII. Sequels</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XIII.</span> Sequels</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt6911608/"
@@ -187,7 +192,7 @@
                   </div>
                </div>
                <div class="theme">
-            <h4 class="theme-name">XIV. Greatest hits</h4>
+            <h3 class="theme-name"><span aria-hidden="true">XIV.</span> Greatest hits</h3>
             <div class="movie-chunk">
             <div class="movie">
                <a href="https://www.imdb.com/title/tt2347569"
@@ -208,7 +213,7 @@
             </div>
                </div>
                <div class="theme">
-            <h4 class="theme-name">XV. Smart & stupid</h4>
+            <h3 class="theme-name"><span aria-hidden="true">XV.</span> Smart & stupid</h3>
             <div class="movie-chunk">
             <div class="movie">
                <a href="https://www.imdb.com/title/tt2866360/"
@@ -237,7 +242,7 @@
                      </div>
                </div>
             </div>
-            <h3 class="season-name">Summer 2025</h3>
+            <h2 class="season-name">Summer 2025</h2>
             <div class="season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed in-themed">
@@ -256,7 +261,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XII. Three Flavours Cornetto</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XII.</span> Three Flavours Cornetto</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0365748/"
@@ -273,10 +278,10 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Spring 2025</h3>
+            <h2 class="season-name">Spring 2025</h2>
             <div class="season">
                <div class="theme">
-                  <h4 class="theme-name">X. Minimal dialogue</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">X.</span> Minimal dialogue</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0062622/"
@@ -297,7 +302,7 @@
                </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">XI. Documentaries</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">XI.</span> Documentaries</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt19383190/"
@@ -328,10 +333,10 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Autumn 2024</h3>
+            <h2 class="season-name">Autumn 2024</h2>
             <div class="season">
                <div class="theme">
-                  <h4 class="theme-name">VII. Slapstick!</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">VII.</span> Slapstick!</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt12818328/"
@@ -352,7 +357,7 @@
                </div>
                </div>
                <div class="theme">
-               <h4 class="theme-name">VIII. The X Trilogy</h4>
+               <h3 class="theme-name"><span aria-hidden="true">VIII.</span> The X Trilogy</h3>
                <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt18925334/"
@@ -373,7 +378,7 @@
                </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">IX. Gentle giants</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">IX.</span> Gentle giants</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0096283/"
@@ -409,7 +414,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Summer 2024</h3>
+            <h2 class="season-name">Summer 2024</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">
@@ -461,10 +466,10 @@
                </div>
                
             </div>
-            <h3 class="season-name">Spring 2024</h3>
+            <h2 class="season-name">Spring 2024</h2>
             <div class="season">
                <div class="theme">
-                  <h4 class="theme-name">IV. Spike Lee</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">IV.</span> Spike Lee</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0097216/"
@@ -481,7 +486,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">V. Manic pixie dream girls</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">V.</span> Manic pixie dream girls</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt1022603/"
@@ -502,7 +507,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">VI. South Korean cinema</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">VI.</span> South Korean cinema</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt8951086/"
@@ -535,7 +540,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Autumn 2023</h3>
+            <h2 class="season-name">Autumn 2023</h2>
             <div class="season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed in-themed">
@@ -546,7 +551,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">I. Stop motion</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">I.</span> Stop motion</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt2321405/"
@@ -567,7 +572,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">II. Autumn</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">II.</span> Autumn</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt0098635/"
@@ -588,7 +593,7 @@
                   </div>
                </div>
                <div class="theme">
-                  <h4 class="theme-name">III. Damien Chazelle</h4>
+                  <h3 class="theme-name"><span aria-hidden="true">III.</span> Damien Chazelle</h3>
                   <div class="movie-chunk">
                   <div class="movie">
                      <a href="https://www.imdb.com/title/tt1337193/"
@@ -617,7 +622,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Summer 2023</h3>
+            <h2 class="season-name">Summer 2023</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">
@@ -676,7 +681,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Spring 2023</h3>
+            <h2 class="season-name">Spring 2023</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">
@@ -735,7 +740,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Autumn 2022</h3>
+            <h2 class="season-name">Autumn 2022</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">
@@ -798,7 +803,7 @@
                   </div>
                </div>
             </div>
-            <h3 class="season-name">Summer 2022</h3>
+            <h2 class="season-name">Summer 2022</h2>
             <div class="season unthemed-season">
                <div class="unthemed">
                   <div class="movie-chunk-unthemed">

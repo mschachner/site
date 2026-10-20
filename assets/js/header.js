@@ -25,7 +25,7 @@ let appHeader = `
       <a class="skip-link" href="#main-content">Skip to content</a>
       <nav aria-label="Site">
         <div class="nav-top">
-          <h1><a href="index.html" class="navbar">Mark Schachner</a></h1>
+          <a href="index.html" class="navbar site-name">Mark Schachner</a>
           <button id="theme-toggle" type="button" aria-label="Switch to light mode">
             <span id="theme-icon">${moonIcon}</span>
           </button>
