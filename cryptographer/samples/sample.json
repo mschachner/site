@@ -1,0 +1,144 @@
+{
+ "schema": 1,
+ "id": "p_sample_cargo",
+ "title": "Sample puzzle",
+ "author": "",
+ "notes": "",
+ "created": "2026-10-21T14:00:00Z",
+ "modified": "2026-10-21T14:00:00Z",
+ "cells": [
+  {
+   "r": 0,
+   "c": 0,
+   "l": "C"
+  },
+  {
+   "r": 0,
+   "c": 1,
+   "l": "A"
+  },
+  {
+   "r": 0,
+   "c": 2,
+   "l": "R"
+  },
+  {
+   "r": 0,
+   "c": 3,
+   "l": "G"
+  },
+  {
+   "r": 0,
+   "c": 4,
+   "l": "O"
+  },
+  {
+   "r": 1,
+   "c": 0,
+   "l": "H"
+  },
+  {
+   "r": 1,
+   "c": 2,
+   "l": "H"
+  },
+  {
+   "r": 1,
+   "c": 4,
+   "l": "N"
+  },
+  {
+   "r": 2,
+   "c": 0,
+   "l": "A"
+  },
+  {
+   "r": 2,
+   "c": 1,
+   "l": "M"
+  },
+  {
+   "r": 2,
+   "c": 2,
+   "l": "I"
+  },
+  {
+   "r": 2,
+   "c": 3,
+   "l": "G"
+  },
+  {
+   "r": 2,
+   "c": 4,
+   "l": "O"
+  },
+  {
+   "r": 3,
+   "c": 0,
+   "l": "M"
+  },
+  {
+   "r": 3,
+   "c": 2,
+   "l": "N"
+  },
+  {
+   "r": 3,
+   "c": 4,
+   "l": "F"
+  },
+  {
+   "r": 4,
+   "c": 0,
+   "l": "P"
+  },
+  {
+   "r": 4,
+   "c": 1,
+   "l": "R"
+  },
+  {
+   "r": 4,
+   "c": 2,
+   "l": "O"
+  },
+  {
+   "r": 4,
+   "c": 3,
+   "l": "O"
+  },
+  {
+   "r": 4,
+   "c": 4,
+   "l": "F"
+  }
+ ],
+ "clues": {
+  "1A": {
+   "clue": "What is conveyed by opening of comedy film",
+   "enum": ""
+  },
+  "4A": {
+   "clue": "Some spam I gobbled in China",
+   "enum": ""
+  },
+  "5A": {
+   "clue": "Academic acquiring zero evidence",
+   "enum": ""
+  },
+  "1D": {
+   "clue": "Bite winner",
+   "enum": ""
+  },
+  "2D": {
+   "clue": "Animal's horn I mended",
+   "enum": ""
+  },
+  "3D": {
+   "clue": "Yoko, perhaps, very loud and unsteady",
+   "enum": "2-3"
+  }
+ },
+ "theme": "heather",
+ "fonts": "default"
+}
