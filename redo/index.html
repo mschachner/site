@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>redo</title>
     <link rel="icon" id="favicon" href="/redo/favicon.svg" type="image/svg+xml" />
-    <script type="module" crossorigin src="/redo/assets/index-DvnLdeTX.js"></script>
-    <link rel="stylesheet" crossorigin href="/redo/assets/index-B5PyRI2W.css">
+    <script type="module" crossorigin src="/redo/assets/index-QlMsM4ux.js"></script>
+    <link rel="stylesheet" crossorigin href="/redo/assets/index-e9741oW2.css">
   </head>
   <body>
     <main class="stage">
@@ -78,9 +78,13 @@ d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
         <div class="overlay hidden" id="worlds">
           <div class="plate">
             <h2>Singleplayer</h2>
-            <nav class="choices worlds-top">
-              <button data-action="new-world">New world</button>
-            </nav>
+            <div class="new-world">
+              <nav class="choices">
+                <button data-action="new-world">New world</button>
+              </nav>
+              <label class="field">seed <input id="new-seed" spellcheck="false" placeholder="random" /></label>
+            </div>
+            <p class="seed-status" id="new-seed-status"></p>
             <nav class="choices world-list" id="world-list"></nav>
             <p class="worlds-hint"><kbd>X</kbd> delete</p>
             <nav class="choices">
