@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>redo</title>
+    <link rel="icon" href="data:," />
+    <script type="module" crossorigin src="/redo/assets/index-C6czjE2w.js"></script>
+    <link rel="stylesheet" crossorigin href="/redo/assets/index-6h4htxVX.css">
+  </head>
+  <body>
+    <main class="stage">
+      <div class="frame">
+        <canvas id="screen"></canvas>
+
+        <form class="console hidden" id="console" autocomplete="off">
+          <span class="console-label" id="console-label"></span>
+          <input id="console-input" maxlength="120" spellcheck="false" />
+          <span class="console-hint"><kbd>Tab</kbd></span>
+        </form>
+
+        <div class="overlay" id="menu">
+          <pre class="title" aria-label="redo">                         .o8
+                        "888
+oooo d8b  .ooooo.   .oooo888   .ooooo.
+`888""8P d88' `88b d88' `888  d88' `88b
+ 888     888ooo888 888   888  888   888
+ 888     888    .o 888   888  888   888
+d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
+          <nav class="choices">
+            <button data-action="resume" hidden>Resume</button>
+            <button data-action="singleplayer">Singleplayer</button>
+            <button data-action="multiplayer">Multiplayer</button>
+            <button data-action="settings">Settings</button>
+          </nav>
+          <p class="seed" id="seed" hidden>
+            <span id="seed-label">seed</span>
+            <button id="seed-text" title="Copy"></button>
+            <kbd class="seed-hint">C</kbd>
+          </p>
+        </div>
+
+        <div class="overlay hidden" id="worlds">
+          <div class="plate">
+            <h2>Singleplayer</h2>
+            <nav class="choices worlds-top">
+              <button data-action="new-world">New world</button>
+            </nav>
+            <nav class="choices world-list" id="world-list"></nav>
+            <p class="worlds-hint"><kbd>X</kbd> delete</p>
+            <nav class="choices">
+              <button data-action="back">Back</button>
+            </nav>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="save-prompt">
+          <div class="plate">
+            <h2>Save current world?</h2>
+            <p class="world-name" id="save-prompt-name"></p>
+            <nav class="choices">
+              <button data-action="save-new">Save</button>
+              <button data-action="discard-new">Don't save</button>
+              <button data-action="cancel-new">Cancel</button>
+            </nav>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="join">
+          <form class="plate" id="join-form" autocomplete="off">
+            <h2>Multiplayer</h2>
+            <label class="field">name <input id="join-name" maxlength="16" spellcheck="false" /></label>
+            <label class="field" id="join-password-field" hidden>password <input id="join-password" type="password" autocomplete="current-password" /></label>
+            <p class="join-status" id="join-status"></p>
+            <nav class="choices">
+              <button data-action="join" type="button">Join</button>
+              <button data-action="back" type="button">Back</button>
+            </nav>
+          </form>
+        </div>
+
+        <div class="overlay hidden" id="settings">
+          <div class="plate">
+            <h2>Settings</h2>
+            <div class="toggles">
+              <label><input type="checkbox" id="auto-step" /> auto step-up</label>
+              <label><input type="checkbox" id="hints" /> keybind hints</label>
+            </div>
+            <h3>Controls</h3>
+            <table class="controls">
+              <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>move, jump, aim</td></tr>
+              <tr><td><kbd>J</kbd></td><td>attack / break</td></tr>
+              <tr><td><kbd>K</kbd></td><td>place</td></tr>
+              <tr><td><kbd>U</kbd></td><td>undo</td></tr>
+              <tr><td><kbd>I</kbd></td><td>redo</td></tr>
+              <tr><td><kbd>Shift</kbd></td><td>hold to lock</td></tr>
+              <tr><td><kbd>F</kbd></td><td>rest &amp; commit, at the campfire from 21:00</td></tr>
+              <tr><td><kbd>Q</kbd> <kbd>E</kbd> <kbd>1</kbd>–<kbd>9</kbd></td><td>select block</td></tr>
+              <tr><td><kbd>-</kbd></td><td>hold to zoom out</td></tr>
+              <tr><td><kbd>T</kbd></td><td>console</td></tr>
+              <tr><td><kbd>Tab</kbd></td><td>say / sign / broadcast</td></tr>
+              <tr><td><kbd>R</kbd></td><td>new world</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>menu</td></tr>
+            </table>
+            <nav class="choices">
+              <button data-action="back">Back</button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
