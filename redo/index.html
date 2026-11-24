@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>redo</title>
-    <link rel="icon" href="data:," />
-    <script type="module" crossorigin src="/redo/assets/index-C6czjE2w.js"></script>
-    <link rel="stylesheet" crossorigin href="/redo/assets/index-6h4htxVX.css">
+    <link rel="icon" id="favicon" href="/redo/favicon.svg" type="image/svg+xml" />
+    <script type="module" crossorigin src="/redo/assets/index-y2CVXT2I.js"></script>
+    <link rel="stylesheet" crossorigin href="/redo/assets/index-ClzKkDvv.css">
   </head>
   <body>
     <main class="stage">
@@ -28,12 +28,43 @@ oooo d8b  .ooooo.   .oooo888   .ooooo.
  888     888    .o 888   888  888   888
 d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
           <nav class="choices">
-            <button data-action="resume" hidden>Resume</button>
             <button data-action="singleplayer">Singleplayer</button>
             <button data-action="multiplayer">Multiplayer</button>
+            <button data-action="character">Character</button>
             <button data-action="settings">Settings</button>
           </nav>
-          <p class="seed" id="seed" hidden>
+        </div>
+
+        <div class="overlay hidden" id="character">
+          <div class="plate">
+            <h2>Character</h2>
+            <div class="picker" id="pick-glyph" tabindex="0" role="radiogroup" aria-label="glyph">
+              <span class="picker-label">glyph</span>
+              <span class="picker-options"></span>
+            </div>
+            <div class="picker" id="pick-color" tabindex="0" role="radiogroup" aria-label="color">
+              <span class="picker-label">color</span>
+              <span class="picker-options"></span>
+            </div>
+            <div class="picker" id="pick-glow" tabindex="0" role="radiogroup" aria-label="glow">
+              <span class="picker-label">glow</span>
+              <span class="picker-options"></span>
+            </div>
+            <p class="picker-hint"><kbd>A</kbd> <kbd>D</kbd> choose</p>
+            <nav class="choices">
+              <button data-action="back">Back</button>
+            </nav>
+          </div>
+        </div>
+
+        <div class="overlay hidden" id="pause">
+          <h2>Paused</h2>
+          <nav class="choices">
+            <button data-action="resume">Resume</button>
+            <button data-action="settings">Settings</button>
+            <button data-action="exit">Exit</button>
+          </nav>
+          <p class="seed" id="seed">
             <span id="seed-label">seed</span>
             <button id="seed-text" title="Copy"></button>
             <kbd class="seed-hint">C</kbd>
@@ -69,6 +100,8 @@ d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
         <div class="overlay hidden" id="join">
           <form class="plate" id="join-form" autocomplete="off">
             <h2>Multiplayer</h2>
+            <!-- One public server for now; more may come later. -->
+            <label class="field">server name <input id="join-server" value="default" disabled /></label>
             <label class="field">name <input id="join-name" maxlength="16" spellcheck="false" /></label>
             <label class="field" id="join-password-field" hidden>password <input id="join-password" type="password" autocomplete="current-password" /></label>
             <p class="join-status" id="join-status"></p>
@@ -100,7 +133,7 @@ d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
               <tr><td><kbd>T</kbd></td><td>console</td></tr>
               <tr><td><kbd>Tab</kbd></td><td>say / sign / broadcast</td></tr>
               <tr><td><kbd>R</kbd></td><td>new world</td></tr>
-              <tr><td><kbd>Esc</kbd></td><td>menu</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>pause</td></tr>
             </table>
             <nav class="choices">
               <button data-action="back">Back</button>
