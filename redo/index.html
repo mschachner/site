@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>redo</title>
     <link rel="icon" id="favicon" href="/redo/favicon.svg" type="image/svg+xml" />
-    <script type="module" crossorigin src="/redo/assets/index-y2CVXT2I.js"></script>
-    <link rel="stylesheet" crossorigin href="/redo/assets/index-ClzKkDvv.css">
+    <script type="module" crossorigin src="/redo/assets/index-DvnLdeTX.js"></script>
+    <link rel="stylesheet" crossorigin href="/redo/assets/index-B5PyRI2W.css">
   </head>
   <body>
     <main class="stage">
@@ -27,12 +27,14 @@ oooo d8b  .ooooo.   .oooo888   .ooooo.
  888     888ooo888 888   888  888   888
  888     888    .o 888   888  888   888
 d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
-          <nav class="choices">
-            <button data-action="singleplayer">Singleplayer</button>
-            <button data-action="multiplayer">Multiplayer</button>
-            <button data-action="character">Character</button>
-            <button data-action="settings">Settings</button>
-          </nav>
+          <div class="plate compact">
+            <nav class="choices">
+              <button data-action="singleplayer">Singleplayer</button>
+              <button data-action="multiplayer">Multiplayer</button>
+              <button data-action="character">Character</button>
+              <button data-action="settings">Settings</button>
+            </nav>
+          </div>
         </div>
 
         <div class="overlay hidden" id="character">
@@ -58,17 +60,19 @@ d888b    `Y8bod8P' `Y8bod88P" `Y8bod8P'</pre>
         </div>
 
         <div class="overlay hidden" id="pause">
-          <h2>Paused</h2>
-          <nav class="choices">
-            <button data-action="resume">Resume</button>
-            <button data-action="settings">Settings</button>
-            <button data-action="exit">Exit</button>
-          </nav>
-          <p class="seed" id="seed">
-            <span id="seed-label">seed</span>
-            <button id="seed-text" title="Copy"></button>
-            <kbd class="seed-hint">C</kbd>
-          </p>
+          <div class="plate">
+            <h2>Paused</h2>
+            <nav class="choices">
+              <button data-action="resume">Resume</button>
+              <button data-action="settings">Settings</button>
+              <button data-action="exit">Exit</button>
+            </nav>
+            <p class="seed" id="seed">
+              <span id="seed-label">seed</span>
+              <button id="seed-text" title="Copy"></button>
+              <kbd class="seed-hint">C</kbd>
+            </p>
+          </div>
         </div>
 
         <div class="overlay hidden" id="worlds">
